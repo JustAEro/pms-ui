@@ -1,16 +1,15 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
 
 import { Box, Button, Flex, Image, Link, Text } from '@chakra-ui/react';
 
 import logo from '../shared/ui/assets/svg/logo.svg';
-import { ThemeToggleButton } from '@/shared';
+import { ThemeToggleButton, counter } from '@/shared';
+import { counterModel } from './model';
+import { FC } from 'react';
 
 const textFontSizes = [16, 18, 24, 30];
 
-const App = (): JSX.Element => {
-  const [count, setCount] = useState(0);
-
+const App: FC = () => {
   return (
     <Box>
       <Flex
@@ -34,14 +33,7 @@ const App = (): JSX.Element => {
         <Text fontSize={textFontSizes}>
           Hello Vite + React + Typescript + Chakra UI!
         </Text>
-        <Button
-          colorScheme="blue"
-          fontSize={textFontSizes}
-          onClick={() => setCount((c) => c + 1)}
-          marginTop="2"
-        >
-          count is: {count}
-        </Button>
+        <counter.ui model={counterModel} textFontSizes={textFontSizes} />
         <Text fontSize={textFontSizes}>
           Edit <code>App.tsx</code> and save to test HMR updates.
         </Text>
