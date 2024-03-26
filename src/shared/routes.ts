@@ -1,4 +1,9 @@
-import { createHistoryRouter, createRoute } from 'atomic-router';
+import {
+  createHistoryRouter,
+  createRoute,
+  RouteParams,
+  UnmappedRouteObject,
+} from 'atomic-router';
 import { createBrowserHistory, createMemoryHistory } from 'history';
 
 import { featureToggles } from './feature-toggles';
@@ -8,7 +13,7 @@ export const routes = {
   loginRoute: createRoute(),
 };
 
-const routeObjects = [
+const routeObjects: UnmappedRouteObject<RouteParams>[] = [
   { path: '/', route: routes.homeRoute },
   { path: '/login', route: routes.loginRoute },
 ];
