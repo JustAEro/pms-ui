@@ -2,7 +2,7 @@ import axios from 'axios';
 
 import { API_URL } from '../../config';
 
-import * as types from './types';
+import { AnyObject, HttpRequestOptions } from './types';
 
 export const instance = axios.create({
   baseURL: API_URL,
@@ -12,8 +12,8 @@ export const instance = axios.create({
 });
 
 export const request = <T>(
-  options: types.HttpRequestOptions,
-  params?: types.AnyObject
+  options: HttpRequestOptions,
+  params?: AnyObject
 ): Promise<T> =>
   instance
     .request({
