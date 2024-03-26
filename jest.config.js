@@ -1,18 +1,19 @@
 module.exports = {
+  rootDir: ".",
   roots: ['<rootDir>/src'],
   transform: {
-    '^.+\\.tsx$': 'ts-jest',
     '^.+\\.ts$': 'ts-jest',
   },
-  testRegex: '(/__tests__/.*.(test|spec)).(jsx?|tsx?)$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  collectCoverage: true,
-  collectCoverageFrom: ['<rootDir>/src/**/*.{ts,tsx}'],
+  testRegex: '.(test|spec).(js?|ts?)$',
+  moduleFileExtensions: ['ts', 'js', 'json', 'node'],
+  collectCoverage: false,
+  collectCoverageFrom: ['<rootDir>/src/**/*.{ts,js}'],
   coverageDirectory: '<rootDir>/coverage/',
   coveragePathIgnorePatterns: ['(tests/.*.mock).(jsx?|tsx?)$', '(.*).d.ts$'],
   moduleNameMapper: {
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$':
       'identity-obj-proxy',
+    "@pms-ui/(.*)": "<rootDir>/src/$1"
   },
   verbose: true,
   testTimeout: 30000,

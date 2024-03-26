@@ -1,7 +1,9 @@
 import { modelView } from 'effector-factorio';
-import { counterFactory } from './model';
-import { Button, Flex } from '@chakra-ui/react';
 import { useUnit } from 'effector-react';
+
+import { Button, Flex } from '@chakra-ui/react';
+
+import { counterFactory } from './model';
 
 type CounterParams = {
   textFontSizes: number[];
@@ -20,7 +22,7 @@ export const Counter = modelView(
     );
 
     return (
-      <Flex direction={'row'} gap={2}>
+      <Flex direction="row" gap={2}>
         <Button
           colorScheme="blue"
           fontSize={textFontSizes}

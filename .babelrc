@@ -1,7 +1,8 @@
 {
+  "presets": ["patronum/babel-preset", "atomic-router/babel-preset"],
   "plugins": [
     [
-      "effector-logger/babel-plugin",
+      "effector/babel-plugin",
       {
         "inspector": true,
         "effector": {

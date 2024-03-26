@@ -1,71 +1,18 @@
-import { motion } from 'framer-motion';
-
-import { Box, Button, Flex, Image, Link, Text } from '@chakra-ui/react';
-
-import logo from '../shared/ui/assets/svg/logo.svg';
-import { ThemeToggleButton, counter } from '@/shared';
-import { counterModel } from './model';
+import { Route, RouterProvider } from 'atomic-router-react';
 import { FC } from 'react';
 
-const textFontSizes = [16, 18, 24, 30];
+import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
+import { HomePage } from '@pms-ui/pages/home';
+import { LoginPage } from '@pms-ui/pages/login';
+import { router, routes } from '@pms-ui/shared/routes';
+import { theme } from '@pms-ui/shared/ui';
 
-const App: FC = () => {
-  return (
-    <Box>
-      <Flex
-        as="header"
-        direction="column"
-        alignItems="center"
-        justifyContent="center"
-        h="100vh"
-        fontSize="3xl"
-      >
-        <motion.div
-          animate={{ rotateZ: 360 }}
-          transition={{
-            repeat: Infinity,
-            duration: 20,
-            ease: 'linear',
-          }}
-        >
-          <Image src={logo} alt="" h="40vmin" />
-        </motion.div>
-        <Text fontSize={textFontSizes}>
-          Hello Vite + React + Typescript + Chakra UI!
-        </Text>
-        <counter.ui model={counterModel} textFontSizes={textFontSizes} />
-        <Text fontSize={textFontSizes}>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </Text>
-        <Text fontSize={textFontSizes}>
-          <Link href="https://reactjs.org" isExternal color="#61dafb">
-            Learn React
-          </Link>
-          {' | '}
-          <Link
-            href="https://vitejs.dev/guide/features.html"
-            isExternal
-            color="#61dafb"
-          >
-            Vite Docs
-          </Link>
-          {' | '}
-          <Link
-            href="https://www.typescriptlang.org/"
-            isExternal
-            color="#61dafb"
-          >
-            Typescript
-          </Link>
-          {' | '}
-          <Link href="https://chakra-ui.com" isExternal color="#61dafb">
-            Chakra UI
-          </Link>
-        </Text>
-      </Flex>
-      <ThemeToggleButton pos="fixed" bottom="2" right="2" />
-    </Box>
-  );
-};
-
-export default App;
+export const App: FC = () => (
+  <ChakraProvider theme={theme}>
+    <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+    <RouterProvider router={router}>
+      <Route route={routes.homeRoute} view={HomePage} />
+      <Route route={routes.loginRoute} view={LoginPage} />
+    </RouterProvider>
+  </ChakraProvider>
+);

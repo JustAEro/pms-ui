@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-import { API_URL } from '@/shared/config/constants';
+import { API_URL } from '../../config';
 
 import * as types from './types';
 

@@ -1,15 +1,19 @@
-import legacy from '@vitejs/plugin-legacy'
-import react from '@vitejs/plugin-react'
 import { fileURLToPath } from 'url'
+
 import { defineConfig } from 'vite'
+
+// eslint-disable-next-line import/no-extraneous-dependencies
+import legacy from '@vitejs/plugin-legacy'
+// eslint-disable-next-line import/no-extraneous-dependencies
+import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [legacy(), react()],
+  plugins: [legacy(), react({babel: {babelrc: true}})],
   resolve: {
     alias: {
       // for TypeScript path alias import like : @/x/y/z
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      '@pms-ui': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   server: {

@@ -1,7 +1,7 @@
-import { transientOptions } from '@/shared/lib';
 import { MoonIcon, SunIcon } from '@chakra-ui/icons';
 import { IconButton, IconButtonProps, useColorMode } from '@chakra-ui/react';
 import styled from '@emotion/styled';
+import { transientOptions } from '@pms-ui/shared/lib';
 
 type ThemeToggleButtonProps = Omit<IconButtonProps, 'aria-label'>;
 

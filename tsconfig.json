@@ -19,9 +19,9 @@
     "types": ["vite/client", "node", "jest", "@testing-library/jest-dom"],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@pms-ui/*": ["src/*"]
     }
   },
   "outDir": "./dist",
-  "include": ["./src", "vite.config.*", "jest.setup.ts", "./src/**/*", "./src/**/*.tsx"]
+  "include": ["./src", "vite.config.*", "./src/**/*", "./src/**/*.tsx"]
 }
