@@ -15,7 +15,7 @@
     "build-storybook": "storybook build -s public",
     "pretest": "pnpm lint:fix",
     "test": "jest --colors --passWithNoTests",
-    "posttest": "npx http-server coverage/lcov-report",
+    "posttest": "echo To run server with report, type and run 'npx http-server coverage/lcov-report'",
     "test:watch": "pnpm test --collectCoverage=false --watch",
     "prepare": "husky install",
     "cz": "cz"
