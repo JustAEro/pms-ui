@@ -17,6 +17,23 @@ describe('shared/ui/counter', () => {
     expect(scope.getState(model.ui.$count)).toEqual(1);
   });
 
+  it('count increments correctly after passing initial value', async () => {
+    const model = counterFactory.createModel({ initialCount: 5 });
+
+    await allSettled(model.ui.counterIncrementButtonClicked, { scope });
+
+    expect(scope.getState(model.ui.$count)).toEqual(6);
+  });
+
+  it('count resets correctly after passing initial value', async () => {
+    const model = counterFactory.createModel({ initialCount: 5 });
+    await allSettled(model.ui.counterIncrementButtonClicked, { scope });
+
+    await allSettled(model.inputs.reset, { scope });
+
+    expect(scope.getState(model.ui.$count)).toEqual(5);
+  });
+
   it('count reinits to 0 after counterResetButtonClicked', async () => {
     const model = counterFactory.createModel();
     await allSettled(model.ui.counterIncrementButtonClicked, { scope });
