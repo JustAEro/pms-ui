@@ -40,9 +40,9 @@ export const LoginPage: FC = () => (
       <Text fontSize={textFontSizes}>Login Page!</Text>
       <counter.ui model={counterModel} textFontSizes={textFontSizes} />
       <Text fontSize={textFontSizes}>
-        <LinkComponent color="#61dafb">
-          <Link to={routes.homeRoute}>Home</Link>
-        </LinkComponent>
+        <Link to={routes.homeRoute}>
+          <LinkComponent color="#61dafb">Home</LinkComponent>
+        </Link>
       </Text>
     </Flex>
     <ThemeToggleButton pos="fixed" bottom="2" right="2" />
