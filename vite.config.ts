@@ -9,7 +9,10 @@ import react from '@vitejs/plugin-react'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [legacy(), react({babel: {babelrc: true}})],
+  plugins: [
+    legacy({targets: ['defaults', 'not IE 11']}), 
+    react({babel: {babelrc: true}})
+  ],
   resolve: {
     alias: {
       // for TypeScript path alias import like : @/x/y/z

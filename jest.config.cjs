@@ -1,5 +1,5 @@
 module.exports = {
-  rootDir: ".",
+  rootDir: '.',
   roots: ['<rootDir>/src'],
   transform: {
     '^.+\\.ts$': 'ts-jest',
@@ -13,7 +13,7 @@ module.exports = {
   moduleNameMapper: {
     '.+\\.(css|styl|less|sass|scss|png|jpg|ttf|woff|woff2|svg)$':
       'identity-obj-proxy',
-    "@pms-ui/(.*)": "<rootDir>/src/$1"
+    '@pms-ui/(.*)': '<rootDir>/src/$1',
   },
   verbose: true,
   testTimeout: 30000,
