@@ -1,50 +1,34 @@
-import { Link } from 'atomic-router-react';
-import { motion } from 'framer-motion';
 import { FC } from 'react';
 
-import {
-  Box,
-  Flex,
-  Image,
-  Link as LinkComponent,
-  Text,
-} from '@chakra-ui/react';
-import { routes } from '@pms-ui/shared/routes';
-import { counter, ThemeToggleButton } from '@pms-ui/shared/ui';
-import logo from '@pms-ui/shared/ui/assets/svg/logo.svg';
+import { Box, Button, Flex, Text } from '@chakra-ui/react';
+import { header as pageHeader } from '@pms-ui/widgets/header';
 
-import { counterModel } from './model';
+import { headerModel } from './model';
 
-const textFontSizes = [16, 18, 24, 30];
+const textFontSizes = [16, 21, 30];
 
 export const HomePage: FC = () => (
   <Box>
+    <pageHeader.ui model={headerModel} />
     <Flex
-      as="header"
       direction="column"
       alignItems="center"
       justifyContent="center"
-      h="100vh"
       fontSize="3xl"
     >
-      <motion.div
-        animate={{ rotateZ: 360 }}
-        transition={{
-          repeat: Infinity,
-          duration: 20,
-          ease: 'linear',
-        }}
-      >
-        <Image src={logo} alt="" h="40vmin" />
-      </motion.div>
-      <Text fontSize={textFontSizes}>Home Page!</Text>
-      <counter.ui model={counterModel} textFontSizes={textFontSizes} />
-      <Text fontSize={textFontSizes}>
-        <LinkComponent color="#61dafb">
-          <Link to={routes.loginRoute}>Login</Link>
-        </LinkComponent>
+      <Text marginTop="50px" fontWeight="bold" fontSize={textFontSizes}>
+        Добро пожаловать в систему управления проектами
       </Text>
+      <Button
+        marginTop="50px"
+        colorScheme="teal"
+        bgColor="#319795"
+        width="50%"
+        height="50px"
+        variant="solid"
+      >
+        Вход
+      </Button>
     </Flex>
-    <ThemeToggleButton pos="fixed" bottom="2" right="2" />
   </Box>
 );
