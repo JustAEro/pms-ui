@@ -2,7 +2,20 @@ import { Link } from 'atomic-router-react';
 import { modelView } from 'effector-factorio';
 import { useUnit } from 'effector-react';
 
-import { Box, Image, Link as LinkComponent, Text } from '@chakra-ui/react';
+import {
+  Avatar,
+  Box,
+  Image,
+  Link as LinkComponent,
+  Menu,
+  MenuButton,
+  MenuDivider,
+  MenuItem,
+  MenuList,
+  Spacer,
+  Stack,
+  Text,
+} from '@chakra-ui/react';
 import { UserType } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import logo from '@pms-ui/shared/ui/assets/svg/pms-logo.svg';
@@ -25,6 +38,19 @@ export const Header = modelView(headerFactory, () => {
         />
       </Link>
       {linksForUserType(userType)}
+      <Spacer />
+      {userType && (
+        <Menu>
+          <MenuButton>
+            <Avatar marginRight="50px" size="sm" />
+          </MenuButton>
+          <MenuList marginRight="50px">
+            <MenuItem>Профиль</MenuItem>
+            <MenuDivider />
+            <MenuItem>Выйти</MenuItem>
+          </MenuList>
+        </Menu>
+      )}
     </Box>
   );
 });
@@ -33,26 +59,28 @@ const linksForUserType = (userType: UserType) => {
   switch (userType) {
     case 'admin':
       return (
-        <>
-          <Text>
-            <LinkComponent color="#61dafb">
-              <Link to={routes.loginRoute}>Пользователи системы</Link>
-            </LinkComponent>
-          </Text>
-          <Text>
-            <LinkComponent color="#61dafb">
-              <Link to={routes.loginRoute}>Администраторы системы</Link>
-            </LinkComponent>
-          </Text>
-        </>
+        <Stack marginLeft="70px" direction="row" spacing="70px">
+          <LinkComponent color="#61dafb">
+            <Link to={routes.loginRoute}>
+              <Text color="#ffffff">Пользователи системы</Text>
+            </Link>
+          </LinkComponent>
+          <LinkComponent color="#61dafb">
+            <Link to={routes.loginRoute}>
+              <Text color="#ffffff">Администраторы системы</Text>
+            </Link>
+          </LinkComponent>
+        </Stack>
       );
     case 'user':
       return (
-        <Text>
+        <Stack marginLeft="70px" direction="row">
           <LinkComponent color="#61dafb">
-            <Link to={routes.loginRoute}>Проекты</Link>
+            <Link to={routes.loginRoute}>
+              <Text color="#ffffff">Проекты</Text>
+            </Link>
           </LinkComponent>
-        </Text>
+        </Stack>
       );
     default:
       return null;

@@ -20,7 +20,7 @@ const $isLoginButtonEnabled = combine(
   (login, password) => login.length > 0 && password.length > 0
 );
 export const $isLoginButtonDisabled = not($isLoginButtonEnabled);
-const $userType = createStore<UserType>(null);
+const $userType = createStore<UserType>('admin');
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
