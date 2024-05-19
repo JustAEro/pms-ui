@@ -3,7 +3,7 @@ import { FC } from 'react';
 
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { HomePage } from '@pms-ui/pages/home';
-import { LoginPage } from '@pms-ui/pages/login';
+import { UsersAdminPanelPage } from '@pms-ui/pages/users-admin-panel';
 import { router, routes } from '@pms-ui/shared/routes';
 import { theme } from '@pms-ui/shared/ui';
 
@@ -12,7 +12,7 @@ export const App: FC = () => (
     <ColorModeScript initialColorMode={theme.config.initialColorMode} />
     <RouterProvider router={router}>
       <Route route={routes.homeRoute} view={HomePage} />
-      <Route route={routes.loginRoute} view={LoginPage} />
+      <Route route={routes.usersAdminPanelRoute} view={UsersAdminPanelPage} />
     </RouterProvider>
   </ChakraProvider>
 );
