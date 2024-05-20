@@ -73,7 +73,11 @@ export const HomePage: FC = () => {
           <ModalContent>
             <ModalCloseButton />
             <ModalHeader>
-              <Flex alignItems="center" justifyContent="center">
+              <Flex
+                marginTop="10px"
+                alignItems="center"
+                justifyContent="center"
+              >
                 <Text fontWeight="bold" fontSize={textFontSizes}>
                   Вход в аккаунт
                 </Text>

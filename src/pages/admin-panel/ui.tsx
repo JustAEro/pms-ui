@@ -18,43 +18,55 @@ import {
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
+import { AdminsTable } from './admins-table';
 import {
-  $addUserModalIsOpened,
+  $addAdminModalIsOpened,
+  $adminLoginToBeDeleted,
+  $deleteAdminModalIsOpened,
   $firstName,
-  $isAddUserButtonDisabled,
+  $isAddAdminButtonDisabled,
   $lastName,
   $login,
   $password,
-  addUserButtonClicked,
-  closeModal,
+  addAdminButtonClicked,
+  closeAddAdminModal,
+  closeDeleteAdminModal,
+  deleteAdminButtonClicked,
   firstNameEdited,
   headerModel,
   lastNameEdited,
   loginEdited,
-  openModal,
+  openAddAdminModal,
+  openDeleteAdminModal,
   passwordEdited,
 } from './model';
-import { UsersTable } from './users-table';
 
 const textFontSizes = [16, 21, 30];
 
-export const UsersAdminPanelPage: FC = () => {
-  const addUserModalIsOpened = useUnit($addUserModalIsOpened);
-  const onOpenModal = useUnit(openModal);
-  const onCloseModal = useUnit(closeModal);
+export const AdminsPanelPage: FC = () => {
+  const addAdminModalIsOpened = useUnit($addAdminModalIsOpened);
+  const onOpenAddAdminModal = useUnit(openAddAdminModal);
+  const onCloseAddAdminModal = useUnit(closeAddAdminModal);
 
   const login = useUnit($login);
   const password = useUnit($password);
   const firstName = useUnit($firstName);
   const lastName = useUnit($lastName);
 
-  const isAddUserButtonDisabled = useUnit($isAddUserButtonDisabled);
+  const isAddAdminButtonDisabled = useUnit($isAddAdminButtonDisabled);
   const onChangeLogin = useUnit(loginEdited);
   const onChangePassword = useUnit(passwordEdited);
   const onChangeFirstName = useUnit(firstNameEdited);
   const onChangeLastName = useUnit(lastNameEdited);
 
-  const onAddUserButtonClick = useUnit(addUserButtonClicked);
+  const onAddAdminButtonClick = useUnit(addAdminButtonClicked);
+
+  const deleteAdminModalIsOpened = useUnit($deleteAdminModalIsOpened);
+  const adminLoginToBeDeleted = useUnit($adminLoginToBeDeleted);
+  const onOpenDeleteAdminModal = useUnit(openDeleteAdminModal);
+  const onCloseDeleteAdminModal = useUnit(closeDeleteAdminModal);
+
+  const onDeleteAdminButtonClick = useUnit(deleteAdminButtonClicked);
 
   return (
     <Box>
@@ -66,7 +78,7 @@ export const UsersAdminPanelPage: FC = () => {
         fontSize="3xl"
       >
         <Text marginTop="30px" fontWeight="bold" fontSize={textFontSizes}>
-          Управление правами пользователей системы
+          Управление администраторами системы
         </Text>
         <TableContainer
           border="1px solid"
@@ -74,19 +86,23 @@ export const UsersAdminPanelPage: FC = () => {
           borderRadius="6px"
           marginTop="30px"
         >
-          <UsersTable />
+          <AdminsTable onDeleteAdminClick={onOpenDeleteAdminModal} />
         </TableContainer>
         <Button
-          onClick={onOpenModal}
+          onClick={onOpenAddAdminModal}
           marginTop="20px"
           border="1px solid"
           borderColor="#3182CE"
           color="#3182CE"
           bgColor="#FFFFFF"
         >
-          + Добавить пользователя в систему
+          + Добавить администратора в систему
         </Button>
-        <Modal size="xl" isOpen={addUserModalIsOpened} onClose={onCloseModal}>
+        <Modal
+          size="xl"
+          isOpen={addAdminModalIsOpened}
+          onClose={onCloseAddAdminModal}
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalCloseButton />
@@ -97,7 +113,7 @@ export const UsersAdminPanelPage: FC = () => {
                 justifyContent="center"
               >
                 <Text fontWeight="bold" fontSize={textFontSizes}>
-                  Добавление пользователя
+                  Добавление администратора
                 </Text>
               </Flex>
             </ModalHeader>
@@ -146,13 +162,66 @@ export const UsersAdminPanelPage: FC = () => {
               <Spacer height="50px" />
               <Flex alignItems="center" justifyContent="center">
                 <Button
-                  onClick={onAddUserButtonClick}
-                  disabled={isAddUserButtonDisabled}
+                  onClick={onAddAdminButtonClick}
+                  disabled={isAddAdminButtonDisabled}
                   width="80%"
                   variant="solid"
                   colorScheme="teal"
                 >
                   Добавить
+                </Button>
+              </Flex>
+              <Spacer height="20px" />
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+        <Modal
+          size="xl"
+          isOpen={deleteAdminModalIsOpened}
+          onClose={onCloseDeleteAdminModal}
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalCloseButton />
+            <ModalHeader>
+              <Flex
+                marginTop="10px"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontWeight="bold" fontSize={textFontSizes}>
+                  Удаление администратора
+                </Text>
+              </Flex>
+            </ModalHeader>
+            <ModalBody>
+              <Spacer height="20px" />
+              <Flex alignItems="center" justifyContent="center">
+                <Text width="80%" textAlign="justify">
+                  {`Вы действительно хотите удалить администратора
+                     ${adminLoginToBeDeleted}? Данное действие необратимо`}
+                </Text>
+              </Flex>
+              <Spacer height="50px" />
+              <Flex alignItems="center" justifyContent="center">
+                <Button
+                  onClick={onCloseDeleteAdminModal}
+                  width="80%"
+                  variant="solid"
+                  colorScheme="blue"
+                >
+                  Отмена
+                </Button>
+              </Flex>
+              <Spacer height="25px" />
+              <Flex alignItems="center" justifyContent="center">
+                <Button
+                  onClick={onDeleteAdminButtonClick}
+                  width="80%"
+                  variant="solid"
+                  colorScheme="red"
+                >
+                  Удалить
                 </Button>
               </Flex>
               <Spacer height="20px" />

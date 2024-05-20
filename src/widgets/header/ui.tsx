@@ -25,17 +25,12 @@ import { headerFactory } from './model';
 export const Header = modelView(headerFactory, () => {
   const model = headerFactory.useModel();
   const userType = useUnit(model.ui.$userType);
+  const onLogoutButtonClick = useUnit(model.ui.logoutButtonClicked);
+
   return (
     <Box display="flex" alignItems="center" height="70px" bgColor="#2B6CB0">
       <Link to={routes.homeRoute}>
-        <Image
-          paddingLeft="40px"
-          marginLeft="10px"
-          src={logo}
-          w="100px"
-          h="40px"
-          alt=""
-        />
+        <Image marginLeft="50px" src={logo} w="60px" h="30px" alt="" />
       </Link>
       {linksForUserType(userType)}
       <Spacer />
@@ -47,7 +42,7 @@ export const Header = modelView(headerFactory, () => {
           <MenuList marginRight="50px">
             <MenuItem>Профиль</MenuItem>
             <MenuDivider />
-            <MenuItem>Выйти</MenuItem>
+            <MenuItem onClick={onLogoutButtonClick}>Выйти</MenuItem>
           </MenuList>
         </Menu>
       )}
@@ -66,7 +61,7 @@ const linksForUserType = (userType: UserType) => {
             </Link>
           </LinkComponent>
           <LinkComponent color="#61dafb">
-            <Link to={routes.usersAdminPanelRoute}>
+            <Link to={routes.adminsPanelRoute}>
               <Text color="#ffffff">Администраторы системы</Text>
             </Link>
           </LinkComponent>

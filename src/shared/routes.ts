@@ -11,11 +11,13 @@ import { featureToggles } from './feature-toggles';
 export const routes = {
   homeRoute: createRoute(),
   usersAdminPanelRoute: createRoute(),
+  adminsPanelRoute: createRoute(),
 };
 
 const routeObjects: UnmappedRouteObject<RouteParams>[] = [
   { path: '/', route: routes.homeRoute },
   { path: '/users-admin-panel', route: routes.usersAdminPanelRoute },
+  { path: '/admin-panel', route: routes.adminsPanelRoute },
 ];
 
 export const router = createHistoryRouter({ routes: routeObjects });
