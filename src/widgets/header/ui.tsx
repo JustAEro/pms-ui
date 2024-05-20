@@ -40,7 +40,9 @@ export const Header = modelView(headerFactory, () => {
             <Avatar marginRight="50px" size="sm" />
           </MenuButton>
           <MenuList marginRight="50px">
-            <MenuItem>Профиль</MenuItem>
+            <Link to={routes.profileRoute}>
+              <MenuItem>Профиль</MenuItem>
+            </Link>
             <MenuDivider />
             <MenuItem onClick={onLogoutButtonClick}>Выйти</MenuItem>
           </MenuList>

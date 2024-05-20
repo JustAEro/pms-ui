@@ -12,12 +12,14 @@ export const routes = {
   homeRoute: createRoute(),
   usersAdminPanelRoute: createRoute(),
   adminsPanelRoute: createRoute(),
+  profileRoute: createRoute(),
 };
 
 const routeObjects: UnmappedRouteObject<RouteParams>[] = [
   { path: '/', route: routes.homeRoute },
   { path: '/users-admin-panel', route: routes.usersAdminPanelRoute },
   { path: '/admin-panel', route: routes.adminsPanelRoute },
+  { path: '/profile', route: routes.profileRoute },
 ];
 
 export const router = createHistoryRouter({ routes: routeObjects });
