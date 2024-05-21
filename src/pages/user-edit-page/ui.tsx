@@ -5,6 +5,7 @@ import { CloseIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
   Image,
   Input,
@@ -187,6 +188,16 @@ export const UserEditPage: FC = () => {
                           />
                         </Tooltip>
                       </Flex>
+
+                      <Flex direction="row" alignItems="center" gap={5}>
+                        <Text fontSize="18px">Администратор проекта</Text>
+                        <Checkbox
+                          borderColor="#000000"
+                          bgColor="#FFFFFF"
+                          colorScheme="blue"
+                        />
+                      </Flex>
+
                       <Text fontSize="18px">{project.description}</Text>
                     </Flex>
                   </Box>
