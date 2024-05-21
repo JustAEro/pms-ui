@@ -1,9 +1,4 @@
-import {
-  createHistoryRouter,
-  createRoute,
-  RouteParams,
-  UnmappedRouteObject,
-} from 'atomic-router';
+import { createHistoryRouter, createRoute } from 'atomic-router';
 import { createBrowserHistory, createMemoryHistory } from 'history';
 
 import { featureToggles } from './feature-toggles';
@@ -13,13 +8,15 @@ export const routes = {
   usersAdminPanelRoute: createRoute(),
   adminsPanelRoute: createRoute(),
   profileRoute: createRoute(),
+  userEditRoute: createRoute<{ userId: string }>(),
 };
 
-const routeObjects: UnmappedRouteObject<RouteParams>[] = [
+const routeObjects = [
   { path: '/', route: routes.homeRoute },
   { path: '/users-admin-panel', route: routes.usersAdminPanelRoute },
   { path: '/admin-panel', route: routes.adminsPanelRoute },
   { path: '/profile', route: routes.profileRoute },
+  { path: '/users-admin-panel/user/:userId/edit', route: routes.userEditRoute },
 ];
 
 export const router = createHistoryRouter({ routes: routeObjects });

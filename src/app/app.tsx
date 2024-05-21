@@ -7,6 +7,7 @@ import { $userType, UserType } from '@pms-ui/entities/user';
 import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { HomePage } from '@pms-ui/pages/home';
 import { ProfilePage } from '@pms-ui/pages/profile';
+import { UserEditPage } from '@pms-ui/pages/user-edit-page';
 import { UsersAdminPanelPage } from '@pms-ui/pages/users-admin-panel';
 import { router, routes } from '@pms-ui/shared/routes';
 import { theme } from '@pms-ui/shared/ui';
@@ -22,6 +23,7 @@ export const App: FC = () => {
         <Route route={routes.usersAdminPanelRoute} view={UsersAdminPanelPage} />
         <Route route={routes.adminsPanelRoute} view={AdminsPanelPage} />
         <Route route={routes.profileRoute} view={ProfilePage} />
+        <Route route={routes.userEditRoute} view={UserEditPage} />
       </RouterProvider>
     </ChakraProvider>
   );

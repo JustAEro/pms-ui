@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 
 import {
   Box,
@@ -13,7 +13,6 @@ import {
   ModalHeader,
   ModalOverlay,
   Spacer,
-  TableContainer,
   Text,
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -22,6 +21,7 @@ import {
   $addUserModalIsOpened,
   $firstName,
   $isAddUserButtonDisabled,
+  $isUsersListLoading,
   $lastName,
   $login,
   $password,
@@ -32,6 +32,7 @@ import {
   lastNameEdited,
   loginEdited,
   openModal,
+  pageMounted,
   passwordEdited,
 } from './model';
 import { UsersTable } from './users-table';
@@ -42,6 +43,7 @@ export const UsersAdminPanelPage: FC = () => {
   const addUserModalIsOpened = useUnit($addUserModalIsOpened);
   const onOpenModal = useUnit(openModal);
   const onCloseModal = useUnit(closeModal);
+  const onPageMount = useUnit(pageMounted);
 
   const login = useUnit($login);
   const password = useUnit($password);
@@ -56,6 +58,12 @@ export const UsersAdminPanelPage: FC = () => {
 
   const onAddUserButtonClick = useUnit(addUserButtonClicked);
 
+  const isUsersListLoading = useUnit($isUsersListLoading);
+
+  useEffect(() => {
+    onPageMount();
+  }, [onPageMount]);
+
   return (
     <Box>
       <pageHeader.ui model={headerModel} />
@@ -68,24 +76,19 @@ export const UsersAdminPanelPage: FC = () => {
         <Text marginTop="30px" fontWeight="bold" fontSize={textFontSizes}>
           Управление правами пользователей системы
         </Text>
-        <TableContainer
-          border="1px solid"
-          borderColor="#E2E8F0"
-          borderRadius="6px"
-          marginTop="30px"
-        >
-          <UsersTable />
-        </TableContainer>
-        <Button
-          onClick={onOpenModal}
-          marginTop="20px"
-          border="1px solid"
-          borderColor="#3182CE"
-          color="#3182CE"
-          bgColor="#FFFFFF"
-        >
-          + Добавить пользователя в систему
-        </Button>
+        <UsersTable />
+        {!isUsersListLoading && (
+          <Button
+            onClick={onOpenModal}
+            marginTop="20px"
+            border="1px solid"
+            borderColor="#3182CE"
+            color="#3182CE"
+            bgColor="#FFFFFF"
+          >
+            + Добавить пользователя в систему
+          </Button>
+        )}
         <Modal size="xl" isOpen={addUserModalIsOpened} onClose={onCloseModal}>
           <ModalOverlay />
           <ModalContent>
