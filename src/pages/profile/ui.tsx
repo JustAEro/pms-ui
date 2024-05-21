@@ -90,7 +90,12 @@ export const ProfilePage: FC = () => {
             >
               Список проектов, в которых Вы состоите
             </Text>
-            <VStack marginTop="20px" marginLeft="50px" spacing="15px">
+            <VStack
+              paddingBottom="10px"
+              marginTop="20px"
+              marginLeft="50px"
+              spacing="15px"
+            >
               {projectsOfUser.map((project) => (
                 <Box
                   width="50vw"

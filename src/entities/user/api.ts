@@ -56,20 +56,16 @@ export const fetchUsersFx = createEffect(
 );
 
 export const fetchUserFx = createEffect(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async (id: string) =>
     new Promise<User>((resolve) => {
-      setTimeout(
-        () =>
-          resolve({
-            id,
-            login: `login_${id}`,
-            firstName: `firstName_${id}`,
-            lastName: `lastName_${id}`,
-            projects: [],
-            canCreateProjects: false,
-          }),
-        1000
-      );
+      setTimeout(() => {
+        const foundUser = usersList.find((user) => user.id === id);
+
+        if (foundUser) {
+          resolve(foundUser);
+        } else {
+          throw new Error(`User with id ${id} is not found`);
+        }
+      }, 1000);
     })
 );
