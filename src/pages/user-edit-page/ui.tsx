@@ -9,7 +9,14 @@ import {
   Flex,
   Image,
   Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   SimpleGrid,
+  Spacer,
   Spinner,
   Text,
   Tooltip,
@@ -20,9 +27,18 @@ import trashIcon from '@pms-ui/shared/ui/assets/svg/trash-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
+  $deleteUserFromProjectModalIsOpened,
+  $deleteUserModalIsOpened,
   $isUserToEditLoading,
+  $projectToBeDeletedFrom,
   $userToEdit,
+  closeDeleteUserFromProjectModal,
+  closeDeleteUserModal,
+  deleteUserButtonClicked,
+  deleteUserFromProjectButtonClicked,
   headerModel,
+  openDeleteUserFromProjectModal,
+  openDeleteUserModal,
   pageMounted,
 } from './model';
 
@@ -51,6 +67,25 @@ const textFontSizes = [16, 21, 30];
 export const UserEditPage: FC = () => {
   const userToEdit = useUnit($userToEdit);
   const isUserToEditLoading = useUnit($isUserToEditLoading);
+
+  const deleteUserModalIsOpened = useUnit($deleteUserModalIsOpened);
+  const onOpenDeleteUserModal = useUnit(openDeleteUserModal);
+  const onCloseDeleteUserModal = useUnit(closeDeleteUserModal);
+  const onDeleteUserButtonClick = useUnit(deleteUserButtonClicked);
+
+  const deleteUserFromProjectModalIsOpened = useUnit(
+    $deleteUserFromProjectModalIsOpened
+  );
+  const onOpenDeleteUserFromProjectModal = useUnit(
+    openDeleteUserFromProjectModal
+  );
+  const onCloseDeleteUserFromProjectModal = useUnit(
+    closeDeleteUserFromProjectModal
+  );
+  const onDeleteUserFromProjectButtonClick = useUnit(
+    deleteUserFromProjectButtonClicked
+  );
+  const projectToBeDeletedFrom = useUnit($projectToBeDeletedFrom);
 
   const onPageMount = useUnit(pageMounted);
 
@@ -87,7 +122,12 @@ export const UserEditPage: FC = () => {
                   color="#000000"
                   label="Удаление пользователя"
                 >
-                  <CloseIcon width="14px" height="14px" cursor="pointer" />
+                  <CloseIcon
+                    onClick={onOpenDeleteUserModal}
+                    width="14px"
+                    height="14px"
+                    cursor="pointer"
+                  />
                 </Tooltip>
               </div>
             </Flex>
@@ -180,6 +220,9 @@ export const UserEditPage: FC = () => {
                           label="Удаление пользователя из проекта"
                         >
                           <Image
+                            onClick={() => {
+                              onOpenDeleteUserFromProjectModal(project.id);
+                            }}
                             cursor="pointer"
                             src={trashIcon}
                             alt=""
@@ -204,6 +247,114 @@ export const UserEditPage: FC = () => {
                 ))}
               </VStack>
             </Flex>
+
+            <Modal
+              size="xl"
+              isOpen={deleteUserModalIsOpened}
+              onClose={onCloseDeleteUserModal}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalCloseButton />
+                <ModalHeader>
+                  <Flex
+                    marginTop="10px"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text fontWeight="bold" fontSize={textFontSizes}>
+                      Удаление пользователя
+                    </Text>
+                  </Flex>
+                </ModalHeader>
+                <ModalBody>
+                  <Spacer height="20px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Text width="80%" textAlign="justify">
+                      {`Вы действительно хотите удалить пользователя
+                     ${userToEdit.login}? Данное действие необратимо`}
+                    </Text>
+                  </Flex>
+                  <Spacer height="50px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Button
+                      onClick={onCloseDeleteUserModal}
+                      width="80%"
+                      variant="solid"
+                      colorScheme="blue"
+                    >
+                      Отмена
+                    </Button>
+                  </Flex>
+                  <Spacer height="25px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Button
+                      onClick={onDeleteUserButtonClick}
+                      width="80%"
+                      variant="solid"
+                      colorScheme="red"
+                    >
+                      Удалить
+                    </Button>
+                  </Flex>
+                  <Spacer height="20px" />
+                </ModalBody>
+              </ModalContent>
+            </Modal>
+
+            <Modal
+              size="xl"
+              isOpen={deleteUserFromProjectModalIsOpened}
+              onClose={onCloseDeleteUserFromProjectModal}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalCloseButton />
+                <ModalHeader>
+                  <Flex
+                    marginTop="10px"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text fontWeight="bold" fontSize={textFontSizes}>
+                      Удаление пользователя из проекта
+                    </Text>
+                  </Flex>
+                </ModalHeader>
+                <ModalBody>
+                  <Spacer height="20px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Text width="80%" textAlign="justify">
+                      {`Вы действительно хотите удалить пользователя
+                     ${userToEdit.login} из проекта ${projectToBeDeletedFrom}?`}
+                    </Text>
+                  </Flex>
+                  <Spacer height="50px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Button
+                      onClick={onCloseDeleteUserFromProjectModal}
+                      width="80%"
+                      variant="solid"
+                      colorScheme="blue"
+                    >
+                      Отмена
+                    </Button>
+                  </Flex>
+                  <Spacer height="25px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Button
+                      onClick={onDeleteUserFromProjectButtonClick}
+                      width="80%"
+                      variant="solid"
+                      colorScheme="red"
+                    >
+                      Удалить
+                    </Button>
+                  </Flex>
+                  <Spacer height="20px" />
+                </ModalBody>
+              </ModalContent>
+            </Modal>
           </>
         )}
       </Flex>

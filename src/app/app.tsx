@@ -7,6 +7,7 @@ import { $userType, UserType } from '@pms-ui/entities/user';
 import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { HomePage } from '@pms-ui/pages/home';
 import { ProfilePage } from '@pms-ui/pages/profile';
+import { ProjectsPage } from '@pms-ui/pages/projects-page';
 import { UserEditPage } from '@pms-ui/pages/user-edit-page';
 import { UsersAdminPanelPage } from '@pms-ui/pages/users-admin-panel';
 import { router, routes } from '@pms-ui/shared/routes';
@@ -24,6 +25,7 @@ export const App: FC = () => {
         <Route route={routes.adminsPanelRoute} view={AdminsPanelPage} />
         <Route route={routes.profileRoute} view={ProfilePage} />
         <Route route={routes.userEditRoute} view={UserEditPage} />
+        <Route route={routes.projectsRoute} view={ProjectsPage} />
       </RouterProvider>
     </ChakraProvider>
   );
@@ -34,7 +36,7 @@ const homePageView = (userType: UserType) => {
     case 'admin':
       return UsersAdminPanelPage;
     case 'user':
-      return HomePage; // TODO: add common user home page
+      return ProjectsPage;
     default:
       return HomePage;
   }

@@ -73,7 +73,7 @@ const linksForUserType = (userType: UserType) => {
       return (
         <Stack marginLeft="70px" direction="row">
           <LinkComponent color="#61dafb">
-            <Link to={routes.usersAdminPanelRoute}>
+            <Link to={routes.projectsRoute}>
               <Text color="#ffffff">Проекты</Text>
             </Link>
           </LinkComponent>
