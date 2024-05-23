@@ -10,6 +10,8 @@ export const routes = {
   profileRoute: createRoute(),
   userEditRoute: createRoute<{ userId: string }>(),
   projectsRoute: createRoute(),
+  archivedProjectsRoute: createRoute(),
+  projectRoute: createRoute<{ projectId: string }>(),
 };
 
 const routeObjects = [
@@ -19,6 +21,8 @@ const routeObjects = [
   { path: '/profile', route: routes.profileRoute },
   { path: '/users-admin-panel/user/:userId/edit', route: routes.userEditRoute },
   { path: '/projects', route: routes.projectsRoute },
+  { path: '/projects/archive', route: routes.archivedProjectsRoute },
+  { path: '/project/:projectId', route: routes.projectRoute },
 ];
 
 export const router = createHistoryRouter({ routes: routeObjects });

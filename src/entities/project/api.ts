@@ -68,3 +68,27 @@ export const fetchProjectsFx = createEffect(
       }, 1000);
     })
 );
+
+export const fetchProjectFx = createEffect(
+  async (id: string) =>
+    new Promise<Project>((resolve) => {
+      setTimeout(() => {
+        const foundUser = projects.find((project) => project.id === id);
+
+        if (foundUser) {
+          resolve(foundUser);
+        } else {
+          throw new Error(`Project with id ${id} is not found`);
+        }
+      }, 1000);
+    })
+);
+
+export const fetchArchivedProjectsFx = createEffect(
+  async () =>
+    new Promise<Project[]>((resolve) => {
+      setTimeout(() => {
+        resolve(projects);
+      }, 1000);
+    })
+);

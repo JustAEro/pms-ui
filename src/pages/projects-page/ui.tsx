@@ -9,19 +9,38 @@ import {
   Input,
   InputGroup,
   InputLeftAddon,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalHeader,
+  ModalOverlay,
   SimpleGrid,
+  Spacer,
   Spinner,
   Text,
+  Textarea,
 } from '@chakra-ui/react';
 import { $canCreateProjects } from '@pms-ui/entities/user';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
   $areProjectsLoading,
+  $createProjectModalIsOpened,
+  $isCreateProjectButtonDisabled,
+  $projectDescription,
+  $projectName,
   $projectsToShow,
   $searchValue,
+  archivePageButtonClicked,
+  createProjectButtonClicked,
+  createProjectModalClosed,
+  createProjectModalOpened,
   headerModel,
   pageMounted,
+  projectClicked,
+  projectDescriptionChanged,
+  projectNameChanged,
   searchValueChanged,
 } from './model';
 
@@ -36,6 +55,20 @@ export const ProjectsPage: FC = () => {
 
   const searchValue = useUnit($searchValue);
   const onSearchProjectName = useUnit(searchValueChanged);
+
+  const onOpenCreateProjectModal = useUnit(createProjectModalOpened);
+  const createProjectModalIsOpened = useUnit($createProjectModalIsOpened);
+  const onCloseCreateProjectModal = useUnit(createProjectModalClosed);
+  const projectName = useUnit($projectName);
+  const projectDescription = useUnit($projectDescription);
+  const onChangeProjectName = useUnit(projectNameChanged);
+  const isCreateProjectButtonDisabled = useUnit($isCreateProjectButtonDisabled);
+  const onChangeProjectDescription = useUnit(projectDescriptionChanged);
+  const onCreateProjectButtonClick = useUnit(createProjectButtonClicked);
+
+  const onArchivePageButtonClick = useUnit(archivePageButtonClicked);
+
+  const onProjectClick = useUnit(projectClicked);
 
   useEffect(() => {
     onPageMount();
@@ -73,12 +106,21 @@ export const ProjectsPage: FC = () => {
               gap={10}
             >
               {canCreateProjects && (
-                <Button width="33%" colorScheme="gray">
+                <Button
+                  onClick={onOpenCreateProjectModal}
+                  width="33%"
+                  colorScheme="gray"
+                >
                   Создать проект
                 </Button>
               )}
 
-              <Button textOverflow="ellipsis" width="33%" colorScheme="gray">
+              <Button
+                onClick={onArchivePageButtonClick}
+                textOverflow="ellipsis"
+                width="33%"
+                colorScheme="gray"
+              >
                 Архив проектов
               </Button>
 
@@ -107,6 +149,10 @@ export const ProjectsPage: FC = () => {
             >
               {projects.map((project) => (
                 <Box
+                  cursor="pointer"
+                  onClick={() => {
+                    onProjectClick({ projectId: project.id });
+                  }}
                   key={project.id}
                   overflowY="hidden"
                   textOverflow="ellipsis"
@@ -126,6 +172,65 @@ export const ProjectsPage: FC = () => {
                 </Box>
               ))}
             </SimpleGrid>
+
+            <Modal
+              size="xl"
+              isOpen={createProjectModalIsOpened}
+              onClose={onCloseCreateProjectModal}
+            >
+              <ModalOverlay />
+              <ModalContent>
+                <ModalCloseButton />
+                <ModalHeader>
+                  <Flex
+                    marginTop="10px"
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text fontWeight="bold" fontSize={textFontSizes}>
+                      Создание проекта
+                    </Text>
+                  </Flex>
+                </ModalHeader>
+                <ModalBody>
+                  <Spacer height="20px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Input
+                      value={projectName}
+                      onChange={(e) => onChangeProjectName(e.target.value)}
+                      width="80%"
+                      variant="filled"
+                      placeholder="Название"
+                    />
+                  </Flex>
+                  <Spacer height="20px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Textarea
+                      value={projectDescription}
+                      onChange={(e) =>
+                        onChangeProjectDescription(e.target.value)
+                      }
+                      width="80%"
+                      variant="filled"
+                      placeholder="Описание"
+                    />
+                  </Flex>
+                  <Spacer height="50px" />
+                  <Flex alignItems="center" justifyContent="center">
+                    <Button
+                      onClick={onCreateProjectButtonClick}
+                      disabled={isCreateProjectButtonDisabled}
+                      width="80%"
+                      variant="solid"
+                      colorScheme="teal"
+                    >
+                      Создать
+                    </Button>
+                  </Flex>
+                  <Spacer height="20px" />
+                </ModalBody>
+              </ModalContent>
+            </Modal>
           </>
         )}
       </Flex>
