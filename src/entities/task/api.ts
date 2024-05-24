@@ -55,6 +55,6 @@ export const updateTaskFx = createEffect(
         ];
 
         resolve(taskToUpdate);
-      }, 200);
+      }, 1000);
     })
 );

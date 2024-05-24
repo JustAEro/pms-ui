@@ -17,6 +17,10 @@ export const dragOfTaskStarted = createEvent<{
   taskId: string;
   currentStatus: DisplayedOnBoardTaskStatus;
 }>();
+export const dragMovedOutOfColumns = createEvent();
+export const dragOverAcceptableColumnStarted = createEvent<{
+  columnStatus: DisplayedOnBoardTaskStatus;
+}>();
 export const dragEndResetCurrentTaskStatus = createEvent();
 export const dragEndedSuccess = createEvent<{
   taskId: string;
@@ -53,9 +57,14 @@ export const $project = createStore<Project | null>(null);
 export const $dragStartedTaskStatus =
   createStore<DisplayedOnBoardTaskStatus | null>(null);
 
+export const $draggedOverColumn =
+  createStore<DisplayedOnBoardTaskStatus | null>(null);
+
 export const $isProjectLoading = fetchProjectScopedFx.pending;
 
 export const $areTasksInProjectLoading = fetchTasksInProjectScopedFx.pending;
+
+export const $isTaskUpdateLoading = updateTaskScopedFx.pending;
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
@@ -63,7 +72,7 @@ sample({
   clock: [pageMounted, routes.projectRoute.opened, routes.projectRoute.updated],
   source: { userType: $userType, pageParams: routes.projectRoute.$params },
   filter: ({ userType }) => userType === 'user',
-  fn: ({ pageParams }) => pageParams.projectId,
+  fn: ({ pageParams }) => ({ projectId: pageParams.projectId }),
   target: fetchProjectScopedFx,
 });
 
@@ -74,7 +83,7 @@ sample({
 
 sample({
   clock: fetchProjectScopedFx.done,
-  fn: ({ params }) => ({ projectId: params }),
+  fn: ({ params }) => ({ projectId: params.projectId }),
   target: fetchTasksInProjectScopedFx,
 });
 
@@ -91,7 +100,7 @@ sample({
 
 sample({
   clock: dragEndResetCurrentTaskStatus,
-  target: $dragStartedTaskStatus.reinit,
+  target: [$dragStartedTaskStatus.reinit, $draggedOverColumn.reinit] as const,
 });
 
 sample({
@@ -108,10 +117,31 @@ sample({
 
 sample({
   clock: updateTaskScopedFx.doneData,
-  source: $project,
-  filter: (project): project is Project => !!project,
-  fn: (project) => ({
-    projectId: project!.id,
-  }),
-  target: fetchTasksInProjectScopedFx,
+  source: $tasksInProjectOnBoard,
+  fn: (tasks, updatedTask) =>
+    [updatedTask, ...tasks.filter((task) => task.id !== updatedTask.id)].sort(
+      (a, b) => a.id.localeCompare(b.id)
+    ),
+  target: $tasksInProjectOnBoard,
+});
+
+// sample({
+//   clock: updateTaskScopedFx.doneData,
+//   source: $project,
+//   filter: (project): project is Project => !!project,
+//   fn: (project) => ({
+//     projectId: project!.id,
+//   }),
+//   target: fetchTasksInProjectScopedFx,
+// });
+
+sample({
+  clock: dragOverAcceptableColumnStarted,
+  fn: (payload) => payload.columnStatus,
+  target: $draggedOverColumn,
+});
+
+sample({
+  clock: dragMovedOutOfColumns,
+  target: $draggedOverColumn.reinit,
 });

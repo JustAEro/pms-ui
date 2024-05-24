@@ -15,6 +15,8 @@ import {
 import {
   DndContext,
   DragEndEvent,
+  DragMoveEvent,
+  DragOverEvent,
   DragStartEvent,
   useDraggable,
   useDroppable,
@@ -25,9 +27,11 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
   $areTasksInProjectLoading,
+  $draggedOverColumn,
   $dragStartedTaskStatus,
   $inProgressTasks,
   $isProjectLoading,
+  $isTaskUpdateLoading,
   $openedTasks,
   $postponedTasks,
   $project,
@@ -35,7 +39,9 @@ import {
   $testingTasks,
   dragEndedSuccess,
   dragEndResetCurrentTaskStatus,
+  dragMovedOutOfColumns,
   dragOfTaskStarted,
+  dragOverAcceptableColumnStarted,
   headerModel,
   pageMounted,
   taskCardLinkClicked,
@@ -120,10 +126,21 @@ const ProjectBoard: FC = () => {
   );
 
   const dragStartedTaskStatus = useUnit($dragStartedTaskStatus);
+  const draggedOverColumnStatus = useUnit($draggedOverColumn);
+
+  const onDragMoveOutOfColumns = useUnit(dragMovedOutOfColumns);
+
+  const onDragOverAcceptableColumnStart = useUnit(
+    dragOverAcceptableColumnStarted
+  );
 
   const onDragEndSuccess = useUnit(dragEndedSuccess);
 
   const onTaskLinkClick = useUnit(taskCardLinkClicked);
+
+  const isTaskUpdateLoading = useUnit($isTaskUpdateLoading);
+
+  const isDndDisabled = isTaskUpdateLoading;
 
   const mapStatusToTasks: Record<DisplayedOnBoardTaskStatus, TaskOnBoard[]> = {
     Отложено: postponedTasks,
@@ -142,6 +159,46 @@ const ProjectBoard: FC = () => {
       taskId: String(active.id),
       currentStatus: active.data.current!.status,
     });
+  };
+
+  const handleDragMove = (event: DragMoveEvent) => {
+    const { active, over } = event;
+
+    if (
+      !(
+        over &&
+        over.data.current &&
+        (
+          over.data.current.acceptsStatuses as DisplayedOnBoardTaskStatus[]
+        ).includes(active.data.current?.status)
+      )
+    ) {
+      // over.id - название нового статуса
+      // active.data.current?.status -старый статус
+      // active.id - id дрэгнутой задачи
+
+      onDragMoveOutOfColumns();
+    }
+  };
+
+  const handleDragOver = (event: DragOverEvent) => {
+    const { active, over } = event;
+
+    if (
+      over &&
+      over.data.current &&
+      (
+        over.data.current.acceptsStatuses as DisplayedOnBoardTaskStatus[]
+      ).includes(active.data.current?.status)
+    ) {
+      // over.id - название нового статуса
+      // active.data.current?.status -старый статус
+      // active.id - id дрэгнутой задачи
+
+      onDragOverAcceptableColumnStart({
+        columnStatus: over.id as DisplayedOnBoardTaskStatus,
+      });
+    }
   };
 
   const handleDragCancel = () => {
@@ -174,17 +231,29 @@ const ProjectBoard: FC = () => {
   return (
     <DndContext
       onDragStart={handleDragStart}
+      onDragMove={handleDragMove}
+      onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <HStack marginBottom="50px" spacing={8}>
+      <HStack
+        opacity={isTaskUpdateLoading ? 0.33 : 1}
+        marginBottom="50px"
+        spacing={8}
+      >
         {columns.map((columnName) => (
           <Droppable
+            disabled={isDndDisabled}
             key={columnName}
             id={columnName}
             acceptsStatuses={columnKeyAcceptsFromStatusesValue[columnName]}
           >
             <VStack
+              outline={
+                draggedOverColumnStatus === columnName
+                  ? '2px solid black'
+                  : undefined
+              }
               opacity={columnOpacity({ dragStartedTaskStatus, columnName })}
               padding="20px 20px"
               minHeight="100vh"
@@ -207,7 +276,12 @@ const ProjectBoard: FC = () => {
                 </Flex>
 
                 {mapStatusToTasks[columnName].map((task) => (
-                  <Draggable key={task.id} id={task.id} status={task.status}>
+                  <Draggable
+                    key={task.id}
+                    id={task.id}
+                    disabled={isDndDisabled}
+                    status={task.status}
+                  >
                     <Box padding="10px 10px" width="160px" bgColor="#FFFFFF">
                       <Flex direction="row" justifyContent="space-between">
                         <Link>
@@ -240,13 +314,15 @@ const ProjectBoard: FC = () => {
 const Droppable: FC<{
   acceptsStatuses: DisplayedOnBoardTaskStatus[];
   id: DisplayedOnBoardTaskStatus;
+  disabled: boolean | undefined;
   children: ReactNode;
-}> = ({ id, acceptsStatuses, children }) => {
+}> = ({ id, acceptsStatuses, disabled, children }) => {
   const { setNodeRef } = useDroppable({
     id,
     data: {
       acceptsStatuses,
     },
+    disabled,
   });
 
   return <div ref={setNodeRef}>{children}</div>;
@@ -255,13 +331,15 @@ const Droppable: FC<{
 const Draggable: FC<{
   status: DisplayedOnBoardTaskStatus;
   id: string;
+  disabled: boolean | undefined;
   children: ReactNode;
-}> = ({ status, id, children }) => {
+}> = ({ status, id, disabled, children }) => {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({
     id,
     data: {
       status,
     },
+    disabled,
   });
 
   const style = {

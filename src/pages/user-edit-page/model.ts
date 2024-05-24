@@ -35,7 +35,7 @@ sample({
   ],
   source: { userType: $userType, pageParams: routes.userEditRoute.$params },
   filter: ({ userType }) => userType === 'admin',
-  fn: ({ pageParams }) => pageParams.userId,
+  fn: ({ pageParams }) => ({ userId: pageParams.userId }),
   target: fetchUserScopedFx,
 });
 

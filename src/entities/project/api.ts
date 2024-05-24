@@ -70,15 +70,15 @@ export const fetchProjectsFx = createEffect(
 );
 
 export const fetchProjectFx = createEffect(
-  async (id: string) =>
+  async ({ projectId }: { projectId: string }) =>
     new Promise<Project>((resolve) => {
       setTimeout(() => {
-        const foundUser = projects.find((project) => project.id === id);
+        const foundUser = projects.find((project) => project.id === projectId);
 
         if (foundUser) {
           resolve(foundUser);
         } else {
-          throw new Error(`Project with id ${id} is not found`);
+          throw new Error(`Project with id ${projectId} is not found`);
         }
       }, 1000);
     })

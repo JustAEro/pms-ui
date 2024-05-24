@@ -56,15 +56,15 @@ export const fetchUsersFx = createEffect(
 );
 
 export const fetchUserFx = createEffect(
-  async (id: string) =>
+  async ({ userId }: { userId: string }) =>
     new Promise<User>((resolve) => {
       setTimeout(() => {
-        const foundUser = usersList.find((user) => user.id === id);
+        const foundUser = usersList.find((user) => user.id === userId);
 
         if (foundUser) {
           resolve(foundUser);
         } else {
-          throw new Error(`User with id ${id} is not found`);
+          throw new Error(`User with id ${userId} is not found`);
         }
       }, 1000);
     })
