@@ -1,3 +1,5 @@
+import { User } from '../user';
+
 import { taskStatuses, taskStatusesNotShownOnBoard } from './constants';
 
 export type Task = {
@@ -7,6 +9,9 @@ export type Task = {
   status: TaskStatus;
   creationDate: Date;
   deadlineDate: Date;
+  userAuthor: User;
+  userExecutor: User;
+  userTester: User;
 };
 
 export type TaskStatus = typeof taskStatuses[number];

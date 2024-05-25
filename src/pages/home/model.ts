@@ -2,7 +2,7 @@ import { redirect } from 'atomic-router';
 import { combine, createEvent, createStore, sample } from 'effector';
 import { not } from 'patronum';
 
-import { $userType } from '@pms-ui/entities/user';
+import { $userType, loginStarted } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -67,6 +67,12 @@ sample({
 sample({
   clock: closeModal,
   target: reset,
+});
+
+sample({
+  clock: loginButtonClicked,
+  source: { login: $login, password: $password },
+  target: loginStarted,
 });
 
 sample({

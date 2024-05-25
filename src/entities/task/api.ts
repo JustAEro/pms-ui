@@ -1,7 +1,56 @@
 import { addDays, subDays } from 'date-fns';
 import { createEffect } from 'effector';
 
+import { User } from '../user';
+
 import { Task } from './types';
+
+const usersList: User[] = [
+  {
+    id: '1',
+    login: 'seg_fault',
+    firstName: 'Segun',
+    lastName: 'Adebayo',
+    projects: [
+      {
+        id: 'id1',
+        name: 'S_JIRO',
+        description: 's_jiro',
+      },
+      {
+        id: 'id2',
+        name: 'DevRel',
+        description: 'devRel',
+      },
+    ],
+    canCreateProjects: false,
+    userType: null,
+  },
+  {
+    id: '2',
+    login: 'mark_down',
+    firstName: 'Mark',
+    lastName: 'Chandler',
+    projects: [
+      {
+        id: 'id3',
+        name: 'Developer',
+        description: 'dev_to',
+      },
+    ],
+    canCreateProjects: true,
+    userType: null,
+  },
+  {
+    id: '3',
+    login: 'sirgay_lazar',
+    firstName: 'Lazar',
+    lastName: 'Nikolov',
+    projects: [],
+    canCreateProjects: true,
+    userType: null,
+  },
+];
 
 const currentDate = new Date();
 
@@ -13,6 +62,9 @@ let tasks: Task[] = [
     status: 'Отложено',
     creationDate: currentDate,
     deadlineDate: addDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
   {
     id: '2',
@@ -21,6 +73,9 @@ let tasks: Task[] = [
     status: 'В работе',
     creationDate: currentDate,
     deadlineDate: subDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
   {
     id: '3',
@@ -29,6 +84,9 @@ let tasks: Task[] = [
     status: 'Открыт',
     creationDate: currentDate,
     deadlineDate: addDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
   {
     id: '4',
@@ -39,6 +97,9 @@ let tasks: Task[] = [
     status: 'На тестировании',
     creationDate: currentDate,
     deadlineDate: subDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
   {
     id: '5',
@@ -47,6 +108,9 @@ let tasks: Task[] = [
     status: 'На ревью',
     creationDate: currentDate,
     deadlineDate: addDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
   {
     id: '6',
@@ -55,6 +119,9 @@ let tasks: Task[] = [
     status: 'Архив',
     creationDate: currentDate,
     deadlineDate: addDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
   {
     id: '7',
@@ -63,6 +130,9 @@ let tasks: Task[] = [
     status: 'Закрыт',
     creationDate: currentDate,
     deadlineDate: addDays(currentDate, 1),
+    userAuthor: usersList[0]!,
+    userExecutor: usersList[1]!,
+    userTester: usersList[2]!,
   },
 ];
 

@@ -1,7 +1,7 @@
-import { createEvent, Store } from 'effector';
+import { createEvent, sample, Store } from 'effector';
 import { modelFactory } from 'effector-factorio';
 
-import { UserType } from '@pms-ui/entities/user';
+import { logoutStarted, UserType } from '@pms-ui/entities/user';
 
 type HeaderFactoryOptions = {
   $userType: Store<UserType>;
@@ -10,6 +10,11 @@ type HeaderFactoryOptions = {
 export const headerFactory = modelFactory(
   ({ $userType }: HeaderFactoryOptions) => {
     const logoutButtonClicked = createEvent();
+
+    sample({
+      clock: logoutButtonClicked,
+      target: logoutStarted,
+    });
 
     return {
       ui: {

@@ -1,9 +1,9 @@
 import { Route, RouterProvider } from 'atomic-router-react';
 import { useUnit } from 'effector-react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
-import { $userType, UserType } from '@pms-ui/entities/user';
+import { $userType, authStarted, UserType } from '@pms-ui/entities/user';
 import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { ArchiveProjectsPage } from '@pms-ui/pages/archive-projects-page';
 import { HomePage } from '@pms-ui/pages/home';
@@ -18,6 +18,10 @@ import { theme } from '@pms-ui/shared/ui';
 
 export const App: FC = () => {
   const userType = useUnit($userType);
+
+  useEffect(() => {
+    authStarted();
+  }, []);
 
   return (
     <ChakraProvider theme={theme}>

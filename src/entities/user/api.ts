@@ -24,6 +24,7 @@ const usersList: User[] = [
       },
     ],
     canCreateProjects: false,
+    userType: null,
   },
   {
     id: '2',
@@ -38,6 +39,7 @@ const usersList: User[] = [
       },
     ],
     canCreateProjects: true,
+    userType: null,
   },
   {
     id: '3',
@@ -46,6 +48,7 @@ const usersList: User[] = [
     lastName: 'Nikolov',
     projects: [],
     canCreateProjects: true,
+    userType: null,
   },
 ];
 
@@ -59,6 +62,7 @@ const fetchUsersMockFx = createEffect(
     })
 );
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fetchUsersApiFx = createEffect(async () => {
   try {
     const response = await axios.request<User[]>({
@@ -75,7 +79,7 @@ const fetchUsersApiFx = createEffect(async () => {
   }
 });
 
-export const fetchUsersFx = fetchUsersApiFx;
+export const fetchUsersFx = fetchUsersMockFx;
 
 export const fetchUserFx = createEffect(
   async ({ userId }: { userId: string }) =>

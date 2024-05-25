@@ -9,4 +9,5 @@ export type User = {
   lastName: string;
   projects: Project[];
   canCreateProjects: boolean;
+  userType: UserType;
 };
