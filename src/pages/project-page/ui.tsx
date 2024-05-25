@@ -7,7 +7,12 @@ import {
   Button,
   Flex,
   HStack,
+  Image,
   Link,
+  Popover,
+  PopoverArrow,
+  PopoverContent,
+  PopoverTrigger,
   Spinner,
   Text,
   VStack,
@@ -22,7 +27,14 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { DisplayedOnBoardTaskStatus, TaskOnBoard } from '@pms-ui/entities/task';
+import {
+  columnKeyAcceptsFromStatusesValue,
+  columnNames,
+  DisplayedOnBoardTaskStatus,
+  statusKeyCanGoToColumnsValue,
+  TaskOnBoard,
+} from '@pms-ui/entities/task';
+import statsIcon from '@pms-ui/shared/ui/assets/svg/stats-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
@@ -36,6 +48,9 @@ import {
   $postponedTasks,
   $project,
   $reviewTasks,
+  $tasksArchivedCount,
+  $tasksExpiredCount,
+  $tasksTotalCount,
   $testingTasks,
   dragEndedSuccess,
   dragEndResetCurrentTaskStatus,
@@ -58,6 +73,10 @@ export const ProjectPage: FC = () => {
   const onPageMount = useUnit(pageMounted);
 
   const isAdminOfProject = true;
+
+  const tasksTotalCount = useUnit($tasksTotalCount);
+  const tasksArchivedCount = useUnit($tasksArchivedCount);
+  const tasksExpiredCount = useUnit($tasksExpiredCount);
 
   useEffect(() => {
     onPageMount();
@@ -99,6 +118,75 @@ export const ProjectPage: FC = () => {
               )}
 
               <Button colorScheme="gray">Требования к проекту</Button>
+
+              {!areTasksInProjectLoading && (
+                <Popover placement="top">
+                  <PopoverTrigger>
+                    <Button colorScheme="gray">
+                      <Image
+                        src={statsIcon}
+                        alt=""
+                        w="24px"
+                        h="24px"
+                        cursor="pointer"
+                      />
+                    </Button>
+                  </PopoverTrigger>
+
+                  <PopoverContent
+                    width="fit-content"
+                    fontSize="14px"
+                    bgColor="#D9D9D9"
+                  >
+                    <PopoverArrow bgColor="#D9D9D9" />
+                    <Flex padding="10px 20px" direction="column">
+                      <Flex direction="row" justifyContent="center">
+                        <Text fontWeight="bold">Статистика</Text>
+                      </Flex>
+
+                      <Flex
+                        marginTop="5px"
+                        direction="row"
+                        gap="15px"
+                        justifyContent="space-between"
+                      >
+                        <Text fontWeight="bold" color="#000000">
+                          Всего задач
+                        </Text>
+                        <Text fontWeight="normal" color="#000000">
+                          {tasksTotalCount}
+                        </Text>
+                      </Flex>
+
+                      <Flex
+                        direction="row"
+                        gap="15px"
+                        justifyContent="space-between"
+                      >
+                        <Text fontWeight="bold" color="#000000">
+                          Просрочено
+                        </Text>
+                        <Text fontWeight="normal" color="#000000">
+                          {tasksExpiredCount}
+                        </Text>
+                      </Flex>
+
+                      <Flex
+                        direction="row"
+                        gap="15px"
+                        justifyContent="space-between"
+                      >
+                        <Text fontWeight="bold" color="#000000">
+                          Архивировано
+                        </Text>
+                        <Text fontWeight="normal" color="#000000">
+                          {tasksArchivedCount}
+                        </Text>
+                      </Flex>
+                    </Flex>
+                  </PopoverContent>
+                </Popover>
+              )}
 
               <Button colorScheme="gray">Архив задач</Button>
             </Flex>
@@ -241,7 +329,7 @@ const ProjectBoard: FC = () => {
         marginBottom="50px"
         spacing={8}
       >
-        {columns.map((columnName) => (
+        {columnNames.map((columnName) => (
           <Droppable
             disabled={isDndDisabled}
             key={columnName}
@@ -351,36 +439,6 @@ const Draggable: FC<{
       {children}
     </div>
   );
-};
-
-const columns: DisplayedOnBoardTaskStatus[] = [
-  'Отложено',
-  'Открыт',
-  'В работе',
-  'На тестировании',
-  'На ревью',
-];
-
-const columnKeyAcceptsFromStatusesValue: Record<
-  DisplayedOnBoardTaskStatus,
-  DisplayedOnBoardTaskStatus[]
-> = {
-  Отложено: ['Открыт', 'В работе', 'На тестировании', 'На ревью'],
-  Открыт: ['Отложено'],
-  'В работе': ['Открыт', 'На ревью', 'На тестировании'],
-  'На тестировании': ['В работе'],
-  'На ревью': ['В работе', 'На тестировании'],
-};
-
-const statusKeyCanGoToColumnsValue: Record<
-  DisplayedOnBoardTaskStatus,
-  DisplayedOnBoardTaskStatus[]
-> = {
-  Отложено: ['Открыт'],
-  Открыт: ['В работе', 'Отложено'],
-  'В работе': ['Отложено', 'На тестировании', 'На ревью'],
-  'На тестировании': ['Отложено', 'В работе', 'На ревью'],
-  'На ревью': ['В работе', 'Отложено'],
 };
 
 const columnOpacity = ({

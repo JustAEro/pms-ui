@@ -12,6 +12,7 @@ export const routes = {
   projectsRoute: createRoute(),
   archivedProjectsRoute: createRoute(),
   projectRoute: createRoute<{ projectId: string }>(),
+  taskRoute: createRoute<{ taskId: string }>(),
 };
 
 const routeObjects = [
@@ -23,6 +24,7 @@ const routeObjects = [
   { path: '/projects', route: routes.projectsRoute },
   { path: '/projects/archive', route: routes.archivedProjectsRoute },
   { path: '/project/:projectId', route: routes.projectRoute },
+  { path: '/task/:taskId', route: routes.taskRoute },
 ];
 
 export const router = createHistoryRouter({ routes: routeObjects });

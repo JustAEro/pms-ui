@@ -4,7 +4,10 @@ import { fetchProjectFx, Project } from '@pms-ui/entities/project';
 import {
   DisplayedOnBoardTaskStatus,
   fetchTasksInProjectFx,
+  NotShownOnBoardStatuses,
+  Task,
   TaskOnBoard,
+  taskStatusesNotShownOnBoard,
   updateTaskFx,
 } from '@pms-ui/entities/task';
 import { $userType } from '@pms-ui/entities/user';
@@ -35,21 +38,47 @@ const fetchTasksInProjectScopedFx = attach({ effect: fetchTasksInProjectFx });
 
 const updateTaskScopedFx = attach({ effect: updateTaskFx });
 
-const $tasksInProjectOnBoard = createStore<TaskOnBoard[]>([]);
+const $tasksInProject = createStore<Task[]>([]);
+export const $tasksTotalCount = $tasksInProject.map((tasks) => tasks.length);
+export const $tasksArchivedCount = $tasksInProject.map(
+  (tasks) => tasks.filter((task) => task.status === 'Архив').length
+);
+export const $tasksExpiredCount = $tasksInProject.map(
+  (tasks) => tasks.filter((task) => task.deadlineDate < new Date()).length
+);
+
+const $tasksInProjectOnBoard = $tasksInProject.map((tasks) =>
+  tasks.filter(
+    (task) =>
+      !taskStatusesNotShownOnBoard.includes(
+        task.status as NotShownOnBoardStatuses
+      )
+  )
+);
 export const $postponedTasks = $tasksInProjectOnBoard.map((tasks) =>
-  tasks.filter((task) => task.status === 'Отложено')
+  tasks.filter<TaskOnBoard>(
+    (task): task is TaskOnBoard => task.status === 'Отложено'
+  )
 );
 export const $openedTasks = $tasksInProjectOnBoard.map((tasks) =>
-  tasks.filter((task) => task.status === 'Открыт')
+  tasks.filter<TaskOnBoard>(
+    (task): task is TaskOnBoard => task.status === 'Открыт'
+  )
 );
 export const $inProgressTasks = $tasksInProjectOnBoard.map((tasks) =>
-  tasks.filter((task) => task.status === 'В работе')
+  tasks.filter<TaskOnBoard>(
+    (task): task is TaskOnBoard => task.status === 'В работе'
+  )
 );
 export const $testingTasks = $tasksInProjectOnBoard.map((tasks) =>
-  tasks.filter((task) => task.status === 'На тестировании')
+  tasks.filter<TaskOnBoard>(
+    (task): task is TaskOnBoard => task.status === 'На тестировании'
+  )
 );
 export const $reviewTasks = $tasksInProjectOnBoard.map((tasks) =>
-  tasks.filter((task) => task.status === 'На ревью')
+  tasks.filter<TaskOnBoard>(
+    (task): task is TaskOnBoard => task.status === 'На ревью'
+  )
 );
 
 export const $project = createStore<Project | null>(null);
@@ -89,7 +118,7 @@ sample({
 
 sample({
   clock: fetchTasksInProjectScopedFx.doneData,
-  target: $tasksInProjectOnBoard,
+  target: $tasksInProject,
 });
 
 sample({
@@ -117,12 +146,12 @@ sample({
 
 sample({
   clock: updateTaskScopedFx.doneData,
-  source: $tasksInProjectOnBoard,
+  source: $tasksInProject,
   fn: (tasks, updatedTask) =>
     [updatedTask, ...tasks.filter((task) => task.id !== updatedTask.id)].sort(
       (a, b) => a.id.localeCompare(b.id)
     ),
-  target: $tasksInProjectOnBoard,
+  target: $tasksInProject,
 });
 
 // sample({
@@ -144,4 +173,9 @@ sample({
 sample({
   clock: dragMovedOutOfColumns,
   target: $draggedOverColumn.reinit,
+});
+
+sample({
+  clock: taskCardLinkClicked,
+  target: routes.taskRoute.open,
 });
