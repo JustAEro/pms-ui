@@ -1,4 +1,7 @@
+import axios, { AxiosError } from 'axios';
 import { createEffect } from 'effector';
+
+import { API_URL } from '@pms-ui/shared/config';
 
 import { User } from './types';
 
@@ -46,7 +49,8 @@ const usersList: User[] = [
   },
 ];
 
-export const fetchUsersFx = createEffect(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const fetchUsersMockFx = createEffect(
   async () =>
     new Promise<User[]>((resolve) => {
       setTimeout(() => {
@@ -54,6 +58,24 @@ export const fetchUsersFx = createEffect(
       }, 1000);
     })
 );
+
+const fetchUsersApiFx = createEffect(async () => {
+  try {
+    const response = await axios.request<User[]>({
+      url: `${API_URL}/users`,
+      method: 'get',
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+});
+
+export const fetchUsersFx = fetchUsersApiFx;
 
 export const fetchUserFx = createEffect(
   async ({ userId }: { userId: string }) =>

@@ -32,8 +32,10 @@ let tasks: Task[] = [
   },
   {
     id: '4',
-    name: 'task4',
-    description: 'task4_desc',
+    name: 'Заголовок задачи 4',
+    description:
+      // eslint-disable-next-line max-len
+      'Описание задачи 1 Описание задачи 1 Описание задачи 1 Описание задачи 1 Описание задачи 1 Описание задачи 1 Описание задачи 1Описание задачи 1Описание задачи 1Описание задачи 1Описание задачи 1Описание задачи 1Описание задачи 1Описание задачи 1Описание задачи 1 БимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБумБимБамБум',
     status: 'На тестировании',
     creationDate: currentDate,
     deadlineDate: subDays(currentDate, 1),
@@ -70,6 +72,21 @@ export const fetchTasksInProjectFx = createEffect(
     new Promise<Task[]>((resolve) => {
       setTimeout(() => {
         resolve(tasks);
+      }, 1000);
+    })
+);
+
+export const fetchTaskFx = createEffect(
+  async ({ taskId }: { taskId: string }) =>
+    new Promise<Task>((resolve, reject) => {
+      setTimeout(() => {
+        const foundUser = tasks.find((task) => task.id === taskId);
+
+        if (foundUser) {
+          resolve(foundUser);
+        } else {
+          reject(new Error(`Task with id ${taskId} is not found`));
+        }
       }, 1000);
     })
 );
