@@ -24,7 +24,9 @@ export const columnKeyAcceptsFromStatusesValue: Record<
   DisplayedOnBoardTaskStatus,
   DisplayedOnBoardTaskStatus[]
 > = {
+  // eslint-disable-next-line prettier/prettier
   Отложено: ['Открыт', 'В работе', 'На тестировании', 'На ревью'],
+  // eslint-disable-next-line prettier/prettier
   Открыт: ['Отложено'],
   'В работе': ['Открыт', 'На ревью', 'На тестировании'],
   'На тестировании': ['В работе'],
@@ -35,7 +37,9 @@ export const statusKeyCanGoToColumnsValue: Record<
   DisplayedOnBoardTaskStatus,
   DisplayedOnBoardTaskStatus[]
 > = {
+  // eslint-disable-next-line prettier/prettier
   Отложено: ['Открыт'],
+  // eslint-disable-next-line prettier/prettier
   Открыт: ['В работе', 'Отложено'],
   'В работе': ['Отложено', 'На тестировании', 'На ревью'],
   'На тестировании': ['Отложено', 'В работе', 'На ревью'],
