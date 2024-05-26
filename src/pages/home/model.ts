@@ -5,8 +5,8 @@ import { not } from 'patronum';
 import {
   $userType,
   authFailed,
-  authSucceeded,
   loginStarted,
+  loginSucceeded,
 } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { errorToastModelFactory } from '@pms-ui/shared/ui';
@@ -47,38 +47,45 @@ const errorAuthToastModel = errorToastModelFactory({
 export const { $notificationToShow, $notificationToastId } =
   errorAuthToastModel.outputs;
 
+// sample({
+//   clock: authSucceeded,
+//   source: $userType,
+//   filter: (userType) => userType === 'admin',
+//   target: redirectToAdminMainPageTriggered,
+// });
+
 sample({
-  clock: authSucceeded,
-  source: $userType,
-  filter: (userType) => userType === 'admin',
+  clock: loginSucceeded,
+  filter: ({ authSucceeded: authSucceededUser }) =>
+    authSucceededUser.userType === 'admin',
   target: redirectToAdminMainPageTriggered,
 });
 
 sample({
-  clock: authSucceeded,
-  source: $userType,
-  filter: (userType) => userType === 'user',
+  clock: loginSucceeded,
+  filter: ({ authSucceeded: authSucceededUser }) =>
+    authSucceededUser.userType === 'user',
   target: routes.projectsRoute.open,
 });
 
-sample({
-  clock: [pageMounted, routes.homeRoute.opened, routes.homeRoute.updated],
-  source: $userType,
-  filter: (userType) => userType === 'admin',
-  target: redirectToAdminMainPageTriggered,
-});
+// sample({
+//   clock: [routes.homeRoute.opened, routes.homeRoute.updated],
+//   source: $userType,
+//   filter: (userType) => userType === 'admin',
+//   target: redirectToAdminMainPageTriggered,
+// });
 
 redirect({
   clock: redirectToAdminMainPageTriggered,
   route: routes.usersAdminPanelRoute,
 });
 
-sample({
-  clock: [pageMounted, routes.homeRoute.opened, routes.homeRoute.updated],
-  source: $userType,
-  filter: (userType) => userType === 'user',
-  target: routes.projectsRoute.open,
-});
+// sample({
+//   clock: [routes.homeRoute.opened, routes.homeRoute.updated],
+//   source: $userType,
+//   filter: (userType) => userType === 'user',
+//   target: routes.projectsRoute.open,
+// });
 
 sample({
   clock: openModal,

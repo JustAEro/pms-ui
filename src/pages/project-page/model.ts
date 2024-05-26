@@ -12,9 +12,13 @@ import {
 } from '@pms-ui/entities/task';
 import { $userType } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
+import { errorToastModelFactory } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 export const pageMounted = createEvent();
+export const pageUnmounted = createEvent();
+
+const reset = createEvent();
 
 export const dragOfTaskStarted = createEvent<{
   taskId: string;
@@ -97,12 +101,21 @@ export const $isTaskUpdateLoading = updateTaskScopedFx.pending;
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
-sample({
-  clock: pageMounted,
-  source: $userType,
-  filter: (userType) => userType !== 'user',
-  target: routes.homeRoute.open,
+const errorToastModel = errorToastModelFactory({
+  triggerEvent: fetchProjectScopedFx.fail,
 });
+
+export const {
+  $notificationToShow: $projectNotification,
+  $notificationToastId: $projectToastId,
+} = errorToastModel.outputs;
+
+// sample({
+//   clock: pageMounted,
+//   source: $userType,
+//   filter: (userType) => userType !== 'user',
+//   target: routes.homeRoute.open,
+// });
 
 sample({
   clock: [pageMounted, routes.projectRoute.opened, routes.projectRoute.updated],
@@ -185,4 +198,19 @@ sample({
 sample({
   clock: taskCardLinkClicked,
   target: routes.taskRoute.open,
+});
+
+sample({
+  clock: [pageUnmounted, routes.projectRoute.closed],
+  target: reset,
+});
+
+sample({
+  clock: reset,
+  target: [
+    $dragStartedTaskStatus.reinit,
+    $draggedOverColumn.reinit,
+    $project.reinit,
+    errorToastModel.inputs.reset,
+  ] as const,
 });

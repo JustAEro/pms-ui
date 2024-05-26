@@ -27,12 +27,12 @@ export const $isUserToEditLoading = fetchUserScopedFx.pending;
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
-sample({
-  clock: pageMounted,
-  source: $userType,
-  filter: (userType) => userType !== 'admin',
-  target: routes.homeRoute.open,
-});
+// sample({
+//   clock: pageMounted,
+//   source: $userType,
+//   filter: (userType) => userType !== 'admin',
+//   target: routes.homeRoute.open,
+// });
 
 sample({
   clock: [

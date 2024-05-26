@@ -24,12 +24,12 @@ export const $areArchivedProjectsLoading =
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
-sample({
-  clock: pageMounted,
-  source: $userType,
-  filter: (userType) => userType !== 'user',
-  target: routes.homeRoute.open,
-});
+// sample({
+//   clock: pageMounted,
+//   source: $userType,
+//   filter: (userType) => userType !== 'user',
+//   target: routes.homeRoute.open,
+// });
 
 sample({
   clock: [

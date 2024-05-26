@@ -1,10 +1,11 @@
 import { createEffect, createEvent, createStore, sample } from 'effector';
 import { persist } from 'effector-storage/local';
+import { combineEvents } from 'patronum';
 
 import { User } from './types';
 
 export const authStarted = createEvent();
-export const authSucceeded = createEvent();
+export const authSucceeded = createEvent<User>();
 export const authFailed = createEvent<{ error: Error }>();
 export const loginStarted = createEvent<{ login: string; password: string }>();
 export const logoutStarted = createEvent();
@@ -52,7 +53,7 @@ const validateTokenFx = createEffect((token: string) => {
           description: 'devRel',
         },
       ],
-      canCreateProjects: false,
+      canCreateProjects: true,
       userType: 'user',
     };
     return user;
@@ -73,9 +74,9 @@ const getTokenFx = createEffect(
   }
 );
 
-export const $user = createStore<User | null>(null);
-export const $userType = $user.map((user) => user?.userType ?? null);
-export const $canCreateProjects = $user.map(
+export const $currentUser = createStore<User | null>(null);
+export const $userType = $currentUser.map((user) => user?.userType ?? null);
+export const $canCreateProjects = $currentUser.map(
   (user) => user?.canCreateProjects ?? false
 );
 
@@ -90,7 +91,7 @@ sample({
   source: $jwtToken,
   filter: (token): token is null => !token,
   fn: () => null,
-  target: $user,
+  target: $currentUser,
 });
 
 sample({
@@ -107,13 +108,13 @@ sample({
 
 sample({
   clock: validateTokenFx.doneData,
-  target: [$user, authSucceeded] as const,
+  target: [$currentUser, authSucceeded] as const,
 });
 
 sample({
   clock: validateTokenFx.fail,
   fn: () => null,
-  target: $user,
+  target: $currentUser,
 });
 
 sample({
@@ -135,7 +136,7 @@ sample({
 sample({
   clock: logoutStarted,
   fn: () => null,
-  target: [$jwtToken, $user] as const,
+  target: [$jwtToken, $currentUser] as const,
 });
 
 sample({
@@ -143,3 +144,5 @@ sample({
   fn: (error) => ({ error }),
   target: authFailed,
 });
+
+export const loginSucceeded = combineEvents({ loginStarted, authSucceeded });

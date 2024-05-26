@@ -4,7 +4,7 @@ import { UseToastOptions } from '@chakra-ui/react';
 
 type ToastModelProps<T> = {
   triggerEvent: Event<T>;
-  notificationOptions: UseToastOptions;
+  notificationOptions?: UseToastOptions;
 };
 
 export const errorToastModelFactory = <T extends { error: Error }>({
@@ -24,6 +24,8 @@ export const errorToastModelFactory = <T extends { error: Error }>({
       title: error.name,
       description: error.message,
       status: 'error' as const,
+      duration: 9000,
+      isClosable: true,
       ...notificationOptions,
     }),
     target: $notificationToShow,

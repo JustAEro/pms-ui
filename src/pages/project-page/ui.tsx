@@ -2,6 +2,7 @@
 import { useUnit } from 'effector-react';
 import { FC, ReactNode, useEffect } from 'react';
 
+import { AddIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -15,6 +16,8 @@ import {
   PopoverTrigger,
   Spinner,
   Text,
+  Tooltip,
+  useToast,
   VStack,
 } from '@chakra-ui/react';
 import {
@@ -47,6 +50,8 @@ import {
   $openedTasks,
   $postponedTasks,
   $project,
+  $projectNotification,
+  $projectToastId,
   $reviewTasks,
   $tasksArchivedCount,
   $tasksExpiredCount,
@@ -65,6 +70,16 @@ import {
 const textFontSizes = [16, 21, 30];
 
 export const ProjectPage: FC = () => {
+  const toast = useToast();
+
+  const projectNotificationToShow = useUnit($projectNotification);
+  const projectToastId = useUnit($projectToastId);
+  useEffect(() => {
+    if (projectNotificationToShow && !toast.isActive(projectToastId)) {
+      toast(projectNotificationToShow);
+    }
+  }, [projectNotificationToShow, projectToastId, toast]);
+
   const isProjectLoading = useUnit($isProjectLoading);
   const project = useUnit($project);
 
@@ -116,6 +131,8 @@ export const ProjectPage: FC = () => {
               {isAdminOfProject && (
                 <Button colorScheme="gray">Управление проектом</Button>
               )}
+
+              <Button colorScheme="gray">Архив задач</Button>
 
               <Button colorScheme="gray">Требования к проекту</Button>
 
@@ -188,7 +205,11 @@ export const ProjectPage: FC = () => {
                 </Popover>
               )}
 
-              <Button colorScheme="gray">Архив задач</Button>
+              <Tooltip placement="top" label="Создать задачу">
+                <Button colorScheme="gray">
+                  <AddIcon />
+                </Button>
+              </Tooltip>
             </Flex>
 
             {!areTasksInProjectLoading && <ProjectBoard />}
