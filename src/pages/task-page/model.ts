@@ -27,6 +27,13 @@ export const { $notificationToShow, $notificationToastId } =
 export const headerModel = pageHeader.model.createModel({ $userType });
 
 sample({
+  clock: pageMounted,
+  source: $userType,
+  filter: (userType) => userType !== 'user',
+  target: routes.homeRoute.open,
+});
+
+sample({
   clock: [pageMounted, routes.taskRoute.opened, routes.taskRoute.updated],
   source: { userType: $userType, pageParams: routes.taskRoute.$params },
   filter: ({ userType }) => userType === 'user',

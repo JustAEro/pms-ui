@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 
 import {
   Box,
@@ -14,6 +14,7 @@ import {
   ModalOverlay,
   Spacer,
   Text,
+  useToast,
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -21,18 +22,29 @@ import {
   $isLoginButtonDisabled,
   $login,
   $loginModalIsOpened,
+  $notificationToastId,
+  $notificationToShow,
   $password,
   closeModal,
   headerModel,
   loginButtonClicked,
   loginEdited,
   openModal,
+  pageMounted,
+  pageUnmounted,
   passwordEdited,
 } from './model';
 
 const textFontSizes = [16, 21, 30];
 
 export const HomePage: FC = () => {
+  const onPageMount = useUnit(pageMounted);
+  const onPageUnmount = useUnit(pageUnmounted);
+
+  const toast = useToast();
+  const notificationToShow = useUnit($notificationToShow);
+  const toastId = useUnit($notificationToastId);
+
   const loginModalIsOpened = useUnit($loginModalIsOpened);
   const onOpenModal = useUnit(openModal);
   const onCloseModal = useUnit(closeModal);
@@ -44,6 +56,20 @@ export const HomePage: FC = () => {
   const onChangePassword = useUnit(passwordEdited);
 
   const onLoginButtonClick = useUnit(loginButtonClicked);
+
+  useEffect(() => {
+    onPageMount();
+
+    return () => {
+      onPageUnmount();
+    };
+  }, [onPageMount, onPageUnmount]);
+
+  useEffect(() => {
+    if (notificationToShow && !toast.isActive(toastId)) {
+      toast(notificationToShow);
+    }
+  }, [notificationToShow, toast, toastId]);
 
   return (
     <Box>

@@ -4,6 +4,8 @@ import { persist } from 'effector-storage/local';
 import { User } from './types';
 
 export const authStarted = createEvent();
+export const authSucceeded = createEvent();
+export const authFailed = createEvent<{ error: Error }>();
 export const loginStarted = createEvent<{ login: string; password: string }>();
 export const logoutStarted = createEvent();
 const validateTokenStarted = createEvent<string>();
@@ -55,31 +57,8 @@ const validateTokenFx = createEffect((token: string) => {
     };
     return user;
   }
-  if (token) {
-    const user: User = {
-      id: '1',
-      login: 'default_man',
-      firstName: 'Joe',
-      lastName: 'Jones',
-      projects: [
-        {
-          id: 'id1',
-          name: 'S_JIRO',
-          description: 's_jiro',
-        },
-        {
-          id: 'id2',
-          name: 'DevRel',
-          description: 'devRel',
-        },
-      ],
-      canCreateProjects: false,
-      userType: 'user',
-    };
-    return user;
-  }
 
-  return null;
+  throw Error('Authorization failed');
 });
 const getTokenFx = createEffect(
   ({ login, password }: { login: string; password: string }) => {
@@ -89,11 +68,8 @@ const getTokenFx = createEffect(
     if (login === 'null_ex' && password === 'TRASH') {
       return 'BIMBAMBUM' as string;
     }
-    if (login && password) {
-      return `${login}-${password}`;
-    }
 
-    return null;
+    throw Error('Authorization failed');
   }
 );
 
@@ -131,7 +107,7 @@ sample({
 
 sample({
   clock: validateTokenFx.doneData,
-  target: $user,
+  target: [$user, authSucceeded] as const,
 });
 
 sample({
@@ -159,5 +135,11 @@ sample({
 sample({
   clock: logoutStarted,
   fn: () => null,
-  target: [$jwtToken, authStarted] as const,
+  target: [$jwtToken, $user] as const,
+});
+
+sample({
+  clock: [getTokenFx.failData, validateTokenFx.failData],
+  fn: (error) => ({ error }),
+  target: authFailed,
 });

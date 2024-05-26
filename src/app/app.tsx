@@ -3,7 +3,6 @@ import { useUnit } from 'effector-react';
 import { FC, useEffect } from 'react';
 
 import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
-import { $userType, authStarted, UserType } from '@pms-ui/entities/user';
 import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { ArchiveProjectsPage } from '@pms-ui/pages/archive-projects-page';
 import { HomePage } from '@pms-ui/pages/home';
@@ -16,18 +15,20 @@ import { UsersAdminPanelPage } from '@pms-ui/pages/users-admin-panel';
 import { router, routes } from '@pms-ui/shared/routes';
 import { theme } from '@pms-ui/shared/ui';
 
+import { appMounted } from './model';
+
 export const App: FC = () => {
-  const userType = useUnit($userType);
+  const onAppMount = useUnit(appMounted);
 
   useEffect(() => {
-    authStarted();
-  }, []);
+    onAppMount();
+  }, [onAppMount]);
 
   return (
     <ChakraProvider theme={theme}>
       <ColorModeScript initialColorMode={theme.config.initialColorMode} />
       <RouterProvider router={router}>
-        <Route route={routes.homeRoute} view={homePageView(userType)} />
+        <Route route={routes.homeRoute} view={HomePage} />
         <Route route={routes.usersAdminPanelRoute} view={UsersAdminPanelPage} />
         <Route route={routes.adminsPanelRoute} view={AdminsPanelPage} />
         <Route route={routes.profileRoute} view={ProfilePage} />
@@ -42,15 +43,4 @@ export const App: FC = () => {
       </RouterProvider>
     </ChakraProvider>
   );
-};
-
-const homePageView = (userType: UserType) => {
-  switch (userType) {
-    case 'admin':
-      return UsersAdminPanelPage;
-    case 'user':
-      return ProjectsPage;
-    default:
-      return HomePage;
-  }
 };

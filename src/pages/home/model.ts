@@ -2,9 +2,18 @@ import { redirect } from 'atomic-router';
 import { combine, createEvent, createStore, sample } from 'effector';
 import { not } from 'patronum';
 
-import { $userType, loginStarted } from '@pms-ui/entities/user';
+import {
+  $userType,
+  authFailed,
+  authSucceeded,
+  loginStarted,
+} from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
+import { errorToastModelFactory } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
+
+export const pageMounted = createEvent();
+export const pageUnmounted = createEvent();
 
 export const openModal = createEvent();
 export const closeModal = createEvent();
@@ -26,8 +35,34 @@ export const $isLoginButtonDisabled = not($isLoginButtonEnabled);
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
+const errorAuthToastModel = errorToastModelFactory({
+  triggerEvent: authFailed,
+  notificationOptions: {
+    status: 'error',
+    duration: 9000,
+    isClosable: true,
+  },
+});
+
+export const { $notificationToShow, $notificationToastId } =
+  errorAuthToastModel.outputs;
+
 sample({
-  clock: [routes.homeRoute.opened, routes.homeRoute.updated],
+  clock: authSucceeded,
+  source: $userType,
+  filter: (userType) => userType === 'admin',
+  target: redirectToAdminMainPageTriggered,
+});
+
+sample({
+  clock: authSucceeded,
+  source: $userType,
+  filter: (userType) => userType === 'user',
+  target: routes.projectsRoute.open,
+});
+
+sample({
+  clock: [pageMounted, routes.homeRoute.opened, routes.homeRoute.updated],
   source: $userType,
   filter: (userType) => userType === 'admin',
   target: redirectToAdminMainPageTriggered,
@@ -36,6 +71,13 @@ sample({
 redirect({
   clock: redirectToAdminMainPageTriggered,
   route: routes.usersAdminPanelRoute,
+});
+
+sample({
+  clock: [pageMounted, routes.homeRoute.opened, routes.homeRoute.updated],
+  source: $userType,
+  filter: (userType) => userType === 'user',
+  target: routes.projectsRoute.open,
 });
 
 sample({
@@ -76,10 +118,16 @@ sample({
 });
 
 sample({
+  clock: pageUnmounted,
+  target: reset,
+});
+
+sample({
   clock: reset,
   target: [
     $login.reinit,
     $loginModalIsOpened.reinit,
     $password.reinit,
+    errorAuthToastModel.inputs.reset,
   ] as const,
 });

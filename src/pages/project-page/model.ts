@@ -98,6 +98,13 @@ export const $isTaskUpdateLoading = updateTaskScopedFx.pending;
 export const headerModel = pageHeader.model.createModel({ $userType });
 
 sample({
+  clock: pageMounted,
+  source: $userType,
+  filter: (userType) => userType !== 'user',
+  target: routes.homeRoute.open,
+});
+
+sample({
   clock: [pageMounted, routes.projectRoute.opened, routes.projectRoute.updated],
   source: { userType: $userType, pageParams: routes.projectRoute.$params },
   filter: ({ userType }) => userType === 'user',

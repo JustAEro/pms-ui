@@ -3,7 +3,10 @@ import { not } from 'patronum';
 
 import { Admin } from '@pms-ui/entities/admin';
 import { $userType } from '@pms-ui/entities/user';
+import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
+
+export const pageMounted = createEvent();
 
 export const openAddAdminModal = createEvent();
 export const closeAddAdminModal = createEvent();
@@ -41,6 +44,13 @@ const $isAddAdminButtonEnabled = combine(
 export const $isAddAdminButtonDisabled = not($isAddAdminButtonEnabled);
 
 export const headerModel = pageHeader.model.createModel({ $userType });
+
+sample({
+  clock: pageMounted,
+  source: $userType,
+  filter: (userType) => userType !== 'admin',
+  target: routes.homeRoute.open,
+});
 
 sample({
   clock: openDeleteAdminModal,

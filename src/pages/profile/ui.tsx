@@ -1,11 +1,11 @@
 import { useUnit } from 'effector-react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 
 import { Box, Flex, SimpleGrid, Text, VStack } from '@chakra-ui/react';
 import { $userType } from '@pms-ui/entities/user';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
-import { headerModel } from './model';
+import { headerModel, pageMounted } from './model';
 
 const textFontSizes = [16, 21, 30];
 
@@ -36,7 +36,13 @@ const projectsOfUser: Project[] = [
 ];
 
 export const ProfilePage: FC = () => {
+  const onPageMount = useUnit(pageMounted);
+
   const userType = useUnit($userType);
+
+  useEffect(() => {
+    onPageMount();
+  }, [onPageMount]);
 
   return (
     <Box>

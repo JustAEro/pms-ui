@@ -1,5 +1,5 @@
 import { useUnit } from 'effector-react';
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 
 import {
   Box,
@@ -38,12 +38,15 @@ import {
   loginEdited,
   openAddAdminModal,
   openDeleteAdminModal,
+  pageMounted,
   passwordEdited,
 } from './model';
 
 const textFontSizes = [16, 21, 30];
 
 export const AdminsPanelPage: FC = () => {
+  const onPageMount = useUnit(pageMounted);
+
   const addAdminModalIsOpened = useUnit($addAdminModalIsOpened);
   const onOpenAddAdminModal = useUnit(openAddAdminModal);
   const onCloseAddAdminModal = useUnit(closeAddAdminModal);
@@ -67,6 +70,10 @@ export const AdminsPanelPage: FC = () => {
   const onCloseDeleteAdminModal = useUnit(closeDeleteAdminModal);
 
   const onDeleteAdminButtonClick = useUnit(deleteAdminButtonClicked);
+
+  useEffect(() => {
+    onPageMount();
+  }, [onPageMount]);
 
   return (
     <Box>

@@ -2,6 +2,7 @@ import { createEvent, sample, Store } from 'effector';
 import { modelFactory } from 'effector-factorio';
 
 import { logoutStarted, UserType } from '@pms-ui/entities/user';
+import { routes } from '@pms-ui/shared/routes';
 
 type HeaderFactoryOptions = {
   $userType: Store<UserType>;
@@ -14,6 +15,11 @@ export const headerFactory = modelFactory(
     sample({
       clock: logoutButtonClicked,
       target: logoutStarted,
+    });
+
+    sample({
+      clock: logoutStarted,
+      target: routes.homeRoute.open,
     });
 
     return {
