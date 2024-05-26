@@ -176,14 +176,14 @@ export const TaskPage: FC = () => {
                   Дата создания
                 </Text>
                 <Text fontSize="18px">
-                  {format(task.creationDate, 'dd.MM.yyyy hh:mm')}
+                  {format(task.creationDate, 'dd.MM.yyyy HH:mm')}
                 </Text>
 
                 <Text fontSize="18px" fontWeight="bold">
                   Дата дедлайна
                 </Text>
                 <Text fontSize="18px">
-                  {format(task.deadlineDate, 'dd.MM.yyyy hh:mm')}
+                  {format(task.deadlineDate, 'dd.MM.yyyy HH:mm')}
                 </Text>
               </SimpleGrid>
             </HStack>
