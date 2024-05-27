@@ -25,6 +25,8 @@ const usersList: User[] = [
     ],
     canCreateProjects: false,
     userType: null,
+    password: '',
+    position: '',
   },
   {
     id: '2',
@@ -40,6 +42,8 @@ const usersList: User[] = [
     ],
     canCreateProjects: true,
     userType: null,
+    password: '',
+    position: '',
   },
   {
     id: '3',
@@ -49,6 +53,8 @@ const usersList: User[] = [
     projects: [],
     canCreateProjects: true,
     userType: null,
+    password: '',
+    position: '',
   },
 ];
 

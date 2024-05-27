@@ -1,7 +1,7 @@
 import { attach, createEvent, createStore, sample } from 'effector';
 
 import { Project } from '@pms-ui/entities/project';
-import { $userType, fetchUserFx, User } from '@pms-ui/entities/user';
+import { $jwtToken, $userType, fetchUserFx, User } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -40,9 +40,13 @@ sample({
     routes.userEditRoute.opened,
     routes.userEditRoute.updated,
   ],
-  source: { userType: $userType, pageParams: routes.userEditRoute.$params },
-  filter: ({ userType }) => userType === 'admin',
-  fn: ({ pageParams }) => ({ userId: pageParams.userId }),
+  source: {
+    token: $jwtToken,
+    userType: $userType,
+    pageParams: routes.userEditRoute.$params,
+  },
+  filter: ({ userType, token }) => userType === 'admin' && !!token,
+  fn: ({ pageParams, token }) => ({ userId: pageParams.userId, token: token! }),
   target: fetchUserScopedFx,
 });
 

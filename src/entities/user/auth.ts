@@ -1,7 +1,11 @@
+import axios, { AxiosError } from 'axios';
 import { createEffect, createEvent, createStore, sample } from 'effector';
 import { persist } from 'effector-storage/local';
 import { combineEvents } from 'patronum';
 
+import { API_URL } from '@pms-ui/shared/config';
+
+import { mapUserDtoToUser } from './mapping';
 import { User } from './types';
 
 export const authStarted = createEvent();
@@ -11,7 +15,27 @@ export const loginStarted = createEvent<{ login: string; password: string }>();
 export const logoutStarted = createEvent();
 const validateTokenStarted = createEvent<string>();
 
-const validateTokenFx = createEffect((token: string) => {
+const validateTokenFx = createEffect(async (token: string) => {
+  try {
+    const response = await axios.request({
+      url: `${API_URL}/users/profile`,
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      method: 'get',
+    });
+    console.log(response.data);
+    return mapUserDtoToUser(response.data);
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      throw error.response?.data;
+    }
+    throw error;
+  }
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const validateTokenMockFx = createEffect((token: string) => {
   if (token === 'AMAMAM') {
     const user: User = {
       id: '1',
@@ -32,6 +56,8 @@ const validateTokenFx = createEffect((token: string) => {
       ],
       canCreateProjects: false,
       userType: 'admin',
+      password: '',
+      position: '',
     };
     return user;
   }
@@ -55,13 +81,16 @@ const validateTokenFx = createEffect((token: string) => {
       ],
       canCreateProjects: true,
       userType: 'user',
+      password: '',
+      position: '',
     };
     return user;
   }
 
   throw Error('Authorization failed');
 });
-const getTokenFx = createEffect(
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const getTokenMockFx = createEffect(
   ({ login, password }: { login: string; password: string }) => {
     if (login === 'seg_fault' && password === 'V++') {
       return 'AMAMAM' as string;
@@ -74,13 +103,35 @@ const getTokenFx = createEffect(
   }
 );
 
+const getTokenFx = createEffect(
+  async ({ login, password }: { login: string; password: string }) => {
+    try {
+      const response = await axios.request({
+        url: `${API_URL}/login`,
+        method: 'post',
+        params: {
+          login,
+          password,
+        },
+      });
+
+      return response.data.access_token;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+      throw error;
+    }
+  }
+);
+
 export const $currentUser = createStore<User | null>(null);
 export const $userType = $currentUser.map((user) => user?.userType ?? null);
 export const $canCreateProjects = $currentUser.map(
   (user) => user?.canCreateProjects ?? false
 );
 
-const $jwtToken = createStore<string | null>(null);
+export const $jwtToken = createStore<string | null>(null);
 
 persist({
   store: $jwtToken,

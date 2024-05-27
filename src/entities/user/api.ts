@@ -3,7 +3,8 @@ import { createEffect } from 'effector';
 
 import { API_URL } from '@pms-ui/shared/config';
 
-import { User } from './types';
+import { mapUserDtoToUser } from './mapping';
+import { User, UserDto } from './types';
 
 const usersList: User[] = [
   {
@@ -25,6 +26,8 @@ const usersList: User[] = [
     ],
     canCreateProjects: false,
     userType: null,
+    password: '',
+    position: '',
   },
   {
     id: '2',
@@ -40,6 +43,8 @@ const usersList: User[] = [
     ],
     canCreateProjects: true,
     userType: null,
+    password: '',
+    position: '',
   },
   {
     id: '3',
@@ -49,6 +54,8 @@ const usersList: User[] = [
     projects: [],
     canCreateProjects: true,
     userType: null,
+    password: '',
+    position: '',
   },
 ];
 
@@ -63,14 +70,17 @@ const fetchUsersMockFx = createEffect(
 );
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const fetchUsersApiFx = createEffect(async () => {
+const fetchUsersApiFx = createEffect(async ({ token }: { token: string }) => {
   try {
-    const response = await axios.request<User[]>({
+    const response = await axios.request<UserDto[]>({
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
       url: `${API_URL}/users`,
       method: 'get',
     });
 
-    return response.data;
+    return response.data.map((userDto) => mapUserDtoToUser(userDto));
   } catch (error) {
     if (error instanceof AxiosError) {
       throw error.response?.data;
@@ -79,9 +89,9 @@ const fetchUsersApiFx = createEffect(async () => {
   }
 });
 
-export const fetchUsersFx = fetchUsersMockFx;
+export const fetchUsersFx = fetchUsersApiFx;
 
-export const fetchUserFx = createEffect(
+export const fetchUserMockFx = createEffect(
   async ({ userId }: { userId: string }) =>
     new Promise<User>((resolve) => {
       setTimeout(() => {
@@ -94,4 +104,55 @@ export const fetchUserFx = createEffect(
         }
       }, 1000);
     })
+);
+
+export const fetchUserFx = createEffect(
+  async ({ userId, token }: { userId: string; token: string }) => {
+    try {
+      const response = await axios.request<UserDto[]>({
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        url: `${API_URL}/users`,
+        method: 'get',
+      });
+
+      const users = response.data.map((userDto) => mapUserDtoToUser(userDto));
+      const user = users.find((user) => user.id === userId);
+
+      if (!user) {
+        throw Error(`User with id ${userId} is not found`);
+      }
+
+      return user;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+      throw error;
+    }
+  }
+);
+
+export const addUserToSystemFx = createEffect(
+  async ({ user, token }: { user: UserDto; token: string }) => {
+    try {
+      const response = await axios.request<UserDto>({
+        url: `${API_URL}/users`,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        method: 'post',
+        data: user,
+      });
+      console.log(response.data);
+      return response.data;
+    } catch (error) {
+      console.log(error);
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+      throw error;
+    }
+  }
 );

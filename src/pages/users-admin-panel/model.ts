@@ -1,7 +1,14 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 import { not } from 'patronum';
 
-import { $userType, fetchUsersFx, User } from '@pms-ui/entities/user';
+import {
+  $jwtToken,
+  $userType,
+  addUserToSystemFx,
+  fetchUsersFx,
+  User,
+  UserDto,
+} from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -16,6 +23,7 @@ export const pageMounted = createEvent();
 const reset = createEvent();
 
 const fetchUsersScopedFx = attach({ effect: fetchUsersFx });
+const addUserToSystemScopedFx = attach({ effect: addUserToSystemFx });
 
 export const $usersList = createStore<User[]>([]);
 export const $addUserModalIsOpened = createStore(false);
@@ -52,8 +60,9 @@ sample({
     routes.usersAdminPanelRoute.opened,
     routes.usersAdminPanelRoute.updated,
   ],
-  source: $userType,
-  filter: (userType) => userType === 'admin',
+  source: { token: $jwtToken, userType: $userType },
+  filter: ({ userType, token }) => userType === 'admin' && !!token,
+  fn: ({ token }) => ({ token: token! }),
   target: fetchUsersScopedFx,
 });
 
@@ -101,6 +110,42 @@ sample({
 sample({
   clock: routes.usersAdminPanelRoute.closed,
   target: reset,
+});
+
+sample({
+  clock: addUserButtonClicked,
+  source: {
+    jwtToken: $jwtToken,
+    login: $login,
+    firstName: $firstName,
+    lastName: $lastName,
+    password: $password,
+  },
+  filter: ({ jwtToken }) => !!jwtToken,
+  fn: ({ jwtToken, login, firstName, lastName, password }) => {
+    const user: UserDto = {
+      login,
+      firstName,
+      lastName,
+      password,
+      position: 'Пользователь системы',
+      isAdmin: false,
+    };
+
+    return {
+      user,
+      token: jwtToken!,
+    };
+  },
+  target: addUserToSystemScopedFx,
+});
+
+sample({
+  clock: addUserToSystemScopedFx.doneData,
+  source: { token: $jwtToken, userType: $userType },
+  filter: ({ userType, token }) => userType === 'admin' && !!token,
+  fn: ({ token }) => ({ token: token! }),
+  target: [reset, fetchUsersScopedFx],
 });
 
 sample({
