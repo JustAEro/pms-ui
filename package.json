@@ -18,7 +18,7 @@
     "test": "jest --colors --passWithNoTests",
     "posttest": "echo To run server with report, type and run 'npx http-server coverage/lcov-report'",
     "test:watch": "pnpm test --collectCoverage=false --watch",
-    "check": "pnpm lint && pnpm pretest && pnpm test && pnpm posttest && pnpm build",
+    "check": "pnpm format && pnpm lint && pnpm pretest && pnpm test && pnpm posttest && pnpm build",
     "prepare": "husky install",
     "cz": "cz"
   },
@@ -63,6 +63,7 @@
     "sass": "^1.54.0",
     "storybook": "^8.0.4",
     "terser": "^5.30.0",
+    "usehooks-ts": "^3.1.0",
     "vite": "^5.2.7",
     "yup": "^0.32.11"
   },

@@ -1,7 +1,8 @@
 import { useUnit } from 'effector-react';
 import { FC, useEffect } from 'react';
+import { useBoolean } from 'usehooks-ts';
 
-import { CloseIcon } from '@chakra-ui/icons';
+import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -9,6 +10,8 @@ import {
   Flex,
   Image,
   Input,
+  InputGroup,
+  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -29,17 +32,30 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 import {
   $deleteUserFromProjectModalIsOpened,
   $deleteUserModalIsOpened,
+  $isDiscardChangesButtonEnabled,
+  $isSaveChangesButtonEnabled,
   $isUserToEditLoading,
+  $loginFieldValue,
+  $nameFieldValue,
+  $newPasswordFieldValue,
   $projectToBeDeletedFrom,
+  $surnameFieldValue,
   $userToEdit,
   closeDeleteUserFromProjectModal,
   closeDeleteUserModal,
   deleteUserButtonClicked,
   deleteUserFromProjectButtonClicked,
+  discardChangesButtonClicked,
   headerModel,
+  loginFieldChanged,
+  nameFieldChanged,
+  newPasswordFieldChanged,
   openDeleteUserFromProjectModal,
   openDeleteUserModal,
   pageMounted,
+  pageUnmounted,
+  saveChangesButtonClicked,
+  surnameFieldChanged,
 } from './model';
 
 const projectsOfUser: Project[] = [
@@ -65,6 +81,18 @@ const projectsOfUser: Project[] = [
 const textFontSizes = [16, 21, 30];
 
 export const UserEditPage: FC = () => {
+  const loginFieldValue = useUnit($loginFieldValue);
+  const onLoginFieldChange = useUnit(loginFieldChanged);
+
+  const nameFieldValue = useUnit($nameFieldValue);
+  const onNameFieldChange = useUnit(nameFieldChanged);
+
+  const surnameFieldValue = useUnit($surnameFieldValue);
+  const onSurnameFieldChange = useUnit(surnameFieldChanged);
+
+  const newPasswordFieldValue = useUnit($newPasswordFieldValue);
+  const onNewPasswordFieldChange = useUnit(newPasswordFieldChanged);
+
   const userToEdit = useUnit($userToEdit);
   const isUserToEditLoading = useUnit($isUserToEditLoading);
 
@@ -88,10 +116,21 @@ export const UserEditPage: FC = () => {
   const projectToBeDeletedFrom = useUnit($projectToBeDeletedFrom);
 
   const onPageMount = useUnit(pageMounted);
+  const onPageUnmount = useUnit(pageUnmounted);
+
+  const isSaveChangesButtonEnabled = useUnit($isSaveChangesButtonEnabled);
+  const onSaveChangesButtonClick = useUnit(saveChangesButtonClicked);
+
+  const isDiscardChangesButtonEnabled = useUnit($isDiscardChangesButtonEnabled);
+  const onDiscardChangesButtonClick = useUnit(discardChangesButtonClicked);
 
   useEffect(() => {
     onPageMount();
-  }, [onPageMount]);
+
+    return () => onPageUnmount();
+  }, [onPageMount, onPageUnmount]);
+
+  const { value: showPassword, toggle: toggleShowPassword } = useBoolean(false);
 
   return (
     <Box>
@@ -142,19 +181,51 @@ export const UserEditPage: FC = () => {
               <Text fontSize="18px" fontWeight="bold">
                 Логин
               </Text>
-              <Input variant="filled" width="120%" />
+              <Input
+                value={loginFieldValue}
+                onChange={(e) => onLoginFieldChange(e.target.value)}
+                variant="filled"
+                width="120%"
+              />
               <Text fontSize="18px" fontWeight="bold">
                 Имя
               </Text>
-              <Input variant="filled" width="120%" />
+              <Input
+                value={nameFieldValue}
+                onChange={(e) => onNameFieldChange(e.target.value)}
+                variant="filled"
+                width="120%"
+              />
               <Text fontSize="18px" fontWeight="bold">
                 Фамилия
               </Text>
-              <Input variant="filled" width="120%" />
+              <Input
+                value={surnameFieldValue}
+                onChange={(e) => onSurnameFieldChange(e.target.value)}
+                variant="filled"
+                width="120%"
+              />
               <Text fontSize="18px" fontWeight="bold">
                 Пароль (новый)
               </Text>
-              <Input type="password" variant="filled" width="120%" />
+              <InputGroup width="120%">
+                <Input
+                  value={newPasswordFieldValue}
+                  onChange={(e) => onNewPasswordFieldChange(e.target.value)}
+                  type={showPassword ? 'text' : 'password'}
+                  variant="filled"
+                />
+                <InputRightElement>
+                  <Button
+                    marginRight={2}
+                    h="1.75rem"
+                    size="sm"
+                    onClick={toggleShowPassword}
+                  >
+                    {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
             </SimpleGrid>
             <Flex
               marginTop="30px"
@@ -163,10 +234,17 @@ export const UserEditPage: FC = () => {
               justifyContent="center"
               gap={10}
             >
-              <Button variant="solid" colorScheme="blue">
+              <Button
+                disabled={!isSaveChangesButtonEnabled}
+                onClick={onSaveChangesButtonClick}
+                variant="solid"
+                colorScheme="blue"
+              >
                 Сохранить изменения
               </Button>
               <Button
+                disabled={!isDiscardChangesButtonEnabled}
+                onClick={onDiscardChangesButtonClick}
                 border="1px solid"
                 borderColor="#3182CE"
                 color="#3182CE"
