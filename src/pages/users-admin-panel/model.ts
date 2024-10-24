@@ -1,5 +1,12 @@
-import { attach, combine, createEvent, createStore, sample } from 'effector';
-import { not } from 'patronum';
+import {
+  attach,
+  combine,
+  createEffect,
+  createEvent,
+  createStore,
+  sample,
+} from 'effector';
+import { not, or } from 'patronum';
 
 import {
   $jwtToken,
@@ -20,10 +27,30 @@ export const lastNameEdited = createEvent<string>();
 export const passwordEdited = createEvent<string>();
 export const addUserButtonClicked = createEvent();
 export const pageMounted = createEvent();
+
+export const allowToCreateProjectsCheckboxClicked = createEvent<{
+  id: string;
+  newStatus: boolean;
+}>();
+
 const reset = createEvent();
 
 const fetchUsersScopedFx = attach({ effect: fetchUsersFx });
 const addUserToSystemScopedFx = attach({ effect: addUserToSystemFx });
+const changeIsAllowedToCreateProjectsForUserFx = createEffect(
+  async ({ id, newStatus }: { id: string; newStatus: boolean }) =>
+    // send query to backend to update is allowed to create projects for user
+
+    new Promise((resolve) => {
+      // TODO: delete this after connect to real backend
+      setTimeout(() => {
+        resolve({
+          id,
+          newStatus,
+        });
+      }, 1000);
+    })
+);
 
 export const $usersList = createStore<User[]>([]);
 export const $addUserModalIsOpened = createStore(false);
@@ -44,6 +71,13 @@ const $isAddUserButtonEnabled = combine(
 );
 export const $isAddUserButtonDisabled = not($isAddUserButtonEnabled);
 export const $isUsersListLoading = fetchUsersScopedFx.pending;
+export const $isDisabledCheckboxToChangeAllowToCreateProjects = or(
+  changeIsAllowedToCreateProjectsForUserFx.pending,
+  fetchUsersScopedFx.pending
+);
+export const $usersAllowedToCreateProjectsCheckboxesState = createStore<
+  Record<string, boolean>
+>({});
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
@@ -53,6 +87,13 @@ export const headerModel = pageHeader.model.createModel({ $userType });
 //   filter: (userType) => userType !== 'admin',
 //   target: routes.homeRoute.open,
 // });
+
+sample({
+  clock: $usersList,
+  fn: (users) =>
+    Object.fromEntries(users.map((user) => [user.id, user.canCreateProjects])),
+  target: $usersAllowedToCreateProjectsCheckboxesState,
+});
 
 sample({
   clock: [
@@ -146,6 +187,29 @@ sample({
   filter: ({ userType, token }) => userType === 'admin' && !!token,
   fn: ({ token }) => ({ token: token! }),
   target: [reset, fetchUsersScopedFx],
+});
+
+sample({
+  clock: allowToCreateProjectsCheckboxClicked,
+  target: changeIsAllowedToCreateProjectsForUserFx,
+});
+
+sample({
+  clock: allowToCreateProjectsCheckboxClicked,
+  source: $usersAllowedToCreateProjectsCheckboxesState,
+  fn: (checkboxesState, { id, newStatus }) => ({
+    ...checkboxesState,
+    [id]: newStatus,
+  }),
+  target: $usersAllowedToCreateProjectsCheckboxesState,
+});
+
+sample({
+  clock: changeIsAllowedToCreateProjectsForUserFx.done,
+  source: { token: $jwtToken, userType: $userType },
+  filter: ({ userType, token }) => userType === 'admin' && !!token,
+  fn: ({ token }) => ({ token: token! }),
+  target: fetchUsersScopedFx,
 });
 
 sample({

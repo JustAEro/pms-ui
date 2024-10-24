@@ -17,11 +17,28 @@ import {
 import { routes } from '@pms-ui/shared/routes';
 import { PencilIcon } from '@pms-ui/shared/ui';
 
-import { $isUsersListLoading, $usersList } from './model';
+import {
+  $isDisabledCheckboxToChangeAllowToCreateProjects,
+  $isUsersListLoading,
+  $usersAllowedToCreateProjectsCheckboxesState,
+  $usersList,
+  allowToCreateProjectsCheckboxClicked,
+} from './model';
 
 export const UsersTable: FC = () => {
   const usersList = useUnit($usersList);
   const isUsersListLoading = useUnit($isUsersListLoading);
+
+  const isDisabledCheckboxToChangeAllowToCreateProjects = useUnit(
+    $isDisabledCheckboxToChangeAllowToCreateProjects
+  );
+  const usersAllowedToCreateProjectsCheckboxesState = useUnit(
+    $usersAllowedToCreateProjectsCheckboxesState
+  );
+
+  const onAllowToCreateProjectsCheckboxClick = useUnit(
+    allowToCreateProjectsCheckboxClicked
+  );
 
   if (isUsersListLoading) {
     return <Spinner marginTop="30px" />;
@@ -60,7 +77,19 @@ export const UsersTable: FC = () => {
               <Td>
                 <Flex alignItems="center" justifyContent="center">
                   <Checkbox
-                    isChecked={user.canCreateProjects}
+                    isChecked={
+                      usersAllowedToCreateProjectsCheckboxesState[user.id]
+                    }
+                    onChange={() => {
+                      const newStatus =
+                        !usersAllowedToCreateProjectsCheckboxesState[user.id];
+
+                      onAllowToCreateProjectsCheckboxClick({
+                        id: user.id,
+                        newStatus,
+                      });
+                    }}
+                    disabled={isDisabledCheckboxToChangeAllowToCreateProjects}
                     border="1px solid"
                     borderColor="#E2E8F0"
                     borderRadius="6px"
