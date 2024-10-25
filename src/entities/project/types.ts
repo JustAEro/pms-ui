@@ -3,3 +3,5 @@ export type Project = {
   name: string;
   description: string;
 };
+
+export type CreateProject = Omit<Project, 'id'>;

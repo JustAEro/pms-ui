@@ -1,5 +1,6 @@
 import { useUnit } from 'effector-react';
 import { FC, useEffect } from 'react';
+import { useUnmount } from 'usehooks-ts';
 
 import { SearchIcon } from '@chakra-ui/icons';
 import {
@@ -28,6 +29,7 @@ import {
   $areProjectsLoading,
   $createProjectModalIsOpened,
   $isCreateProjectButtonDisabled,
+  $isProjectCreationFormDisabledBecauseCreationPending,
   $projectDescription,
   $projectName,
   $projectsToShow,
@@ -38,6 +40,7 @@ import {
   createProjectModalOpened,
   headerModel,
   pageMounted,
+  pageUnmounted,
   projectClicked,
   projectDescriptionChanged,
   projectNameChanged,
@@ -48,6 +51,7 @@ const textFontSizes = [16, 21, 30];
 
 export const ProjectsPage: FC = () => {
   const onPageMount = useUnit(pageMounted);
+  const onPageUnmount = useUnit(pageUnmounted);
 
   const canCreateProjects = useUnit($canCreateProjects);
   const areProjectsLoading = useUnit($areProjectsLoading);
@@ -70,9 +74,17 @@ export const ProjectsPage: FC = () => {
 
   const onProjectClick = useUnit(projectClicked);
 
+  const isProjectCreationFormDisabledBecauseCreationPending = useUnit(
+    $isProjectCreationFormDisabledBecauseCreationPending
+  );
+
   useEffect(() => {
     onPageMount();
   }, [onPageMount]);
+
+  useUnmount(() => {
+    onPageUnmount();
+  });
 
   return (
     <Box>
@@ -196,6 +208,9 @@ export const ProjectsPage: FC = () => {
                   <Spacer height="20px" />
                   <Flex alignItems="center" justifyContent="center">
                     <Input
+                      disabled={
+                        isProjectCreationFormDisabledBecauseCreationPending
+                      }
                       value={projectName}
                       onChange={(e) => onChangeProjectName(e.target.value)}
                       width="80%"
@@ -206,6 +221,9 @@ export const ProjectsPage: FC = () => {
                   <Spacer height="20px" />
                   <Flex alignItems="center" justifyContent="center">
                     <Textarea
+                      disabled={
+                        isProjectCreationFormDisabledBecauseCreationPending
+                      }
                       value={projectDescription}
                       onChange={(e) =>
                         onChangeProjectDescription(e.target.value)
@@ -219,12 +237,18 @@ export const ProjectsPage: FC = () => {
                   <Flex alignItems="center" justifyContent="center">
                     <Button
                       onClick={onCreateProjectButtonClick}
-                      disabled={isCreateProjectButtonDisabled}
+                      disabled={
+                        isCreateProjectButtonDisabled ||
+                        isProjectCreationFormDisabledBecauseCreationPending
+                      }
                       width="80%"
                       variant="solid"
                       colorScheme="teal"
                     >
                       Создать
+                      {isProjectCreationFormDisabledBecauseCreationPending && (
+                        <Spinner marginLeft="10px" />
+                      )}
                     </Button>
                   </Flex>
                   <Spacer height="20px" />
