@@ -1,6 +1,6 @@
 import { createEffect } from 'effector';
 
-import { Project } from './types';
+import { CreateProject, Project } from './types';
 
 const projects: Project[] = [
   {
@@ -82,6 +82,24 @@ export const fetchProjectFx = createEffect(
         }
       }, 1000);
     })
+);
+
+export const createProjectFx = createEffect(
+  async ({ name, description }: CreateProject) => {
+    const newProject: Project = {
+      id: String(Date.now()),
+      name,
+      description,
+    };
+
+    projects.push(newProject);
+
+    return new Promise<Project>((resolve) => {
+      setTimeout(() => {
+        resolve(newProject);
+      }, 3000);
+    });
+  }
 );
 
 export const fetchArchivedProjectsFx = createEffect(
