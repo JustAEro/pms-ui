@@ -27,6 +27,7 @@ export const lastNameEdited = createEvent<string>();
 export const passwordEdited = createEvent<string>();
 export const addUserButtonClicked = createEvent();
 export const pageMounted = createEvent();
+const resetModalState = createEvent();
 
 export const allowToCreateProjectsCheckboxClicked = createEvent<{
   id: string;
@@ -64,8 +65,8 @@ const $isAddUserButtonEnabled = combine(
   $firstName,
   $lastName,
   (login, password, firstName, lastName) =>
-    login.length > 0 &&
-    password.length > 0 &&
+    login.length > 3 &&
+    password.length > 3 &&
     firstName.length > 0 &&
     lastName.length > 0
 );
@@ -125,7 +126,7 @@ sample({
   source: $addUserModalIsOpened,
   filter: (addUserModalIsOpened) => addUserModalIsOpened,
   fn: () => false,
-  target: $addUserModalIsOpened,
+  target: [$addUserModalIsOpened, resetModalState],
 });
 
 sample({
@@ -213,13 +214,17 @@ sample({
 });
 
 sample({
-  clock: reset,
+  clock: resetModalState,
   target: [
-    $usersList.reinit,
     $login.reinit,
     $firstName.reinit,
     $lastName.reinit,
-    $addUserModalIsOpened.reinit,
     $password.reinit,
-  ] as const,
+    $addUserModalIsOpened.reinit,
+  ],
+});
+
+sample({
+  clock: reset,
+  target: [resetModalState, $usersList.reinit] as const,
 });
