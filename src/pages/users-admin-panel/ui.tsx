@@ -1,11 +1,15 @@
 import { useUnit } from 'effector-react';
 import { FC, useEffect } from 'react';
+import { useBoolean } from 'usehooks-ts';
 
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
   Flex,
   Input,
+  InputGroup,
+  InputRightElement,
   Modal,
   ModalBody,
   ModalCloseButton,
@@ -59,6 +63,8 @@ export const UsersAdminPanelPage: FC = () => {
   const onAddUserButtonClick = useUnit(addUserButtonClicked);
 
   const isUsersListLoading = useUnit($isUsersListLoading);
+
+  const { value: showPassword, toggle: toggleShowPassword } = useBoolean(false);
 
   useEffect(() => {
     onPageMount();
@@ -137,14 +143,25 @@ export const UsersAdminPanelPage: FC = () => {
               </Flex>
               <Spacer height="20px" />
               <Flex alignItems="center" justifyContent="center">
-                <Input
-                  value={password}
-                  onChange={(e) => onChangePassword(e.target.value)}
-                  type="password"
-                  width="80%"
-                  variant="filled"
-                  placeholder="Пароль"
-                />
+                <InputGroup width="80%">
+                  <Input
+                    value={password}
+                    onChange={(e) => onChangePassword(e.target.value)}
+                    type={showPassword ? 'text' : 'password'}
+                    variant="filled"
+                    placeholder="Пароль"
+                  />
+                  <InputRightElement>
+                    <Button
+                      marginRight={2}
+                      h="1.75rem"
+                      size="sm"
+                      onClick={toggleShowPassword}
+                    >
+                      {showPassword ? <ViewOffIcon /> : <ViewIcon />}
+                    </Button>
+                  </InputRightElement>
+                </InputGroup>
               </Flex>
               <Spacer height="50px" />
               <Flex alignItems="center" justifyContent="center">
