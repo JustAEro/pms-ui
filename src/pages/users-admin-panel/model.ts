@@ -6,14 +6,13 @@ import {
   createStore,
   sample,
 } from 'effector';
-import { not, or } from 'patronum';
+import { not, or, spread } from 'patronum';
 
 import {
   $jwtToken,
   $userType,
   addUserToSystemFx,
   fetchUsersFx,
-  User,
   UserDto,
 } from '@pms-ui/entities/user';
 import { createPagination } from '@pms-ui/shared/lib';
@@ -39,7 +38,6 @@ export const pageNumberChanged = createEvent<number>();
 
 const reset = createEvent();
 
-const fetchUsersScopedFx = attach({ effect: fetchUsersFx });
 const fetchUsersWithPaginationFx = attach({
   source: $jwtToken,
   async effect(token, params: { limit: number; offset: number }) {
@@ -78,7 +76,7 @@ const changeIsAllowedToCreateProjectsForUserFx = createEffect(
   async ({ id, newStatus }: { id: string; newStatus: boolean }) =>
     // send query to backend to update is allowed to create projects for user
 
-    new Promise((resolve) => {
+    new Promise<{ id: string; newStatus: boolean }>((resolve) => {
       // TODO: delete this after connect to real backend
       setTimeout(() => {
         resolve({
@@ -91,7 +89,6 @@ const changeIsAllowedToCreateProjectsForUserFx = createEffect(
 
 export const $currentPageNumber = createStore(0);
 export const $pagesCount = createStore(0);
-export const $usersList = createStore<User[]>([]);
 export const $addUserModalIsOpened = createStore(false);
 export const $login = createStore('');
 export const $password = createStore('');
@@ -109,13 +106,11 @@ const $isAddUserButtonEnabled = combine(
     lastName.length > 0
 );
 export const $isAddUserButtonDisabled = not($isAddUserButtonEnabled);
-export const $isUsersListLoading = or(
-  fetchUsersScopedFx.pending,
-  fetchUsersWithPaginationFx.pending
-);
+export const $isUsersListLoading = fetchUsersWithPaginationFx.pending;
+
 export const $isDisabledCheckboxToChangeAllowToCreateProjects = or(
   changeIsAllowedToCreateProjectsForUserFx.pending,
-  fetchUsersScopedFx.pending
+  fetchUsersWithPaginationFx.pending
 );
 export const $usersAllowedToCreateProjectsCheckboxesState = createStore<
   Record<string, boolean>
@@ -177,27 +172,10 @@ sample({
 // });
 
 sample({
-  clock: [$usersList],
+  clock: usersPagination.$currentItems,
   fn: (users) =>
     Object.fromEntries(users.map((user) => [user.id, user.canCreateProjects])),
   target: $usersAllowedToCreateProjectsCheckboxesState,
-});
-
-sample({
-  clock: [
-    pageMounted,
-    routes.usersAdminPanelRoute.opened,
-    routes.usersAdminPanelRoute.updated,
-  ],
-  source: { token: $jwtToken, userType: $userType },
-  filter: ({ userType, token }) => userType === 'admin' && !!token,
-  fn: ({ token }) => ({ token: token! }),
-  target: fetchUsersScopedFx,
-});
-
-sample({
-  clock: fetchUsersScopedFx.doneData,
-  target: $usersList,
 });
 
 sample({
@@ -271,10 +249,21 @@ sample({
 
 sample({
   clock: addUserToSystemScopedFx.doneData,
-  source: { token: $jwtToken, userType: $userType },
-  filter: ({ userType, token }) => userType === 'admin' && !!token,
-  fn: ({ token }) => ({ token: token! }),
-  target: [reset, fetchUsersScopedFx],
+  source: {
+    usersLimitOnPage: $usersLimitOnPage,
+  },
+  fn: ({ usersLimitOnPage }) => ({
+    fetchPagesCount: { limit: usersLimitOnPage },
+    loadPageFx: { page: 0 },
+    pageNumberChanged: 0,
+    resetModalState: undefined,
+  }),
+  target: spread({
+    fetchPagesCount: fetchPagesCountFx,
+    loadPageFx: usersPagination.loadPageFx,
+    pageNumberChanged,
+    resetModalState,
+  }),
 });
 
 sample({
@@ -294,10 +283,18 @@ sample({
 
 sample({
   clock: changeIsAllowedToCreateProjectsForUserFx.done,
-  source: { token: $jwtToken, userType: $userType },
-  filter: ({ userType, token }) => userType === 'admin' && !!token,
-  fn: ({ token }) => ({ token: token! }),
-  target: fetchUsersScopedFx,
+  source: {
+    usersAllowedToCreateProjectsCheckboxesState:
+      $usersAllowedToCreateProjectsCheckboxesState,
+  },
+  fn: (
+    { usersAllowedToCreateProjectsCheckboxesState },
+    { result: { id, newStatus } }
+  ) => ({
+    ...usersAllowedToCreateProjectsCheckboxesState,
+    [id]: newStatus,
+  }),
+  target: $usersAllowedToCreateProjectsCheckboxesState,
 });
 
 sample({
@@ -313,5 +310,5 @@ sample({
 
 sample({
   clock: reset,
-  target: [resetModalState, $usersList.reinit, usersPagination.reset] as const,
+  target: [resetModalState, usersPagination.reset] as const,
 });

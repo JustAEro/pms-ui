@@ -12,9 +12,14 @@ import {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type PaginationOptions<Item, Eff extends Effect<any, any, any>> = {
-  limit: Store<number>;
-  effect: Eff;
+  limit: Store<number>; // store with number of items per page
+
+  effect: Eff; // effect that will do fetching items
+
+  /* Map effect result to extract items */
   mapResult: (result: EffectResult<Eff>) => Item[];
+
+  /* Convert createPagination's page and limit into effect params */
   mapParams: (params: { page: number; limit: number }) => EffectParams<Eff>;
 };
 
