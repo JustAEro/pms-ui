@@ -1,7 +1,12 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 
 import { Project } from '@pms-ui/entities/project';
-import { $jwtToken, $userType, fetchUserFx, User } from '@pms-ui/entities/user';
+import {
+  $jwtToken,
+  $userType,
+  fetchUserMockFx,
+  User,
+} from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -21,7 +26,7 @@ export const saveChangesButtonClicked = createEvent();
 export const discardChangesButtonClicked = createEvent();
 const resetFormState = createEvent();
 
-const fetchUserScopedFx = attach({ effect: fetchUserFx });
+const fetchUserScopedFx = attach({ effect: fetchUserMockFx });
 
 export const $loginFieldValue = createStore<string>('');
 export const loginFieldChanged = createEvent<string>();

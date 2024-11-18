@@ -64,6 +64,7 @@ import {
   dragOverAcceptableColumnStarted,
   headerModel,
   pageMounted,
+  projectManageButtonClicked,
   taskCardLinkClicked,
 } from './model';
 
@@ -92,6 +93,8 @@ export const ProjectPage: FC = () => {
   const tasksTotalCount = useUnit($tasksTotalCount);
   const tasksArchivedCount = useUnit($tasksArchivedCount);
   const tasksExpiredCount = useUnit($tasksExpiredCount);
+
+  const onProjectManageButtonClick = useUnit(projectManageButtonClicked);
 
   useEffect(() => {
     onPageMount();
@@ -129,7 +132,9 @@ export const ProjectPage: FC = () => {
               <Button colorScheme="gray">Список задач проекта</Button>
 
               {isAdminOfProject && (
-                <Button colorScheme="gray">Управление проектом</Button>
+                <Button onClick={onProjectManageButtonClick} colorScheme="gray">
+                  Управление проектом
+                </Button>
               )}
 
               <Button colorScheme="gray">Архив задач</Button>

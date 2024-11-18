@@ -36,6 +36,8 @@ export const dragEndedSuccess = createEvent<{
 
 export const taskCardLinkClicked = createEvent<{ taskId: string }>();
 
+export const projectManageButtonClicked = createEvent();
+
 const fetchProjectScopedFx = attach({ effect: fetchProjectFx });
 
 const fetchTasksInProjectScopedFx = attach({ effect: fetchTasksInProjectFx });
@@ -198,6 +200,12 @@ sample({
 sample({
   clock: taskCardLinkClicked,
   target: routes.taskRoute.open,
+});
+
+sample({
+  clock: projectManageButtonClicked,
+  source: routes.projectRoute.$params,
+  target: routes.projectManagementRoute.open,
 });
 
 sample({

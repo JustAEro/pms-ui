@@ -1,5 +1,7 @@
 import { createEffect } from 'effector';
 
+import type { User } from '../user';
+
 import { CreateProject, Project } from './types';
 
 const projects: Project[] = [
@@ -109,4 +111,108 @@ export const fetchArchivedProjectsFx = createEffect(
         resolve(projects);
       }, 1000);
     })
+);
+
+let usersList: User[] = [
+  {
+    id: '1',
+    login: 'seg_fault',
+    firstName: 'Segun',
+    lastName: 'Adebayo',
+    projects: [
+      {
+        id: 'id1',
+        name: 'S_JIRO',
+        description: 's_jiro',
+      },
+      {
+        id: 'id2',
+        name: 'DevRel',
+        description: 'devRel',
+      },
+    ],
+    canCreateProjects: false,
+    userType: null,
+    password: '',
+    position: '',
+  },
+  {
+    id: '2',
+    login: 'mark_down',
+    firstName: 'Mark',
+    lastName: 'Chandler',
+    projects: [
+      {
+        id: 'id3',
+        name: 'Developer',
+        description: 'dev_to',
+      },
+    ],
+    canCreateProjects: true,
+    userType: null,
+    password: '',
+    position: '',
+  },
+  {
+    id: '3',
+    login: 'sirgay_lazar',
+    firstName: 'Lazar',
+    lastName: 'Nikolov',
+    projects: [],
+    canCreateProjects: true,
+    userType: null,
+    password: '',
+    position: '',
+  },
+];
+
+export const fetchMembersOfProjectMockFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ projectId }: { projectId: string }) =>
+    new Promise<User[]>((resolve) => {
+      setTimeout(() => {
+        resolve(usersList);
+      }, 1000);
+    })
+);
+
+export const editProjectMockFx = createEffect(async (project: Project) => {
+  const { id, name, description } = project;
+
+  const projectToEdit = projects.find((project) => project.id === id)!;
+
+  projectToEdit.name = name;
+  projectToEdit.description = description;
+
+  return new Promise<Project>((resolve) => {
+    setTimeout(() => {
+      resolve(projectToEdit);
+    }, 3000);
+  });
+});
+
+export const deleteMemberFromProjectMockFx = createEffect(
+  async (userId: User['id']) => {
+    usersList = usersList.filter((user) => user.id !== userId);
+  }
+);
+
+export const addMemberToProjectMockFx = createEffect(
+  async (userLogin: User['login']) => {
+    const newUser: User = {
+      login: userLogin,
+      id: Date.now().toString(),
+      firstName: userLogin,
+      lastName: userLogin,
+      projects: [],
+      canCreateProjects: false,
+      userType: null,
+      password: '',
+      position: '',
+    };
+
+    usersList = [...usersList, newUser];
+
+    return newUser;
+  }
 );
