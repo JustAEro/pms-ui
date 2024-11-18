@@ -63,6 +63,7 @@ const projectsOfUser: Project[] = [
     id: '1',
     name: 'Proj1',
     description: 'desc_proj_1',
+    isArchived: false,
   },
   {
     id: '2',
@@ -70,11 +71,13 @@ const projectsOfUser: Project[] = [
     description:
       // eslint-disable-next-line max-len
       'desc_proj_2fjkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkg',
+    isArchived: false,
   },
   {
     id: '3',
     name: 'Proj3',
     description: 'desc_proj_3',
+    isArchived: false,
   },
 ];
 

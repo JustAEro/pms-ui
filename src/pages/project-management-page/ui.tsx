@@ -38,30 +38,38 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
   $addUserLoginFieldValue,
+  $adminsMap,
   $editProjectModalDescription,
   $editProjectModalName,
   $isConfirmEditProjectButtonDisabled,
   $isMembersOfProjectLoading,
+  $isProjectArchived,
   $isProjectEditInProgress,
   $isProjectLoading,
+  $isSaveChangesAndCancelChangesButtonsDisabled,
+  $isUpdateAdminsOfProjectInProgress,
   $membersOfProject,
   $project,
   $userToBeDeleted,
   addUserLoginFieldValueChanged,
   addUserModal,
+  adminCheckboxChecked,
   archiveProjectModal,
   backToProjectButtonClicked,
   confirmAddUserToProjectButtonClicked,
+  confirmArchiveProjectButtonClicked,
   confirmDeleteUserFromProjectButtonClicked,
   confirmEditProjectButtonClicked,
   deleteFromProjectModal,
   deleteUserFromProjectButtonClicked,
+  discardChangesButtonClicked,
   editProjectModal,
   headerModel,
   pageMounted,
   pageUnmounted,
   projectDescriptionInEditModalChanged,
   projectNameInEditModalChanged,
+  saveChangesButtonClicked,
 } from './model';
 
 const textFontSizes = [16, 21, 30];
@@ -72,12 +80,14 @@ export const ProjectManagementPage: FC = () => {
 
   const project = useUnit($project);
   const isProjectLoading = useUnit($isProjectLoading);
+  const isProjectArchived = useUnit($isProjectArchived);
   const isProjectEditInProgress = useUnit($isProjectEditInProgress);
   const isConfirmEditProjectButtonDisabled = useUnit(
     $isConfirmEditProjectButtonDisabled
   );
 
   const membersOfProject = useUnit($membersOfProject);
+  const adminsMap = useUnit($adminsMap);
   const isMembersOfProjectLoading = useUnit($isMembersOfProjectLoading);
 
   const userToBeDeleted = useUnit($userToBeDeleted);
@@ -127,6 +137,23 @@ export const ProjectManagementPage: FC = () => {
     confirmAddUserToProjectButtonClicked
   );
 
+  const onConfirmArchiveProjectButtonClick = useUnit(
+    confirmArchiveProjectButtonClicked
+  );
+
+  const onAdminCheckboxCheck = useUnit(adminCheckboxChecked);
+
+  const isSaveChangesAndCancelChangesButtonsDisabled = useUnit(
+    $isSaveChangesAndCancelChangesButtonsDisabled
+  );
+
+  const onSaveChangesButtonClick = useUnit(saveChangesButtonClicked);
+  const onDiscardChangesButtonClick = useUnit(discardChangesButtonClicked);
+
+  const isUpdateAdminsOfProjectInProgress = useUnit(
+    $isUpdateAdminsOfProjectInProgress
+  );
+
   useEffect(() => {
     onPageMount();
   }, [onPageMount]);
@@ -164,9 +191,18 @@ export const ProjectManagementPage: FC = () => {
               <Text fontWeight="bold" fontSize={textFontSizes}>
                 Управление проектом {project.name}
               </Text>
-              <PencilIcon onClick={onOpenEditProjectModal} />
+              {!isProjectArchived && (
+                <PencilIcon onClick={onOpenEditProjectModal} />
+              )}
               <Box marginLeft="2vw" marginRight="-3vw">
-                <Tooltip label="Архивировать проект" placement="top">
+                <Tooltip
+                  label={
+                    isProjectArchived
+                      ? 'Разархивировать проект'
+                      : 'Архивировать проект'
+                  }
+                  placement="top"
+                >
                   <Image
                     onClick={onOpenArchiveProjectModal}
                     cursor="pointer"
@@ -200,6 +236,11 @@ export const ProjectManagementPage: FC = () => {
                       <Td>
                         <Flex alignItems="center" justifyContent="center">
                           <Checkbox
+                            isChecked={adminsMap[user.id]}
+                            onChange={() => {
+                              onAdminCheckboxCheck(user.id);
+                            }}
+                            disabled={!!isProjectArchived}
                             border="1px solid"
                             borderColor="#E2E8F0"
                             borderRadius="6px"
@@ -211,9 +252,13 @@ export const ProjectManagementPage: FC = () => {
                         <Flex justifyContent="center">
                           <Image
                             onClick={() => {
-                              onOpenDeleteUserFromProjectModal(user);
+                              if (!isProjectArchived) {
+                                onOpenDeleteUserFromProjectModal(user);
+                              }
                             }}
-                            cursor="pointer"
+                            cursor={
+                              !isProjectArchived ? 'pointer' : 'not-allowed'
+                            }
                             src={trashIcon}
                             alt=""
                             w="18px"
@@ -226,39 +271,47 @@ export const ProjectManagementPage: FC = () => {
                 </Tbody>
               </Table>
             </TableContainer>
+            {!isProjectArchived && (
+              <>
+                <Flex direction="row" marginTop="20px">
+                  <Button
+                    onClick={onSaveChangesButtonClick}
+                    disabled={isSaveChangesAndCancelChangesButtonsDisabled}
+                    variant="solid"
+                    colorScheme="blue"
+                  >
+                    Сохранить изменения
+                    {isUpdateAdminsOfProjectInProgress && (
+                      <Spinner marginLeft="10px" />
+                    )}
+                  </Button>
 
-            <Flex direction="row" marginTop="20px">
-              <Button
-                // onClick={onCloseArchiveProjectModal}
-                variant="solid"
-                colorScheme="blue"
-              >
-                Сохранить изменения
-              </Button>
+                  <Spacer w="25px" />
 
-              <Spacer w="25px" />
+                  <Button
+                    onClick={onDiscardChangesButtonClick}
+                    disabled={isSaveChangesAndCancelChangesButtonsDisabled}
+                    variant="solid"
+                    textColor="#3182CE"
+                    backgroundColor="white"
+                    border="1px solid #3182CE"
+                  >
+                    Отменить изменения
+                  </Button>
+                </Flex>
+                <Button
+                  onClick={onOpenAddUserModal}
+                  marginTop="20px"
+                  border="1px solid"
+                  borderColor="#3182CE"
+                  color="#3182CE"
+                  bgColor="#FFFFFF"
+                >
+                  + Добавить пользователя в проект
+                </Button>
+              </>
+            )}
 
-              <Button
-                variant="solid"
-                textColor="#3182CE"
-                backgroundColor="white"
-                border="1px solid #3182CE"
-                // onClick={onDeleteUserButtonClick}
-              >
-                Отменить изменения
-              </Button>
-            </Flex>
-
-            <Button
-              onClick={onOpenAddUserModal}
-              marginTop="20px"
-              border="1px solid"
-              borderColor="#3182CE"
-              color="#3182CE"
-              bgColor="#FFFFFF"
-            >
-              + Добавить пользователя в проект
-            </Button>
             <Modal
               size="xl"
               isOpen={addUserModalIsOpened}
@@ -405,7 +458,8 @@ export const ProjectManagementPage: FC = () => {
                     justifyContent="center"
                   >
                     <Text fontWeight="bold" fontSize={textFontSizes}>
-                      Архивирование проекта
+                      {isProjectArchived ? 'Разархивирование' : 'Архивирование'}{' '}
+                      проекта
                     </Text>
                   </Flex>
                 </ModalHeader>
@@ -413,7 +467,9 @@ export const ProjectManagementPage: FC = () => {
                   <Spacer height="20px" />
                   <Flex alignItems="center" justifyContent="center">
                     <Text width="80%" textAlign="center">
-                      {`Вы действительно хотите архивировать проект
+                      {`Вы действительно хотите ${
+                        isProjectArchived ? 'разархивировать' : 'архивировать'
+                      } проект
                      ${project.name}?`}
                     </Text>
                   </Flex>
@@ -433,12 +489,12 @@ export const ProjectManagementPage: FC = () => {
                   <Spacer height="25px" />
                   <Flex alignItems="center" justifyContent="center">
                     <Button
-                      // onClick={onDeleteUserButtonClick}
+                      onClick={onConfirmArchiveProjectButtonClick}
                       width="80%"
                       variant="solid"
                       colorScheme="blue"
                     >
-                      Архивировать
+                      {isProjectArchived ? 'Разархивировать' : 'Архивировать'}
                     </Button>
                   </Flex>
                   <Spacer height="20px" />
