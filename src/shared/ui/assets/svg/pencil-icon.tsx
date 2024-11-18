@@ -1,7 +1,14 @@
+/* eslint-disable react/require-default-props */
 import { Icon } from '@chakra-ui/react';
 
-export const PencilIcon = () => (
+type PencilIconProps = {
+  onClick?: () => void;
+};
+
+export const PencilIcon = ({ onClick }: PencilIconProps) => (
   <Icon
+    onClick={onClick}
+    cursor="pointer"
     width="16px"
     height="16px"
     viewBox="0 0 24 24"

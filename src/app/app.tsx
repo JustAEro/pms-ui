@@ -8,6 +8,7 @@ import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { ArchiveProjectsPage } from '@pms-ui/pages/archive-projects-page';
 import { HomePage } from '@pms-ui/pages/home';
 import { ProfilePage } from '@pms-ui/pages/profile';
+import { ProjectManagementPage } from '@pms-ui/pages/project-management-page';
 import { ProjectPage } from '@pms-ui/pages/project-page';
 import { ProjectsPage } from '@pms-ui/pages/projects-page';
 import { TaskPage } from '@pms-ui/pages/task-page';
@@ -59,6 +60,10 @@ export const App: FC = () => {
         <Route
           route={routes.taskRoute}
           view={usersPageView(TaskPage, userType)}
+        />
+        <Route
+          route={routes.projectManagementRoute}
+          view={usersPageView(ProjectManagementPage, userType)}
         />
       </RouterProvider>
     </ChakraProvider>

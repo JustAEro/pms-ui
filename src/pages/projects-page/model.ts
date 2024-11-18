@@ -137,6 +137,7 @@ sample({
   fn: ({ projectName, projectDescription }): CreateProject => ({
     name: projectName,
     description: projectDescription,
+    isArchived: false,
   }),
   target: createProjectScopedFx,
 });

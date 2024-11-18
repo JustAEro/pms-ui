@@ -12,6 +12,7 @@ export const routes = {
   projectsRoute: createRoute(),
   archivedProjectsRoute: createRoute(),
   projectRoute: createRoute<{ projectId: string }>(),
+  projectManagementRoute: createRoute<{ projectId: string }>(),
   taskRoute: createRoute<{ taskId: string }>(),
 };
 
@@ -23,6 +24,7 @@ const routeObjects = [
   { path: '/users-admin-panel/user/:userId/edit', route: routes.userEditRoute },
   { path: '/projects', route: routes.projectsRoute },
   { path: '/projects/archive', route: routes.archivedProjectsRoute },
+  { path: '/project/:projectId/manage', route: routes.projectManagementRoute },
   { path: '/project/:projectId', route: routes.projectRoute },
   { path: '/task/:taskId', route: routes.taskRoute },
 ];

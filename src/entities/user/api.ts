@@ -17,11 +17,13 @@ const usersList: User[] = [
         id: 'id1',
         name: 'S_JIRO',
         description: 's_jiro',
+        isArchived: false,
       },
       {
         id: 'id2',
         name: 'DevRel',
         description: 'devRel',
+        isArchived: false,
       },
     ],
     canCreateProjects: false,
@@ -39,6 +41,7 @@ const usersList: User[] = [
         id: 'id3',
         name: 'Developer',
         description: 'dev_to',
+        isArchived: false,
       },
     ],
     canCreateProjects: true,
@@ -61,7 +64,8 @@ const usersList: User[] = [
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const fetchUsersMockFx = createEffect(
-  async () =>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ token }: { token: string }) =>
     new Promise<User[]>((resolve) => {
       setTimeout(() => {
         resolve(usersList);
@@ -89,10 +93,11 @@ const fetchUsersApiFx = createEffect(async ({ token }: { token: string }) => {
   }
 });
 
-export const fetchUsersFx = fetchUsersApiFx;
+export const fetchUsersFx = fetchUsersMockFx;
 
 export const fetchUserMockFx = createEffect(
-  async ({ userId }: { userId: string }) =>
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ userId, token }: { userId: string; token: string }) =>
     new Promise<User>((resolve) => {
       setTimeout(() => {
         const foundUser = usersList.find((user) => user.id === userId);

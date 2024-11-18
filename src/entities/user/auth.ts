@@ -15,6 +15,7 @@ export const loginStarted = createEvent<{ login: string; password: string }>();
 export const logoutStarted = createEvent();
 const validateTokenStarted = createEvent<string>();
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const validateTokenFx = createEffect(async (token: string) => {
   try {
     const response = await axios.request({
@@ -47,11 +48,13 @@ const validateTokenMockFx = createEffect((token: string) => {
           id: 'id1',
           name: 'S_JIRO',
           description: 's_jiro',
+          isArchived: false,
         },
         {
           id: 'id2',
           name: 'DevRel',
           description: 'devRel',
+          isArchived: false,
         },
       ],
       canCreateProjects: false,
@@ -72,11 +75,13 @@ const validateTokenMockFx = createEffect((token: string) => {
           id: 'id1',
           name: 'S_JIRO',
           description: 's_jiro',
+          isArchived: false,
         },
         {
           id: 'id2',
           name: 'DevRel',
           description: 'devRel',
+          isArchived: false,
         },
       ],
       canCreateProjects: true,
@@ -103,6 +108,7 @@ const getTokenMockFx = createEffect(
   }
 );
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const getTokenFx = createEffect(
   async ({ login, password }: { login: string; password: string }) => {
     try {
@@ -154,32 +160,32 @@ sample({
 
 sample({
   clock: validateTokenStarted,
-  target: validateTokenFx,
+  target: validateTokenMockFx,
 });
 
 sample({
-  clock: validateTokenFx.doneData,
+  clock: validateTokenMockFx.doneData,
   target: [$currentUser, authSucceeded] as const,
 });
 
 sample({
-  clock: validateTokenFx.fail,
+  clock: validateTokenMockFx.fail,
   fn: () => null,
   target: $currentUser,
 });
 
 sample({
   clock: loginStarted,
-  target: getTokenFx,
+  target: getTokenMockFx,
 });
 
 sample({
-  clock: getTokenFx.doneData,
+  clock: getTokenMockFx.doneData,
   target: [$jwtToken, authStarted] as const,
 });
 
 sample({
-  clock: getTokenFx.fail,
+  clock: getTokenMockFx.fail,
   fn: () => null,
   target: [$jwtToken, authStarted] as const,
 });
@@ -191,7 +197,7 @@ sample({
 });
 
 sample({
-  clock: [getTokenFx.failData, validateTokenFx.failData],
+  clock: [getTokenMockFx.failData, validateTokenMockFx.failData],
   fn: (error) => ({ error }),
   target: authFailed,
 });
