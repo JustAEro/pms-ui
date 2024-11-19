@@ -395,6 +395,17 @@ sample({
   target: reset,
 });
 
+sample({
+  clock: reset,
+  target: [
+    $project.reinit,
+    $adminsMap.reinit,
+    $membersOfProject.reinit,
+    $adminsOfProject.reinit,
+    $loadedFromServerAdminsMap.reinit,
+  ] as const,
+});
+
 fetchProjectScopedFx.fail.watch(console.log);
 fetchProjectScopedFx.doneData.watch(console.log);
 $project.watch(console.log);

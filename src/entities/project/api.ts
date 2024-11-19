@@ -191,7 +191,7 @@ export const fetchMembersOfProjectMockFx = createEffect(
     new Promise<User[]>((resolve) => {
       setTimeout(() => {
         resolve(usersList);
-      }, 1000);
+      }, 2000);
     })
 );
 
