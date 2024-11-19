@@ -214,104 +214,113 @@ export const ProjectManagementPage: FC = () => {
               </Box>
             </Flex>
 
-            <TableContainer
-              border="1px solid"
-              borderColor="#E2E8F0"
-              borderRadius="6px"
-              marginTop="30px"
-            >
-              <Table size="sm" variant="striped">
-                <Thead height="40px">
-                  <Tr>
-                    <Th>Имя пользователя</Th>
-                    <Th>Администратор проекта</Th>
-                    <Th>Удаление пользователя из проекта</Th>
-                  </Tr>
-                </Thead>
-                <Tbody>
-                  {isMembersOfProjectLoading && <Spinner />}
-                  {membersOfProject.map((user) => (
-                    <Tr key={user.id} height="40px">
-                      <Td>{`${user.firstName} ${user.lastName}`}</Td>
-                      <Td>
-                        <Flex alignItems="center" justifyContent="center">
-                          <Checkbox
-                            isChecked={adminsMap[user.id]}
-                            onChange={() => {
-                              onAdminCheckboxCheck(user.id);
-                            }}
-                            disabled={!!isProjectArchived}
-                            border="1px solid"
-                            borderColor="#E2E8F0"
-                            borderRadius="6px"
-                            bgColor="#FFFFFF"
-                          />
-                        </Flex>
-                      </Td>
-                      <Td>
-                        <Flex justifyContent="center">
-                          <Image
-                            onClick={() => {
-                              if (!isProjectArchived) {
-                                onOpenDeleteUserFromProjectModal(user);
-                              }
-                            }}
-                            cursor={
-                              !isProjectArchived ? 'pointer' : 'not-allowed'
-                            }
-                            src={trashIcon}
-                            alt=""
-                            w="18px"
-                            h="18px"
-                          />
-                        </Flex>
-                      </Td>
-                    </Tr>
-                  ))}
-                </Tbody>
-              </Table>
-            </TableContainer>
-            {!isProjectArchived && (
-              <>
-                <Flex direction="row" marginTop="20px">
-                  <Button
-                    onClick={onSaveChangesButtonClick}
-                    disabled={isSaveChangesAndCancelChangesButtonsDisabled}
-                    variant="solid"
-                    colorScheme="blue"
-                  >
-                    Сохранить изменения
-                    {isUpdateAdminsOfProjectInProgress && (
-                      <Spinner marginLeft="10px" />
-                    )}
-                  </Button>
-
-                  <Spacer w="25px" />
-
-                  <Button
-                    onClick={onDiscardChangesButtonClick}
-                    disabled={isSaveChangesAndCancelChangesButtonsDisabled}
-                    variant="solid"
-                    textColor="#3182CE"
-                    backgroundColor="white"
-                    border="1px solid #3182CE"
-                  >
-                    Отменить изменения
-                  </Button>
-                </Flex>
-                <Button
-                  onClick={onOpenAddUserModal}
-                  marginTop="20px"
-                  border="1px solid"
-                  borderColor="#3182CE"
-                  color="#3182CE"
-                  bgColor="#FFFFFF"
-                >
-                  + Добавить пользователя в проект
-                </Button>
-              </>
+            {isMembersOfProjectLoading && (
+              <Flex justifyContent="center" alignItems="center">
+                <Spinner />
+              </Flex>
             )}
 
+            {!isMembersOfProjectLoading && (
+              <>
+                <TableContainer
+                  border="1px solid"
+                  borderColor="#E2E8F0"
+                  borderRadius="6px"
+                  marginTop="30px"
+                >
+                  <Table size="sm" variant="striped">
+                    <Thead height="40px">
+                      <Tr>
+                        <Th>Имя пользователя</Th>
+                        <Th>Администратор проекта</Th>
+                        <Th>Удаление пользователя из проекта</Th>
+                      </Tr>
+                    </Thead>
+                    <Tbody>
+                      {membersOfProject.map((user) => (
+                        <Tr key={user.id} height="40px">
+                          <Td>{`${user.firstName} ${user.lastName}`}</Td>
+                          <Td>
+                            <Flex alignItems="center" justifyContent="center">
+                              <Checkbox
+                                isChecked={adminsMap[user.id]}
+                                onChange={() => {
+                                  onAdminCheckboxCheck(user.id);
+                                }}
+                                disabled={!!isProjectArchived}
+                                border="1px solid"
+                                borderColor="#E2E8F0"
+                                borderRadius="6px"
+                                bgColor="#FFFFFF"
+                              />
+                            </Flex>
+                          </Td>
+                          <Td>
+                            <Flex justifyContent="center">
+                              <Image
+                                onClick={() => {
+                                  if (!isProjectArchived) {
+                                    onOpenDeleteUserFromProjectModal(user);
+                                  }
+                                }}
+                                cursor={
+                                  !isProjectArchived ? 'pointer' : 'not-allowed'
+                                }
+                                src={trashIcon}
+                                alt=""
+                                w="18px"
+                                h="18px"
+                              />
+                            </Flex>
+                          </Td>
+                        </Tr>
+                      ))}
+                    </Tbody>
+                  </Table>
+                </TableContainer>
+
+                {!isProjectArchived && (
+                  <>
+                    <Flex direction="row" marginTop="20px">
+                      <Button
+                        onClick={onSaveChangesButtonClick}
+                        disabled={isSaveChangesAndCancelChangesButtonsDisabled}
+                        variant="solid"
+                        colorScheme="blue"
+                      >
+                        Сохранить изменения
+                        {isUpdateAdminsOfProjectInProgress && (
+                          <Spinner marginLeft="10px" />
+                        )}
+                      </Button>
+
+                      <Spacer w="25px" />
+
+                      <Button
+                        onClick={onDiscardChangesButtonClick}
+                        disabled={isSaveChangesAndCancelChangesButtonsDisabled}
+                        variant="solid"
+                        textColor="#3182CE"
+                        backgroundColor="white"
+                        border="1px solid #3182CE"
+                      >
+                        Отменить изменения
+                      </Button>
+                    </Flex>
+                    <Button
+                      onClick={onOpenAddUserModal}
+                      marginTop="20px"
+                      border="1px solid"
+                      borderColor="#3182CE"
+                      color="#3182CE"
+                      bgColor="#FFFFFF"
+                    >
+                      + Добавить пользователя в проект
+                    </Button>
+                  </>
+                )}
+              </>
+            )}
             <Modal
               size="xl"
               isOpen={addUserModalIsOpened}
