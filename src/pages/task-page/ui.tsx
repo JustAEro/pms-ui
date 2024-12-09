@@ -28,6 +28,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { statusKeyCanGoToColumnsValue } from '@pms-ui/entities/task';
+import { routes } from '@pms-ui/shared/routes';
 import archiveIcon from '@pms-ui/shared/ui/assets/svg/archive-icon.svg';
 import pencilIcon from '@pms-ui/shared/ui/assets/svg/pencil.svg';
 import refreshIcon from '@pms-ui/shared/ui/assets/svg/refresh-icon.svg';
@@ -99,6 +100,9 @@ export const TaskPage: FC = () => {
                 </Text>
                 <Tooltip label="Редактировать задачу" placement="top">
                   <Image
+                    onClick={() => {
+                      routes.editTaskRoute.open({ taskId: task.id });
+                    }}
                     marginLeft="20px"
                     cursor="pointer"
                     marginTop="10px"
@@ -225,6 +229,14 @@ export const TaskPage: FC = () => {
                   <Text fontSize="18px">
                     {format(task.deadlineDate, 'dd.MM.yyyy HH:mm')}
                   </Text>
+
+                  <Button
+                    marginTop="20px"
+                    width="fit-content"
+                    colorScheme="teal"
+                  >
+                    Сгенерировать план выполнения задачи с помощью ИИ
+                  </Button>
                 </SimpleGrid>
               </HStack>
             </Flex>

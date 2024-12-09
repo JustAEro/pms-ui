@@ -1,7 +1,13 @@
-import { createHistoryRouter, createRoute } from 'atomic-router';
+import {
+  createHistoryRouter,
+  createRoute,
+  createRouterControls,
+} from 'atomic-router';
 import { createBrowserHistory, createMemoryHistory } from 'history';
 
 import { featureToggles } from './feature-toggles';
+
+export const controls = createRouterControls();
 
 export const routes = {
   homeRoute: createRoute(),
@@ -14,6 +20,8 @@ export const routes = {
   projectRoute: createRoute<{ projectId: string }>(),
   projectManagementRoute: createRoute<{ projectId: string }>(),
   taskRoute: createRoute<{ taskId: string }>(),
+  createTaskRoute: createRoute(),
+  editTaskRoute: createRoute<{ taskId: string }>(),
 };
 
 const routeObjects = [
@@ -26,10 +34,12 @@ const routeObjects = [
   { path: '/projects/archive', route: routes.archivedProjectsRoute },
   { path: '/project/:projectId/manage', route: routes.projectManagementRoute },
   { path: '/project/:projectId', route: routes.projectRoute },
+  { path: '/create-task', route: routes.createTaskRoute },
+  { path: '/edit-task/:taskId', route: routes.editTaskRoute },
   { path: '/task/:taskId', route: routes.taskRoute },
 ];
 
-export const router = createHistoryRouter({ routes: routeObjects });
+export const router = createHistoryRouter({ routes: routeObjects, controls });
 
 const history = featureToggles.isSsr
   ? createMemoryHistory()
