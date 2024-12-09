@@ -50,7 +50,7 @@ const usersList: User[] = [
   },
   {
     id: '3',
-    login: 'sirgay_lazar',
+    login: 'sir_lazar',
     firstName: 'Lazar',
     lastName: 'Nikolov',
     projects: [],
@@ -159,10 +159,10 @@ export const fetchTaskFx = createEffect(
   async ({ taskId }: { taskId: string }) =>
     new Promise<Task>((resolve, reject) => {
       setTimeout(() => {
-        const foundUser = tasks.find((task) => task.id === taskId);
+        const foundTask = tasks.find((task) => task.id === taskId);
 
-        if (foundUser) {
-          resolve(foundUser);
+        if (foundTask) {
+          resolve(foundTask);
         } else {
           reject(new Error(`Task with id ${taskId} is not found`));
         }

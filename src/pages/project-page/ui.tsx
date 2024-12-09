@@ -37,6 +37,7 @@ import {
   statusKeyCanGoToColumnsValue,
   TaskOnBoard,
 } from '@pms-ui/entities/task';
+import { routes } from '@pms-ui/shared/routes';
 import statsIcon from '@pms-ui/shared/ui/assets/svg/stats-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -211,7 +212,12 @@ export const ProjectPage: FC = () => {
               )}
 
               <Tooltip placement="top" label="Создать задачу">
-                <Button colorScheme="gray">
+                <Button
+                  onClick={() => {
+                    routes.createTaskRoute.open();
+                  }}
+                  colorScheme="gray"
+                >
                   <AddIcon />
                 </Button>
               </Tooltip>
