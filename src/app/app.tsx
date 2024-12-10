@@ -6,6 +6,7 @@ import { ChakraProvider, ColorModeScript } from '@chakra-ui/react';
 import { $userType, UserType } from '@pms-ui/entities/user';
 import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { ArchiveProjectsPage } from '@pms-ui/pages/archive-projects-page';
+import { CreateEditTaskPage } from '@pms-ui/pages/create-edit-task-page';
 import { HomePage } from '@pms-ui/pages/home';
 import { ProfilePage } from '@pms-ui/pages/profile';
 import { ProjectManagementPage } from '@pms-ui/pages/project-management-page';
@@ -64,6 +65,14 @@ export const App: FC = () => {
         <Route
           route={routes.projectManagementRoute}
           view={usersPageView(ProjectManagementPage, userType)}
+        />
+        <Route
+          route={routes.createTaskRoute}
+          view={usersPageView(CreateEditTaskPage, userType)}
+        />
+        <Route
+          route={routes.editTaskRoute}
+          view={usersPageView(CreateEditTaskPage, userType)}
         />
       </RouterProvider>
     </ChakraProvider>

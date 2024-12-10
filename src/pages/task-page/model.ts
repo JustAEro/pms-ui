@@ -2,6 +2,7 @@ import { attach, createEvent, createStore, sample } from 'effector';
 
 import {
   fetchTaskFx,
+  generateTaskPlanByAIFx,
   Task,
   TaskStatus,
   updateTaskFx,
@@ -24,6 +25,11 @@ const closeTaskModalOpened = createEvent();
 export const closeTaskModalClosed = createEvent();
 export const closeTaskModalConfirmed = createEvent();
 
+export const generateTaskPlanByAIButtonClicked = createEvent();
+
+export const generateTaskPlanByAIScopedFx = attach({
+  effect: generateTaskPlanByAIFx,
+});
 export const fetchTaskScopedFx = attach({ effect: fetchTaskFx });
 export const fetchTestScenariosOfTaskScopedFx = attach({
   effect: fetchTestScenariosOfTask,
@@ -31,6 +37,10 @@ export const fetchTestScenariosOfTaskScopedFx = attach({
 const updateTaskScopedFx = attach({ effect: updateTaskFx });
 
 export const $task = createStore<Task | null>(null);
+
+export const $taskPlan = createStore('');
+export const $isTaskPlanLoading = generateTaskPlanByAIScopedFx.pending;
+
 export const $isTaskLoading = fetchTaskScopedFx.pending;
 
 export const $testScenarios = createStore<TestScenario[]>([]);
@@ -129,6 +139,22 @@ sample({
 });
 
 sample({
+  clock: generateTaskPlanByAIButtonClicked,
+  source: $task,
+  filter: (task): task is Task => !!task,
+  fn: (task) => ({
+    taskId: task!.id,
+    taskName: task!.name,
+  }),
+  target: generateTaskPlanByAIScopedFx,
+});
+
+sample({
+  clock: generateTaskPlanByAIScopedFx.doneData,
+  target: $taskPlan,
+});
+
+sample({
   clock: routes.taskRoute.closed,
   target: reset,
 });
@@ -140,5 +166,6 @@ sample({
     $testScenarios.reinit,
     $isCloseTaskModalOpened.reinit,
     errorFetchTaskToastModel.inputs.reset,
+    $taskPlan.reinit,
   ],
 });
