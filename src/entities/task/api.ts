@@ -183,3 +183,17 @@ export const updateTaskFx = createEffect(
       }, 1000);
     })
 );
+
+export const generateTaskPlanByAIFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ taskId, taskName }: { taskId: string; taskName: string }) =>
+    new Promise<string>((resolve) => {
+      setTimeout(() => {
+        const universalTaskPlan =
+          // eslint-disable-next-line max-len
+          '1. Определение цели.\n2. Анализ задачи.\n3. Сбор информации и ресурсов.\n4. Планирование.\n5. Оценка рисков.\n6. Действия.\n7. Контроль и корректировка.\n8. Завершение.\n9. Ретроспектива.';
+
+        resolve(universalTaskPlan);
+      }, 1000);
+    })
+);

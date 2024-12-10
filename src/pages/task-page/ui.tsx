@@ -37,11 +37,14 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 import {
   $isCloseTaskModalOpened,
   $isTaskLoading,
+  $isTaskPlanLoading,
   $notificationToastId,
   $notificationToShow,
   $task,
+  $taskPlan,
   closeTaskModalClosed,
   closeTaskModalConfirmed,
+  generateTaskPlanByAIButtonClicked,
   headerModel,
   newStatusClicked,
   pageMounted,
@@ -64,6 +67,12 @@ export const TaskPage: FC = () => {
   const isCloseTaskModalOpened = useUnit($isCloseTaskModalOpened);
   const onCloseTaskCloseModal = useUnit(closeTaskModalClosed);
   const onConfirmCloseTaskModal = useUnit(closeTaskModalConfirmed);
+
+  const taskPlan = useUnit($taskPlan);
+  const isTaskPlanLoading = useUnit($isTaskPlanLoading);
+  const onClickGenerateTaskPlanByAIButton = useUnit(
+    generateTaskPlanByAIButtonClicked
+  );
 
   useEffect(() => {
     onPageMount();
@@ -88,12 +97,7 @@ export const TaskPage: FC = () => {
         {!isTaskLoading && task && (
           <>
             <Flex direction="column">
-              <Flex
-                width="100%"
-                marginTop="30px"
-                marginLeft="50px"
-                direction="row"
-              >
+              <Flex marginTop="30px" marginLeft="50px" direction="row">
                 <Text fontSize={21}>{`#${task.id}`}</Text>
                 <Text marginLeft="250px" fontWeight="bold" fontSize={21}>
                   {task.name}
@@ -230,13 +234,29 @@ export const TaskPage: FC = () => {
                     {format(task.deadlineDate, 'dd.MM.yyyy HH:mm')}
                   </Text>
 
-                  <Button
-                    marginTop="20px"
-                    width="fit-content"
-                    colorScheme="teal"
-                  >
-                    Сгенерировать план выполнения задачи с помощью ИИ
-                  </Button>
+                  {!taskPlan && (
+                    <Button
+                      marginTop="20px"
+                      width="fit-content"
+                      colorScheme="teal"
+                      disabled={isTaskPlanLoading}
+                      onClick={onClickGenerateTaskPlanByAIButton}
+                    >
+                      Сгенерировать план выполнения задачи с помощью ИИ{' '}
+                      {isTaskPlanLoading && <Spinner marginLeft="10px" />}
+                    </Button>
+                  )}
+
+                  {taskPlan && (
+                    <Flex direction="column" gap="5px">
+                      <Text width="500px" fontSize="18px" fontWeight="bold">
+                        Сгенерированный план выполнения задачи
+                      </Text>
+                      <p style={{ whiteSpace: 'pre-wrap', width: '500px' }}>
+                        <Text fontSize="18px">{taskPlan}</Text>
+                      </p>
+                    </Flex>
+                  )}
                 </SimpleGrid>
               </HStack>
             </Flex>
