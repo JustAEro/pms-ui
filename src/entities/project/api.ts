@@ -84,7 +84,7 @@ export const fetchProjectsMockFx = createEffect(
     })
 );
 export const fetchProjectsFx = createEffect(async () => {
-  const response = await fetch(`/api/v1/projects?pageIndex=1&pageSize=1`);
+  const response = await fetch(`/api/v1/projects?pageIndex=1&pageSize=10`);
   if (!response.ok) {
     throw new Error('Ошибка при загрузке проектов');
   }
@@ -105,8 +105,24 @@ export const fetchProjectFx = createEffect(
       }, 1000);
     })
 );
-
 export const createProjectFx = createEffect(
+  async (project: { name: string; description: string }) => {
+    const response = await fetch('/api/v1/projects', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(project),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to create project: ${response.statusText}`);
+    }
+
+    return await response.json();
+  }
+);
+export const createProjectMockFx = createEffect(
   async ({ name, description }: CreateProject) => {
     const newProject: Project = {
       id: String(Date.now()),
