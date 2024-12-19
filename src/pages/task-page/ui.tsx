@@ -28,6 +28,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { statusKeyCanGoToColumnsValue } from '@pms-ui/entities/task';
+import { routes } from '@pms-ui/shared/routes';
 import archiveIcon from '@pms-ui/shared/ui/assets/svg/archive-icon.svg';
 import pencilIcon from '@pms-ui/shared/ui/assets/svg/pencil.svg';
 import refreshIcon from '@pms-ui/shared/ui/assets/svg/refresh-icon.svg';
@@ -36,11 +37,14 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 import {
   $isCloseTaskModalOpened,
   $isTaskLoading,
+  $isTaskPlanLoading,
   $notificationToastId,
   $notificationToShow,
   $task,
+  $taskPlan,
   closeTaskModalClosed,
   closeTaskModalConfirmed,
+  generateTaskPlanByAIButtonClicked,
   headerModel,
   newStatusClicked,
   pageMounted,
@@ -63,6 +67,12 @@ export const TaskPage: FC = () => {
   const isCloseTaskModalOpened = useUnit($isCloseTaskModalOpened);
   const onCloseTaskCloseModal = useUnit(closeTaskModalClosed);
   const onConfirmCloseTaskModal = useUnit(closeTaskModalConfirmed);
+
+  const taskPlan = useUnit($taskPlan);
+  const isTaskPlanLoading = useUnit($isTaskPlanLoading);
+  const onClickGenerateTaskPlanByAIButton = useUnit(
+    generateTaskPlanByAIButtonClicked
+  );
 
   useEffect(() => {
     onPageMount();
@@ -87,18 +97,16 @@ export const TaskPage: FC = () => {
         {!isTaskLoading && task && (
           <>
             <Flex direction="column">
-              <Flex
-                width="100%"
-                marginTop="30px"
-                marginLeft="50px"
-                direction="row"
-              >
+              <Flex marginTop="30px" marginLeft="50px" direction="row">
                 <Text fontSize={21}>{`#${task.id}`}</Text>
                 <Text marginLeft="250px" fontWeight="bold" fontSize={21}>
                   {task.name}
                 </Text>
                 <Tooltip label="Редактировать задачу" placement="top">
                   <Image
+                    onClick={() => {
+                      routes.editTaskRoute.open({ taskId: task.id });
+                    }}
                     marginLeft="20px"
                     cursor="pointer"
                     marginTop="10px"
@@ -225,6 +233,30 @@ export const TaskPage: FC = () => {
                   <Text fontSize="18px">
                     {format(task.deadlineDate, 'dd.MM.yyyy HH:mm')}
                   </Text>
+
+                  {!taskPlan && (
+                    <Button
+                      marginTop="20px"
+                      width="fit-content"
+                      colorScheme="teal"
+                      disabled={isTaskPlanLoading}
+                      onClick={onClickGenerateTaskPlanByAIButton}
+                    >
+                      Сгенерировать план выполнения задачи с помощью ИИ{' '}
+                      {isTaskPlanLoading && <Spinner marginLeft="10px" />}
+                    </Button>
+                  )}
+
+                  {taskPlan && (
+                    <Flex direction="column" gap="5px">
+                      <Text width="500px" fontSize="18px" fontWeight="bold">
+                        Сгенерированный план выполнения задачи
+                      </Text>
+                      <p style={{ whiteSpace: 'pre-wrap', width: '500px' }}>
+                        <Text fontSize="18px">{taskPlan}</Text>
+                      </p>
+                    </Flex>
+                  )}
                 </SimpleGrid>
               </HStack>
             </Flex>
