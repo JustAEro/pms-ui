@@ -1,8 +1,14 @@
-import { combine, createEvent, createStore, sample } from 'effector';
+import { attach, combine, createEvent, createStore, sample } from 'effector';
 import { not } from 'patronum';
 
-import { Admin } from '@pms-ui/entities/admin';
-import { $userType } from '@pms-ui/entities/user';
+import {
+  addAdminFx,
+  Admin,
+  CreateAdmin,
+  fetchAdminsFx,
+} from '@pms-ui/entities/admin';
+import { $jwtToken, $userType } from '@pms-ui/entities/user';
+import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 export const pageMounted = createEvent();
@@ -21,6 +27,11 @@ export const deleteAdminButtonClicked = createEvent();
 
 const reset = createEvent();
 
+const fetchAdminsScopedFx = attach({ effect: fetchAdminsFx });
+const addAdminScopedFx = attach({ effect: addAdminFx });
+
+export const $adminsList = createStore<Admin[]>([]);
+export const $isAdminsListLoading = fetchAdminsScopedFx.pending;
 export const $deleteAdminModalIsOpened = createStore(false);
 export const $adminLoginToBeDeleted = createStore<Admin['login']>('');
 
@@ -50,6 +61,67 @@ export const headerModel = pageHeader.model.createModel({ $userType });
 //   filter: (userType) => userType !== 'admin',
 //   target: routes.homeRoute.open,
 // });
+
+sample({
+  clock: [
+    pageMounted,
+    routes.adminsPanelRoute.opened,
+    routes.adminsPanelRoute.updated,
+  ],
+  source: {
+    jwtToken: $jwtToken,
+  },
+  filter: ({ jwtToken }) => !!jwtToken,
+  fn: ({ jwtToken }) => ({
+    token: jwtToken!,
+  }),
+  target: fetchAdminsScopedFx,
+});
+
+sample({
+  clock: fetchAdminsScopedFx.doneData,
+  target: $adminsList,
+});
+
+sample({
+  clock: addAdminButtonClicked,
+  source: {
+    login: $login,
+    firstName: $firstName,
+    lastName: $lastName,
+    password: $password,
+    jwtToken: $jwtToken,
+  },
+  filter: ({ jwtToken }) => !!jwtToken,
+  fn: ({ jwtToken, login, firstName, lastName, password }) => {
+    const admin: CreateAdmin = {
+      login,
+      firstName,
+      lastName,
+      password,
+    };
+
+    return {
+      token: jwtToken!,
+      admin,
+    };
+  },
+  target: addAdminScopedFx,
+});
+
+sample({
+  clock: addAdminScopedFx.doneData,
+  source: {
+    adminsList: $adminsList,
+  },
+  fn: ({ adminsList }, createdAdmin) => [...adminsList, createdAdmin],
+  target: $adminsList,
+});
+
+sample({
+  clock: addAdminScopedFx.doneData,
+  target: closeAddAdminModal,
+});
 
 sample({
   clock: openDeleteAdminModal,
