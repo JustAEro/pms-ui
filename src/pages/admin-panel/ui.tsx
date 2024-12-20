@@ -22,9 +22,11 @@ import { AdminsTable } from './admins-table';
 import {
   $addAdminModalIsOpened,
   $adminLoginToBeDeleted,
+  $adminsList,
   $deleteAdminModalIsOpened,
   $firstName,
   $isAddAdminButtonDisabled,
+  $isAdminsListLoading,
   $lastName,
   $login,
   $password,
@@ -71,6 +73,9 @@ export const AdminsPanelPage: FC = () => {
 
   const onDeleteAdminButtonClick = useUnit(deleteAdminButtonClicked);
 
+  const adminsList = useUnit($adminsList);
+  const isAdminsListLoading = useUnit($isAdminsListLoading);
+
   useEffect(() => {
     onPageMount();
   }, [onPageMount]);
@@ -93,7 +98,11 @@ export const AdminsPanelPage: FC = () => {
           borderRadius="6px"
           marginTop="30px"
         >
-          <AdminsTable onDeleteAdminClick={onOpenDeleteAdminModal} />
+          <AdminsTable
+            adminsList={adminsList}
+            isAdminsListLoading={isAdminsListLoading}
+            onDeleteAdminClick={onOpenDeleteAdminModal}
+          />
         </TableContainer>
         <Button
           onClick={onOpenAddAdminModal}

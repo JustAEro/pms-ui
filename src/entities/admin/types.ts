@@ -3,3 +3,7 @@ export type Admin = {
   firstName: string;
   lastName: string;
 };
+
+export type CreateAdmin = Admin & {
+  password: string;
+};
