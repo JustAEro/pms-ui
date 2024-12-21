@@ -5,6 +5,7 @@ import {
   addAdminFx,
   Admin,
   CreateAdmin,
+  deleteAdminFx,
   fetchAdminsFx,
 } from '@pms-ui/entities/admin';
 import { $jwtToken, $userType } from '@pms-ui/entities/user';
@@ -29,6 +30,7 @@ const reset = createEvent();
 
 const fetchAdminsScopedFx = attach({ effect: fetchAdminsFx });
 const addAdminScopedFx = attach({ effect: addAdminFx });
+const deleteAdminScopedFx = attach({ effect: deleteAdminFx });
 
 export const $adminsList = createStore<Admin[]>([]);
 export const $isAdminsListLoading = fetchAdminsScopedFx.pending;
@@ -121,6 +123,35 @@ sample({
 sample({
   clock: addAdminScopedFx.doneData,
   target: closeAddAdminModal,
+});
+
+sample({
+  clock: deleteAdminButtonClicked,
+  source: {
+    adminLoginToBeDeleted: $adminLoginToBeDeleted,
+    jwtToken: $jwtToken,
+  },
+  filter: ({ jwtToken }) => !!jwtToken,
+  fn: ({ jwtToken, adminLoginToBeDeleted }) => ({
+    token: jwtToken!,
+    login: adminLoginToBeDeleted,
+  }),
+  target: deleteAdminScopedFx,
+});
+
+sample({
+  clock: deleteAdminScopedFx.done,
+  source: {
+    adminsList: $adminsList,
+  },
+  fn: ({ adminsList }, { params }) =>
+    adminsList.filter((admin) => admin.login !== params.login),
+  target: $adminsList,
+});
+
+sample({
+  clock: deleteAdminScopedFx.doneData,
+  target: closeDeleteAdminModal,
 });
 
 sample({
