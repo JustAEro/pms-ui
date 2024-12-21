@@ -83,6 +83,19 @@ export const fetchProjectsMockFx = createEffect(
       }, 1000);
     })
 );
+
+export const fetchProjectFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    const response = await fetch(`/api/v1/projects/${projectId}`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch project with id ${projectId}`);
+    }
+
+    return response.json() as Promise<Project>;
+  }
+);
+
 export const fetchProjectsFx = createEffect(
   async ({ pageIndex, pageSize }: { pageIndex: number; pageSize: number }) => {
     const response = await fetch(
@@ -95,7 +108,7 @@ export const fetchProjectsFx = createEffect(
   }
 );
 
-export const fetchProjectFx = createEffect(
+export const fetchProjectMockFx = createEffect(
   async ({ projectId }: { projectId: string }) =>
     new Promise<Project>((resolve, reject) => {
       setTimeout(() => {

@@ -145,7 +145,7 @@ let tasks: Task[] = [
   },
 ];
 
-export const fetchTasksInProjectFx = createEffect(
+export const fetchTasksInProjectMockFx = createEffect(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async ({ projectId }: { projectId: string }) =>
     new Promise<Task[]>((resolve) => {
@@ -153,6 +153,22 @@ export const fetchTasksInProjectFx = createEffect(
         resolve(tasks);
       }, 1000);
     })
+);
+
+export const fetchTasksInProjectFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    const response = await fetch(`/api/v1/projects/${projectId}/tasks`);
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch tasks for project with id ${projectId}`);
+    }
+
+    const data = await response.json().then((res) => res.items);
+    if (!Array.isArray(data)) {
+      throw new Error('API did not return an array of tasks');
+    }
+    return data as Task[];
+  }
 );
 
 export const fetchTaskFx = createEffect(
