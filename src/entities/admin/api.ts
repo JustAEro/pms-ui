@@ -46,3 +46,22 @@ const addAdminMockFx = createEffect(
 );
 
 export const addAdminFx = addAdminMockFx;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const deleteAdminMockFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ token, login }: { token: string; login: Admin['login'] }) =>
+    new Promise<Admin | undefined>((resolve) => {
+      setTimeout(() => {
+        const admin = structuredClone(
+          adminsList.find((admin) => admin.login === login)
+        );
+
+        adminsList = adminsList.filter((admin) => admin.login !== login);
+
+        resolve(admin);
+      }, 200);
+    })
+);
+
+export const deleteAdminFx = deleteAdminMockFx;
