@@ -37,8 +37,10 @@ sample({
     routes.projectsRoute.opened,
     routes.projectsRoute.updated,
   ],
-  source: $userType,
-  filter: (userType) => userType === 'user',
+  source: $userType.map((userType) =>
+    userType === 'user' ? { pageIndex: 1, pageSize: 10 } : null
+  ),
+  filter: (params) => params !== null,
   target: fetchArchivedProjectsScopedFx,
 });
 
