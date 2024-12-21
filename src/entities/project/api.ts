@@ -83,13 +83,17 @@ export const fetchProjectsMockFx = createEffect(
       }, 1000);
     })
 );
-export const fetchProjectsFx = createEffect(async () => {
-  const response = await fetch(`/api/v1/projects?pageIndex=1&pageSize=10`);
-  if (!response.ok) {
-    throw new Error('Ошибка при загрузке проектов');
+export const fetchProjectsFx = createEffect(
+  async ({ pageIndex, pageSize }: { pageIndex: number; pageSize: number }) => {
+    const response = await fetch(
+      `/api/v1/projects?pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+    if (!response.ok) {
+      throw new Error('Ошибка при загрузке проектов');
+    }
+    return response.json().then((res) => res.items);
   }
-  return response.json().then((res) => res.items);
-});
+);
 
 export const fetchProjectFx = createEffect(
   async ({ projectId }: { projectId: string }) =>
