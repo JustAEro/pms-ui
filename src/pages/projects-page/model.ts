@@ -27,6 +27,8 @@ export const createProjectButtonClicked = createEvent();
 export const projectNameChanged = createEvent<string>();
 export const projectDescriptionChanged = createEvent<string>();
 
+const $defaultPagination = createStore({ pageIndex: 1, pageSize: 10 });
+
 const fetchProjectsScopedFx = attach({ effect: fetchProjectsFx });
 const createProjectScopedFx = attach({ effect: createProjectFx });
 
@@ -66,8 +68,10 @@ sample({
     routes.projectsRoute.opened,
     routes.projectsRoute.updated,
   ],
-  source: $userType,
-  filter: (userType) => userType === 'user',
+  source: $userType.map((userType) =>
+    userType === 'user' ? { pageIndex: 1, pageSize: 10 } : null
+  ),
+  filter: (params) => params !== null,
   target: fetchProjectsScopedFx,
 });
 
