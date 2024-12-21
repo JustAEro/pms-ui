@@ -6,7 +6,7 @@ import { API_URL } from '@pms-ui/shared/config';
 import { mapUserDtoToUser } from './mapping';
 import { User, UserDto } from './types';
 
-const usersList: User[] = [
+let usersList: User[] = [
   {
     id: '1',
     login: 'seg_fault',
@@ -161,3 +161,24 @@ export const addUserToSystemFx = createEffect(
     }
   }
 );
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const deleteUserFromSystemMockFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ user, token }: { user: User; token: string }) =>
+    new Promise<User | undefined>((resolve) => {
+      setTimeout(() => {
+        const { id } = user;
+
+        const deletedUser = structuredClone(
+          usersList.find((user) => user.id === id)
+        );
+
+        usersList = usersList.filter((user) => user.id !== id);
+
+        resolve(deletedUser);
+      }, 200);
+    })
+);
+
+export const deleteUserFromSystemFx = deleteUserFromSystemMockFx;
