@@ -158,7 +158,7 @@ export const createProjectMockFx = createEffect(
   }
 );
 
-export const fetchArchivedProjectsFx = createEffect(
+export const fetchArchivedProjectsMockFx = createEffect(
   async () =>
     new Promise<Project[]>((resolve) => {
       setTimeout(() => {
@@ -166,7 +166,17 @@ export const fetchArchivedProjectsFx = createEffect(
       }, 1000);
     })
 );
-
+export const fetchArchivedProjectsFx = createEffect(
+  async ({ pageIndex, pageSize }: { pageIndex: number; pageSize: number }) => {
+    const response = await fetch(
+      `/api/v1/projects/archived?pageIndex=${pageIndex}&pageSize=${pageSize}`
+    );
+    if (!response.ok) {
+      throw new Error('Ошибка при загрузке проектов');
+    }
+    return response.json().then((res) => res.items);
+  }
+);
 let usersList: User[] = [
   {
     id: '1',
