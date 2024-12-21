@@ -307,7 +307,22 @@ export const archiveProjectMockFx = createEffect(
     return projectToBeArchived;
   }
 );
+export const archiveProjectFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    const response = await fetch(`/api/v1/projects/${projectId}/archive`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
 
+    if (!response.ok) {
+      throw new Error(`Failed to archive project with id ${projectId}`);
+    }
+
+    return response.json();
+  }
+);
 export const unarchiveProjectMockFx = createEffect(
   async ({ projectId }: { projectId: string }) => {
     const projectToBeArchived = projects.find(
@@ -317,6 +332,23 @@ export const unarchiveProjectMockFx = createEffect(
     projectToBeArchived.isArchived = false;
 
     return projectToBeArchived;
+  }
+);
+
+export const unarchiveProjectFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    const response = await fetch(`/api/v1/projects/${projectId}/unarchive`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to unarchive project with id ${projectId}`);
+    }
+
+    return response.json();
   }
 );
 

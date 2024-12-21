@@ -5,13 +5,13 @@ import { combineEvents, or, spread } from 'patronum';
 import {
   type Project,
   addMemberToProjectMockFx,
-  archiveProjectMockFx,
+  archiveProjectFx,
   deleteMemberFromProjectMockFx,
   editProjectMockFx,
   fetchAdminsOfProjectMockFx,
   fetchMembersOfProjectMockFx,
   fetchProjectFx,
-  unarchiveProjectMockFx,
+  unarchiveProjectFx,
   updateAdminsOfProjectMockFx,
 } from '@pms-ui/entities/project';
 import { type User, $userType } from '@pms-ui/entities/user';
@@ -59,8 +59,8 @@ const deleteMemberFromProjectScopedFx = attach({
   effect: deleteMemberFromProjectMockFx,
 });
 const addMemberToProjectScopedFx = attach({ effect: addMemberToProjectMockFx });
-const archiveProjectScopedFx = attach({ effect: archiveProjectMockFx });
-const unarchiveProjectScopedFx = attach({ effect: unarchiveProjectMockFx });
+const archiveProjectScopedFx = attach({ effect: archiveProjectFx });
+const unarchiveProjectScopedFx = attach({ effect: unarchiveProjectFx });
 const updateAdminsOfProjectScopedFx = attach({
   effect: updateAdminsOfProjectMockFx,
 });
