@@ -4,6 +4,7 @@ import { Project } from '@pms-ui/entities/project';
 import {
   $jwtToken,
   $userType,
+  deleteUserFromSystemFx,
   fetchUserMockFx,
   User,
 } from '@pms-ui/entities/user';
@@ -55,6 +56,8 @@ sample({
   clock: newPasswordFieldChanged,
   target: $newPasswordFieldValue,
 });
+
+const deleteUserFromSystemScopedFx = attach({ effect: deleteUserFromSystemFx });
 
 export const $isSaveChangesButtonEnabled = combine(
   $nameFieldValue,
@@ -118,6 +121,25 @@ sample({
 sample({
   clock: fetchUserScopedFx.doneData,
   target: $userToEdit,
+});
+
+sample({
+  clock: deleteUserButtonClicked,
+  source: {
+    userToEdit: $userToEdit,
+    token: $jwtToken,
+  },
+  filter: ({ token, userToEdit }) => !!token && !!userToEdit,
+  fn: ({ token, userToEdit }) => ({
+    user: userToEdit!,
+    token: token!,
+  }),
+  target: deleteUserFromSystemScopedFx,
+});
+
+sample({
+  clock: deleteUserFromSystemScopedFx.done,
+  target: [closeDeleteUserModal, routes.usersAdminPanelRoute.open] as const,
 });
 
 sample({
