@@ -11,6 +11,8 @@ export const searchValueChanged = createEvent<string>();
 
 export const projectsPageButtonClicked = createEvent();
 
+export const projectClicked = createEvent<{ projectId: string }>();
+
 const fetchArchivedProjectsScopedFx = attach({
   effect: fetchArchivedProjectsFx,
 });
@@ -41,6 +43,10 @@ sample({
     userType === 'user' ? { pageIndex: 1, pageSize: 10 } : null
   ),
   filter: (params) => params !== null,
+  fn: (params) => ({
+    pageIndex: params!.pageIndex,
+    pageSize: params!.pageSize,
+  }),
   target: fetchArchivedProjectsScopedFx,
 });
 
@@ -67,4 +73,9 @@ sample({
 sample({
   clock: projectsPageButtonClicked,
   target: routes.projectsRoute.open,
+});
+
+sample({
+  clock: projectClicked,
+  target: routes.projectRoute.open,
 });

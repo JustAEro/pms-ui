@@ -21,6 +21,7 @@ import {
   $searchValue,
   headerModel,
   pageMounted,
+  projectClicked,
   projectsPageButtonClicked,
   searchValueChanged,
 } from './model';
@@ -38,6 +39,8 @@ export const ArchiveProjectsPage: FC = () => {
   const onSearchProjectName = useUnit(searchValueChanged);
 
   const archivedProjects = useUnit($archivedProjectsToShow);
+
+  const onProjectClick = useUnit(projectClicked);
 
   useEffect(() => {
     onPageMount();
@@ -109,6 +112,10 @@ export const ArchiveProjectsPage: FC = () => {
               {archivedProjects.map((project) => (
                 <Box
                   key={project.id}
+                  cursor="pointer"
+                  onClick={() => {
+                    onProjectClick({ projectId: project.id });
+                  }}
                   overflowY="hidden"
                   textOverflow="ellipsis"
                   height="250px"
