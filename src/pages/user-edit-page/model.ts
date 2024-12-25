@@ -6,6 +6,7 @@ import {
   $userType,
   deleteUserFromSystemFx,
   fetchUserMockFx,
+  updateUserMetaInSystemFx,
   User,
 } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
@@ -28,6 +29,9 @@ export const discardChangesButtonClicked = createEvent();
 const resetFormState = createEvent();
 
 const fetchUserScopedFx = attach({ effect: fetchUserMockFx });
+const updateUserMetaInSystemScopedFx = attach({
+  effect: updateUserMetaInSystemFx,
+});
 
 export const $loginFieldValue = createStore<string>('');
 export const loginFieldChanged = createEvent<string>();
@@ -189,6 +193,48 @@ sample({
 sample({
   clock: discardChangesButtonClicked,
   target: resetFormState,
+});
+
+sample({
+  clock: saveChangesButtonClicked,
+  source: {
+    userToEdit: $userToEdit,
+    token: $jwtToken,
+    nameFieldValue: $nameFieldValue,
+    surnameFieldValue: $surnameFieldValue,
+    loginFieldValue: $loginFieldValue,
+    newPasswordFieldValue: $newPasswordFieldValue,
+  },
+  filter: ({ token, userToEdit }) => !!token && !!userToEdit,
+  fn: ({
+    token,
+    userToEdit,
+    nameFieldValue,
+    surnameFieldValue,
+    loginFieldValue,
+    newPasswordFieldValue,
+  }) => ({
+    meta: {
+      id: userToEdit!.id,
+      firstName: nameFieldValue,
+      lastName: surnameFieldValue,
+      login: loginFieldValue,
+      password: newPasswordFieldValue,
+    },
+    token: token!,
+  }),
+  target: updateUserMetaInSystemScopedFx,
+});
+
+sample({
+  clock: updateUserMetaInSystemScopedFx.doneData,
+  target: [
+    $userToEdit,
+    $nameFieldValue.reinit,
+    $surnameFieldValue.reinit,
+    $loginFieldValue.reinit,
+    $newPasswordFieldValue.reinit,
+  ],
 });
 
 sample({

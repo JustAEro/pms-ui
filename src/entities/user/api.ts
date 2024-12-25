@@ -4,7 +4,7 @@ import { createEffect } from 'effector';
 import { API_URL } from '@pms-ui/shared/config';
 
 import { mapUserDtoToUser } from './mapping';
-import { User, UserDto } from './types';
+import { UpdateUserMeta, User, UserDto } from './types';
 
 let usersList: User[] = [
   {
@@ -182,3 +182,31 @@ const deleteUserFromSystemMockFx = createEffect(
 );
 
 export const deleteUserFromSystemFx = deleteUserFromSystemMockFx;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const updateUserMetaInSystemMockFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ meta, token }: { meta: UpdateUserMeta; token: string }) =>
+    new Promise<User>((resolve, reject) => {
+      setTimeout(() => {
+        const { id, firstName, lastName, login, password } = meta;
+
+        const updatedUserIndex = usersList.findIndex((user) => user.id === id);
+
+        const updatedUser = usersList[updatedUserIndex];
+
+        if (!updatedUser) {
+          reject(new Error('User to update not found'));
+        }
+
+        updatedUser!.firstName = firstName;
+        updatedUser!.lastName = lastName;
+        updatedUser!.login = login;
+        updatedUser!.password = password;
+
+        resolve(structuredClone(updatedUser!));
+      }, 200);
+    })
+);
+
+export const updateUserMetaInSystemFx = updateUserMetaInSystemMockFx;
