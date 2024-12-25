@@ -155,7 +155,7 @@ export const UserEditPage: FC = () => {
             >
               <Text fontWeight="bold" fontSize={textFontSizes}>
                 Редактирование пользователя {userToEdit.firstName}{' '}
-                {userToEdit.lastName}
+                {userToEdit.lastName} ({userToEdit.login})
               </Text>
               <div style={{ marginBottom: '10px' }}>
                 <Tooltip

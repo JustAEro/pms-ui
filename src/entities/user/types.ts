@@ -24,6 +24,11 @@ export type User = {
   position: string;
 };
 
+export type UpdateUserMeta = Pick<
+  User,
+  'id' | 'login' | 'firstName' | 'lastName' | 'password'
+>;
+
 // export type AddUser = {
 //   login: string;
 //   firstName: string;
