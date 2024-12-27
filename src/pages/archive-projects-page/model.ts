@@ -1,4 +1,4 @@
-import { attach, createEvent, createStore, sample } from 'effector';
+import { attach, createEvent, createStore, sample, combine } from 'effector';
 
 import { fetchArchivedProjectsFx, Project } from '@pms-ui/entities/project';
 import { $userType } from '@pms-ui/entities/user';
@@ -16,6 +16,10 @@ export const projectClicked = createEvent<{ projectId: string }>();
 const fetchArchivedProjectsScopedFx = attach({
   effect: fetchArchivedProjectsFx,
 });
+export const pageNumberChanged = createEvent<number>();
+export const pageSizeChanged = createEvent<number>();
+export const nextPageClicked = createEvent();
+export const prevPageClicked = createEvent();
 
 const $archivedProjects = createStore<Project[]>([]);
 export const $searchValue = createStore('');
@@ -25,7 +29,14 @@ export const $areArchivedProjectsLoading =
   fetchArchivedProjectsScopedFx.pending;
 
 export const headerModel = pageHeader.model.createModel({ $userType });
-
+export const $currentPage = createStore(1);
+export const $pageSize = createStore(10);
+export const $totalProjects = createStore(0);
+export const $totalPages = combine(
+  $totalProjects,
+  $pageSize,
+  (totalProjects, pageSize) => Math.ceil(totalProjects / pageSize)
+);
 // sample({
 //   clock: pageMounted,
 //   source: $userType,
@@ -38,23 +49,42 @@ sample({
     pageMounted,
     routes.projectsRoute.opened,
     routes.projectsRoute.updated,
+    pageNumberChanged,
+    pageSizeChanged,
   ],
-  source: $userType.map((userType) =>
-    userType === 'user' ? { pageIndex: 1, pageSize: 10 } : null
-  ),
-  filter: (params) => params !== null,
-  fn: (params) => ({
-    pageIndex: params!.pageIndex,
-    pageSize: params!.pageSize,
+  source: combine({
+    userType: $userType,
+    currentPage: $currentPage,
+    pageSize: $pageSize,
+  }),
+  filter: ({ userType }) => userType === 'user',
+  fn: ({ currentPage, pageSize }) => ({
+    pageIndex: currentPage,
+    pageSize,
   }),
   target: fetchArchivedProjectsScopedFx,
 });
 
 sample({
   clock: fetchArchivedProjectsScopedFx.doneData,
-  target: [$archivedProjects, $archivedProjectsToShow] as const,
+  fn: (data) => data.items,
+  target: [$archivedProjects, $archivedProjectsToShow],
 });
 
+sample({
+  clock: fetchArchivedProjectsScopedFx.doneData,
+  fn: (data) => data.total,
+  target: $totalProjects,
+});
+sample({
+  clock: pageNumberChanged,
+  target: $currentPage,
+});
+
+sample({
+  clock: pageSizeChanged,
+  target: $pageSize,
+});
 sample({
   clock: searchValueChanged,
   target: $searchValue,
@@ -68,6 +98,27 @@ sample({
       project.name.toLowerCase().includes(newSearchValue.toLowerCase())
     ),
   target: $archivedProjectsToShow,
+});
+
+sample({
+  clock: nextPageClicked,
+  source: combine({
+    currentPage: $currentPage,
+    totalProjects: $totalProjects,
+    pageSize: $pageSize,
+  }),
+  filter: ({ currentPage, totalProjects, pageSize }) =>
+    currentPage < Math.ceil(totalProjects / pageSize),
+  fn: ({ currentPage }) => currentPage + 1,
+  target: [$currentPage, pageNumberChanged],
+});
+
+sample({
+  clock: prevPageClicked,
+  source: $currentPage,
+  filter: (currentPage) => currentPage > 1,
+  fn: (currentPage) => currentPage - 1,
+  target: [$currentPage, pageNumberChanged],
 });
 
 sample({
