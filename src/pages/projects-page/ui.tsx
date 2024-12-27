@@ -34,10 +34,14 @@ import {
   $projectName,
   $projectsToShow,
   $searchValue,
+  $currentPage,
+  $totalPages,
   archivePageButtonClicked,
   createProjectButtonClicked,
   createProjectModalClosed,
   createProjectModalOpened,
+  nextPageClicked,
+  prevPageClicked,
   headerModel,
   pageMounted,
   pageUnmounted,
@@ -73,6 +77,11 @@ export const ProjectsPage: FC = () => {
   const onArchivePageButtonClick = useUnit(archivePageButtonClicked);
 
   const onProjectClick = useUnit(projectClicked);
+
+  const currentPage = useUnit($currentPage);
+  const totalPages = useUnit($totalPages);
+  const onNextPageClick = useUnit(nextPageClicked);
+  const onPrevPageClick = useUnit(prevPageClicked);
 
   const isProjectCreationFormDisabledBecauseCreationPending = useUnit(
     $isProjectCreationFormDisabledBecauseCreationPending
@@ -184,7 +193,23 @@ export const ProjectsPage: FC = () => {
                 </Box>
               ))}
             </SimpleGrid>
-
+            <Flex justifyContent="center" alignItems="center" marginTop="20px">
+              <Button
+                onClick={onPrevPageClick}
+                disabled={currentPage <= 1}
+                marginRight="10px"
+              >
+                Предыдущая
+              </Button>
+              <Text>{`${currentPage} из ${totalPages}`}</Text>
+              <Button
+                onClick={onNextPageClick}
+                disabled={currentPage >= totalPages}
+                marginLeft="10px"
+              >
+                Следующая
+              </Button>
+            </Flex>
             <Modal
               size="xl"
               isOpen={createProjectModalIsOpened}
