@@ -27,7 +27,10 @@ export const createProjectButtonClicked = createEvent();
 export const projectNameChanged = createEvent<string>();
 export const projectDescriptionChanged = createEvent<string>();
 
-const $defaultPagination = createStore({ pageIndex: 1, pageSize: 10 });
+export const pageNumberChanged = createEvent<number>();
+export const pageSizeChanged = createEvent<number>();
+export const nextPageClicked = createEvent();
+export const prevPageClicked = createEvent();
 
 const fetchProjectsScopedFx = attach({ effect: fetchProjectsFx });
 const createProjectScopedFx = attach({ effect: createProjectFx });
@@ -38,6 +41,15 @@ export const $projectsToShow = createStore<Project[]>([]);
 
 export const $projectName = createStore('');
 export const $projectDescription = createStore('');
+
+export const $currentPage = createStore(1);
+export const $pageSize = createStore(10);
+export const $totalProjects = createStore(0);
+export const $totalPages = combine(
+  $totalProjects,
+  $pageSize,
+  (totalProjects, pageSize) => Math.ceil(totalProjects / pageSize)
+);
 
 const $isCreateProjectButtonEnabled = combine(
   $projectName,
@@ -67,19 +79,42 @@ sample({
     pageMounted,
     routes.projectsRoute.opened,
     routes.projectsRoute.updated,
+    pageNumberChanged,
+    pageSizeChanged,
   ],
-  source: $userType.map((userType) =>
-    userType === 'user' ? { pageIndex: 1, pageSize: 10 } : null
-  ),
-  filter: (params) => params !== null,
+  source: combine({
+    userType: $userType,
+    currentPage: $currentPage,
+    pageSize: $pageSize,
+  }),
+  filter: ({ userType }) => userType === 'user',
+  fn: ({ currentPage, pageSize }) => ({
+    pageIndex: currentPage,
+    pageSize,
+  }),
   target: fetchProjectsScopedFx,
 });
 
 sample({
   clock: fetchProjectsScopedFx.doneData,
-  target: [$projects, $projectsToShow] as const,
+  fn: (data) => data.items,
+  target: [$projects, $projectsToShow],
 });
 
+sample({
+  clock: fetchProjectsScopedFx.doneData,
+  fn: (data) => data.total,
+  target: $totalProjects,
+});
+sample({
+  clock: pageNumberChanged,
+  target: $currentPage,
+});
+
+sample({
+  clock: pageSizeChanged,
+  target: $pageSize,
+});
 sample({
   clock: searchValueChanged,
   target: $searchValue,
@@ -144,6 +179,27 @@ sample({
     isArchived: false,
   }),
   target: createProjectScopedFx,
+});
+
+sample({
+  clock: nextPageClicked,
+  source: combine({
+    currentPage: $currentPage,
+    totalProjects: $totalProjects,
+    pageSize: $pageSize,
+  }),
+  filter: ({ currentPage, totalProjects, pageSize }) =>
+    currentPage < Math.ceil(totalProjects / pageSize),
+  fn: ({ currentPage }) => currentPage + 1,
+  target: $currentPage,
+});
+
+sample({
+  clock: prevPageClicked,
+  source: $currentPage,
+  filter: (currentPage) => currentPage > 1,
+  fn: (currentPage) => currentPage - 1,
+  target: $currentPage,
 });
 
 redirect({
