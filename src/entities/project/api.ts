@@ -174,7 +174,7 @@ export const fetchArchivedProjectsFx = createEffect(
     if (!response.ok) {
       throw new Error('Ошибка при загрузке проектов');
     }
-    return response.json().then((res) => res.items);
+    return response.json();
   }
 );
 let usersList: User[] = [

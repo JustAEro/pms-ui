@@ -191,7 +191,7 @@ sample({
   filter: ({ currentPage, totalProjects, pageSize }) =>
     currentPage < Math.ceil(totalProjects / pageSize),
   fn: ({ currentPage }) => currentPage + 1,
-  target: $currentPage,
+  target: [$currentPage, pageNumberChanged],
 });
 
 sample({
@@ -199,7 +199,7 @@ sample({
   source: $currentPage,
   filter: (currentPage) => currentPage > 1,
   fn: (currentPage) => currentPage - 1,
-  target: $currentPage,
+  target: [$currentPage, pageNumberChanged],
 });
 
 redirect({
