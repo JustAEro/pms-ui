@@ -80,7 +80,7 @@ export const fetchProjectsMockFx = createEffect(
     new Promise<Project[]>((resolve) => {
       setTimeout(() => {
         resolve(projects);
-      }, 1000);
+      }, 200);
     })
 );
 
@@ -366,4 +366,89 @@ export const updateAdminsOfProjectMockFx = createEffect(
 
     return adminsList;
   }
+);
+
+let projectsOfUser: Project[] = [
+  {
+    id: '1',
+    name: 'Proj1',
+    description: 'desc_proj_1',
+    isArchived: false,
+  },
+  {
+    id: '2',
+    name: 'Proj2',
+    description:
+      // eslint-disable-next-line max-len
+      'desc_proj_2fjkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkg',
+    isArchived: false,
+  },
+  {
+    id: '3',
+    name: 'Proj3',
+    description: 'desc_proj_3',
+    isArchived: false,
+  },
+];
+
+export const fetchProjectsOfUserMockFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async ({ userId, token }: { userId: string; token: string }) =>
+    new Promise<Project[]>((resolve) => {
+      setTimeout(() => {
+        resolve(projectsOfUser);
+      }, 1000);
+    })
+);
+
+export const addUserToProjectMockFx = createEffect(
+  async ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    userId,
+    project,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    token,
+  }: {
+    userId: string;
+    project: Project;
+    token: string;
+  }) =>
+    new Promise<Project>((resolve) => {
+      setTimeout(() => {
+        projectsOfUser = [...projectsOfUser, project];
+
+        resolve(project);
+      }, 200);
+    })
+);
+
+export const deleteUserFromProjectMockFx = createEffect(
+  async ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    userId,
+    projectId,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    token,
+  }: {
+    userId: string;
+    projectId: Project['id'];
+    token: string;
+  }) =>
+    new Promise<Project>((resolve, reject) => {
+      setTimeout(() => {
+        const projectToBeDeletedFrom = structuredClone(
+          projectsOfUser.find((project) => project.id === projectId)
+        );
+
+        if (!projectToBeDeletedFrom) {
+          reject(new Error('Project is not found'));
+        }
+
+        projectsOfUser = projectsOfUser.filter(
+          (project) => project.id !== projectId
+        );
+
+        resolve(projectToBeDeletedFrom!);
+      }, 200);
+    })
 );

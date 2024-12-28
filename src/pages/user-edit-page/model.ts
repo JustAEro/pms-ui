@@ -1,6 +1,12 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 
-import { Project } from '@pms-ui/entities/project';
+import {
+  addUserToProjectMockFx,
+  deleteUserFromProjectMockFx,
+  fetchProjectsMockFx,
+  fetchProjectsOfUserMockFx,
+  Project,
+} from '@pms-ui/entities/project';
 import {
   $jwtToken,
   $userType,
@@ -28,6 +34,9 @@ export const saveChangesButtonClicked = createEvent();
 export const discardChangesButtonClicked = createEvent();
 const resetFormState = createEvent();
 
+const fetchProjectsOfUserScopedFx = attach({
+  effect: fetchProjectsOfUserMockFx,
+});
 const fetchUserScopedFx = attach({ effect: fetchUserMockFx });
 const updateUserMetaInSystemScopedFx = attach({
   effect: updateUserMetaInSystemFx,
@@ -61,7 +70,17 @@ sample({
   target: $newPasswordFieldValue,
 });
 
+export const addUserToProjectButtonClicked = createEvent();
+export const backToDefaultPageClicked = createEvent();
+
+export const projectToAddClicked = createEvent<Project>();
+
 const deleteUserFromSystemScopedFx = attach({ effect: deleteUserFromSystemFx });
+const fetchProjectsScopedFx = attach({ effect: fetchProjectsMockFx });
+const addUserToProjectScopedFx = attach({ effect: addUserToProjectMockFx });
+const deleteUserFromProjectScopedFx = attach({
+  effect: deleteUserFromProjectMockFx,
+});
 
 export const $isSaveChangesButtonEnabled = combine(
   $nameFieldValue,
@@ -95,7 +114,12 @@ export const $deleteUserModalIsOpened = createStore(false);
 export const $deleteUserFromProjectModalIsOpened = createStore(false);
 export const $projectToBeDeletedFrom = createStore<Project['id'] | null>(null);
 
+export const $pageMode = createStore<'default' | 'addUserToProject'>('default');
+
 export const $isUserToEditLoading = fetchUserScopedFx.pending;
+
+export const $projects = createStore<Project[]>([]);
+export const $projectsOfUser = createStore<Project[]>([]);
 
 export const headerModel = pageHeader.model.createModel({ $userType });
 
@@ -119,12 +143,17 @@ sample({
   },
   filter: ({ userType, token }) => userType === 'admin' && !!token,
   fn: ({ pageParams, token }) => ({ userId: pageParams.userId, token: token! }),
-  target: fetchUserScopedFx,
+  target: [fetchUserScopedFx, fetchProjectsOfUserScopedFx] as const,
 });
 
 sample({
   clock: fetchUserScopedFx.doneData,
   target: $userToEdit,
+});
+
+sample({
+  clock: fetchProjectsOfUserScopedFx.doneData,
+  target: $projectsOfUser,
 });
 
 sample({
@@ -238,6 +267,83 @@ sample({
 });
 
 sample({
+  clock: addUserToProjectButtonClicked,
+  fn: () => 'addUserToProject' as const,
+  target: [$pageMode, fetchProjectsScopedFx],
+});
+
+sample({
+  clock: backToDefaultPageClicked,
+  fn: () => 'default' as const,
+  target: $pageMode,
+});
+
+sample({
+  clock: fetchProjectsScopedFx.doneData,
+  target: $projects,
+});
+
+sample({
+  clock: projectToAddClicked,
+  source: {
+    userToEdit: $userToEdit,
+    token: $jwtToken,
+  },
+  filter: ({ userToEdit, token }) => !!userToEdit && !!token,
+  fn: ({ userToEdit, token }, project) => ({
+    userId: userToEdit!.id,
+    project,
+    token: token!,
+  }),
+  target: addUserToProjectScopedFx,
+});
+
+sample({
+  clock: addUserToProjectScopedFx.done,
+  source: {
+    projectsOfUser: $projectsOfUser,
+  },
+  fn: ({ projectsOfUser }, { params }) => [...projectsOfUser, params.project],
+  target: $projectsOfUser,
+});
+
+sample({
+  clock: addUserToProjectScopedFx.done,
+  fn: () => 'default' as const,
+  target: $pageMode,
+});
+
+sample({
+  clock: deleteUserFromProjectButtonClicked,
+  source: {
+    userToEdit: $userToEdit,
+    projectToBeDeletedFrom: $projectToBeDeletedFrom,
+    token: $jwtToken,
+  },
+  filter: ({ userToEdit, projectToBeDeletedFrom, token }) =>
+    !!userToEdit && !!projectToBeDeletedFrom && !!token,
+  fn: ({ userToEdit, projectToBeDeletedFrom, token }) => ({
+    userId: userToEdit!.id,
+    projectId: projectToBeDeletedFrom!,
+    token: token!,
+  }),
+  target: deleteUserFromProjectScopedFx,
+});
+
+sample({
+  clock: deleteUserFromProjectScopedFx.doneData,
+  source: $projectsOfUser,
+  fn: (projectsOfUser, projectDeleted) =>
+    projectsOfUser.filter((project) => project.id !== projectDeleted.id),
+  target: $projectsOfUser,
+});
+
+sample({
+  clock: deleteUserFromProjectScopedFx.doneData,
+  target: closeDeleteUserFromProjectModal,
+});
+
+sample({
   clock: resetFormState,
   target: [
     $nameFieldValue.reinit,
@@ -254,5 +360,5 @@ sample({
 
 sample({
   clock: reset,
-  target: [resetFormState],
+  target: [resetFormState, $pageMode.reinit],
 });
