@@ -66,8 +66,8 @@ const updateAdminsOfProjectScopedFx = attach({
 });
 
 export const $project = createStore<Project | null>(null);
-export const $isProjectArchived = $project.map(
-  (project) => project?.isArchived ?? null
+export const $isProjectArchived = $project.map((project) =>
+  project ? !project.is_active : null
 );
 export const $isProjectLoading = fetchProjectScopedFx.pending;
 export const $isProjectEditInProgress = editProjectScopedFx.pending;
@@ -239,7 +239,7 @@ sample({
       id: pageParams.projectId,
       name,
       description,
-      isArchived: currentProject!.isArchived,
+      is_active: currentProject!.is_active,
     };
 
     return project;
@@ -328,34 +328,48 @@ sample({
 sample({
   clock: confirmArchiveProjectButtonClicked,
   source: $project,
-  filter: (project) => !!project && !project.isArchived,
+  filter: (project) => !!project && project.is_active,
   fn: (project) => ({ projectId: project!.id }),
   target: archiveProjectScopedFx,
 });
 
 sample({
+  clock: archiveProjectScopedFx.done,
+  fn: () => {
+    window.location.reload();
+  },
+});
+
+/*sample({
   clock: archiveProjectScopedFx.doneData,
   fn: (project) => ({
     ...project,
   }),
   target: [$project, archiveProjectModal.inputs.close] as const,
-});
+});*/
 
 sample({
   clock: confirmArchiveProjectButtonClicked,
   source: $project,
-  filter: (project) => !!project && project.isArchived,
+  filter: (project) => !!project && !project.is_active,
   fn: (project) => ({ projectId: project!.id }),
   target: unarchiveProjectScopedFx,
 });
 
+sample({
+  clock: unarchiveProjectScopedFx.done,
+  fn: () => {
+    window.location.reload();
+  },
+});
+/*
 sample({
   clock: unarchiveProjectScopedFx.doneData,
   fn: (project) => ({
     ...project,
   }),
   target: [$project, archiveProjectModal.inputs.close] as const,
-});
+});*/
 
 sample({
   clock: saveChangesButtonClicked,

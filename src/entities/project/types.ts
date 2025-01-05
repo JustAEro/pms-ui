@@ -2,7 +2,7 @@ export type Project = {
   id: string;
   name: string;
   description: string;
-  isArchived: boolean;
+  is_active: boolean;
 };
 
 export type CreateProject = Omit<Project, 'id'>;

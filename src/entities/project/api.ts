@@ -11,67 +11,67 @@ const projects: Project[] = [
     id: '1',
     name: 'Proj1',
     description: 'desc_proj_1',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '2',
     name: 'Proj2',
     description: 'desc_proj_2fjkkk',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '3',
     name: 'Proj3',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '4',
     name: 'Proj4',
     description: 'desc_proj_2fjkkk',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '5',
     name: 'Proj5',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '6',
     name: 'Proj6',
     description: 'desc_proj_2fjkkk',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '7',
     name: 'Proj7',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '8',
     name: 'Proj8',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '9',
     name: 'Proj9',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '10',
     name: 'Proj10',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '11',
     name: 'Proj11',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
 ];
 
@@ -145,7 +145,7 @@ export const createProjectMockFx = createEffect(
       id: String(Date.now()),
       name,
       description,
-      isArchived: false,
+      is_active: true,
     };
 
     projects.push(newProject);
@@ -188,13 +188,13 @@ let usersList: User[] = [
         id: 'id1',
         name: 'S_JIRO',
         description: 's_jiro',
-        isArchived: false,
+        is_active: true,
       },
       {
         id: 'id2',
         name: 'DevRel',
         description: 'devRel',
-        isArchived: false,
+        is_active: true,
       },
     ],
     canCreateProjects: false,
@@ -212,7 +212,7 @@ let usersList: User[] = [
         id: 'id3',
         name: 'Developer',
         description: 'dev_to',
-        isArchived: false,
+        is_active: true,
       },
     ],
     canCreateProjects: true,
@@ -302,7 +302,7 @@ export const archiveProjectMockFx = createEffect(
       (project) => project.id === projectId
     )!;
 
-    projectToBeArchived.isArchived = true;
+    projectToBeArchived.is_active = false;
 
     return projectToBeArchived;
   }
@@ -320,7 +320,7 @@ export const archiveProjectFx = createEffect(
       throw new Error(`Failed to archive project with id ${projectId}`);
     }
 
-    return response.json();
+    return;
   }
 );
 export const unarchiveProjectMockFx = createEffect(
@@ -329,7 +329,7 @@ export const unarchiveProjectMockFx = createEffect(
       (project) => project.id === projectId
     )!;
 
-    projectToBeArchived.isArchived = false;
+    projectToBeArchived.is_active = true;
 
     return projectToBeArchived;
   }
@@ -348,7 +348,7 @@ export const unarchiveProjectFx = createEffect(
       throw new Error(`Failed to unarchive project with id ${projectId}`);
     }
 
-    return response.json();
+    return;
   }
 );
 
@@ -373,7 +373,7 @@ let projectsOfUser: Project[] = [
     id: '1',
     name: 'Proj1',
     description: 'desc_proj_1',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '2',
@@ -381,13 +381,13 @@ let projectsOfUser: Project[] = [
     description:
       // eslint-disable-next-line max-len
       'desc_proj_2fjkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkg',
-    isArchived: false,
+    is_active: true,
   },
   {
     id: '3',
     name: 'Proj3',
     description: 'desc_proj_3',
-    isArchived: false,
+    is_active: true,
   },
 ];
 

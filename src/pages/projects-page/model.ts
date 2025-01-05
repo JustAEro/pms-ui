@@ -176,7 +176,7 @@ sample({
   fn: ({ projectName, projectDescription }): CreateProject => ({
     name: projectName,
     description: projectDescription,
-    isArchived: false,
+    is_active: true,
   }),
   target: createProjectScopedFx,
 });
