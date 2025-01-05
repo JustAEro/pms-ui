@@ -13,11 +13,14 @@ import {
   Spinner,
   Text,
   Textarea,
+  useToast,
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
   $isTaskLoading,
+  $notificationToastId,
+  $notificationToShow,
   $pageMode,
   $task,
   $taskDescriptionFieldValue,
@@ -25,6 +28,7 @@ import {
   $taskNameFieldValue,
   $taskTesterLoginFieldValue,
   backToPreviousPageClicked,
+  createOrEditTaskButtonClicked,
   headerModel,
   pageMounted,
   pageUnmounted,
@@ -65,12 +69,25 @@ export const CreateEditTaskPage: FC = () => {
   const isTaskLoading = useUnit($isTaskLoading);
   const task = useUnit($task);
 
+  const onCreateOrEditTaskButtonClick = useUnit(createOrEditTaskButtonClicked);
+
+  const toast = useToast();
+  const notificationToShow = useUnit($notificationToShow);
+  const toastId = useUnit($notificationToastId);
+
+  useEffect(() => {
+    if (notificationToShow) {
+      toast({ ...notificationToShow, position: 'top-right' });
+    }
+  }, [notificationToShow, toast, toastId]);
+
   useEffect(() => {
     onPageMount();
   }, [onPageMount]);
 
   useUnmount(() => {
     onPageUnmount();
+    toast.closeAll();
   });
 
   return (
@@ -187,6 +204,7 @@ export const CreateEditTaskPage: FC = () => {
               width="35%"
               colorScheme="teal"
               size="lg"
+              onClick={onCreateOrEditTaskButtonClick}
             >
               <Text color="white" fontWeight="bold">
                 {pageMode === 'create' ? 'Создать' : 'Редактировать'}

@@ -214,7 +214,7 @@ export const ProjectPage: FC = () => {
               <Tooltip placement="top" label="Создать задачу">
                 <Button
                   onClick={() => {
-                    routes.createTaskRoute.open();
+                    routes.createTaskRoute.open({ projectId: project.id });
                   }}
                   colorScheme="gray"
                 >

@@ -14,6 +14,13 @@ export type Task = {
   userTester: User;
 };
 
+export type CreateTask = {
+  name: string;
+  description: string;
+  userExecutorLogin: User['login'];
+  userTesterLogin: User['login'];
+};
+
 export type TaskStatus = typeof taskStatuses[number];
 
 export type TaskOnBoard = Task & {

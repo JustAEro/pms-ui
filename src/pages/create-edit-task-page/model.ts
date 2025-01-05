@@ -1,8 +1,14 @@
 import { attach, createEvent, createStore, sample } from 'effector';
 
-import { fetchTaskFx, Task } from '@pms-ui/entities/task';
-import { $userType } from '@pms-ui/entities/user';
+import {
+  CreateTask,
+  createTaskMockFx,
+  fetchTaskFx,
+  Task,
+} from '@pms-ui/entities/task';
+import { $currentUser, $jwtToken, $userType } from '@pms-ui/entities/user';
 import { controls, routes } from '@pms-ui/shared/routes';
+import { errorToastModelFactory } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 type PageMode = 'create' | 'edit';
@@ -14,8 +20,14 @@ export const pageUnmounted = createEvent();
 
 export const backToPreviousPageClicked = createEvent();
 
+export const createOrEditTaskButtonClicked = createEvent();
+const createTaskStarted = createEvent();
+const editTaskStarted = createEvent();
+
 const loadTaskFx = attach({ effect: fetchTaskFx });
 export const $isTaskLoading = loadTaskFx.pending;
+
+const createTaskScopedFx = attach({ effect: createTaskMockFx });
 
 export const $task = createStore<Task | null>(null);
 
@@ -129,6 +141,73 @@ sample({
   clock: taskTesterLoginFieldValueChanged,
   target: $taskTesterLoginFieldValue,
 });
+
+sample({
+  clock: createOrEditTaskButtonClicked,
+  source: $pageMode,
+  filter: (pageMode) => pageMode === 'create',
+  target: createTaskStarted,
+});
+
+sample({
+  clock: createOrEditTaskButtonClicked,
+  source: $pageMode,
+  filter: (pageMode) => pageMode === 'edit',
+  target: editTaskStarted,
+});
+
+sample({
+  clock: createTaskStarted,
+  source: {
+    currentUser: $currentUser,
+    jwtToken: $jwtToken,
+    taskNameFieldValue: $taskNameFieldValue,
+    taskDescriptionFieldValue: $taskDescriptionFieldValue,
+    taskExecutorLoginFieldValue: $taskExecutorLoginFieldValue,
+    taskTesterLoginFieldValue: $taskTesterLoginFieldValue,
+  },
+  filter: ({ currentUser, jwtToken }) => !!currentUser && !!jwtToken,
+  fn: ({
+    currentUser,
+    jwtToken,
+    taskDescriptionFieldValue,
+    taskExecutorLoginFieldValue,
+    taskNameFieldValue,
+    taskTesterLoginFieldValue,
+  }) => {
+    const createTask: CreateTask = {
+      name: taskNameFieldValue,
+      description: taskDescriptionFieldValue,
+      userExecutorLogin: taskExecutorLoginFieldValue,
+      userTesterLogin: taskTesterLoginFieldValue,
+    };
+
+    return {
+      createTask,
+      token: jwtToken!,
+      currentUser: currentUser!,
+    };
+  },
+  target: createTaskScopedFx,
+});
+
+sample({
+  clock: createTaskScopedFx.doneData,
+  fn: (task) => ({ taskId: task.id }),
+  target: routes.taskRoute.open,
+});
+
+const errorCreateTaskToastModel = errorToastModelFactory({
+  triggerEvent: createTaskScopedFx.fail,
+  notificationOptions: {
+    status: 'error',
+    duration: 9000,
+    isClosable: true,
+  },
+});
+
+export const { $notificationToShow, $notificationToastId } =
+  errorCreateTaskToastModel.outputs;
 
 sample({
   clock: [

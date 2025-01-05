@@ -3,7 +3,7 @@ import { createEffect } from 'effector';
 
 import { User } from '../user';
 
-import { Task } from './types';
+import { CreateTask, Task } from './types';
 
 const usersList: User[] = [
   {
@@ -211,4 +211,49 @@ export const generateTaskPlanByAIFx = createEffect(
         resolve(universalTaskPlan);
       }, 1000);
     })
+);
+
+export const createTaskMockFx = createEffect(
+  async ({
+    createTask,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    token,
+    currentUser,
+  }: {
+    createTask: CreateTask;
+    token: string;
+    currentUser: User;
+  }) => {
+    const { userExecutorLogin, userTesterLogin } = createTask;
+
+    const author = currentUser;
+
+    const executor = usersList.find((user) => user.login === userExecutorLogin);
+
+    if (!executor) {
+      throw new Error('Executor login not found');
+    }
+
+    const tester = usersList.find((user) => user.login === userTesterLogin);
+
+    if (!tester) {
+      throw new Error('Tester login not found');
+    }
+
+    const task: Task = {
+      id: String(Date.now()),
+      name: createTask.name,
+      description: createTask.description,
+      status: 'Открыт',
+      creationDate: currentDate,
+      deadlineDate: addDays(currentDate, 1),
+      userAuthor: author,
+      userExecutor: executor,
+      userTester: tester,
+    };
+
+    tasks = [...tasks, task];
+
+    return structuredClone(task);
+  }
 );
