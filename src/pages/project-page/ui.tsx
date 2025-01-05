@@ -264,7 +264,7 @@ const ProjectBoard: FC = () => {
 
   const mapStatusToTasks: Record<DisplayedOnBoardTaskStatus, TaskOnBoard[]> = {
     Отложено: postponedTasks,
-    Открыт: openedTasks,
+    Открыта: openedTasks,
     'В работе': inProgressTasks,
     'На тестировании': testingTasks,
     'На ревью': reviewTasks,
@@ -411,12 +411,12 @@ const ProjectBoard: FC = () => {
                             }}
                             cursor="pointer"
                             fontSize="20px"
-                          >{`#${task.id}`}</Text>
+                          >{`#${task.name}`}</Text>
                         </Link>
                       </Flex>
                       <Flex marginTop="20px">
                         <Text fontSize="20px" fontWeight="bold">
-                          {task.name}
+                          {task.description}
                         </Text>
                       </Flex>
                     </Box>

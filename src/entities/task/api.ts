@@ -90,7 +90,7 @@ let tasks: Task[] = [
     id: '3',
     name: 'task3',
     description: 'task3_desc',
-    status: 'Открыт',
+    status: 'Открыта',
     creationDate: currentDate,
     deadlineDate: addDays(currentDate, 1),
     userAuthor: usersList[0]!,
@@ -162,8 +162,7 @@ export const fetchTasksInProjectFx = createEffect(
     if (!response.ok) {
       throw new Error(`Failed to fetch tasks for project with id ${projectId}`);
     }
-
-    const data = await response.json().then((res) => res.items);
+    const data = await response.json();
     if (!Array.isArray(data)) {
       throw new Error('API did not return an array of tasks');
     }

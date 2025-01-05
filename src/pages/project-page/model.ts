@@ -68,7 +68,7 @@ export const $postponedTasks = $tasksInProjectOnBoard.map((tasks) =>
 );
 export const $openedTasks = $tasksInProjectOnBoard.map((tasks) =>
   tasks.filter<TaskOnBoard>(
-    (task): task is TaskOnBoard => task.status === 'Открыт'
+    (task): task is TaskOnBoard => task.status === 'Открыта'
   )
 );
 export const $inProgressTasks = $tasksInProjectOnBoard.map((tasks) =>
@@ -141,6 +141,8 @@ sample({
 sample({
   clock: fetchTasksInProjectScopedFx.doneData,
   target: $tasksInProject,
+}).watch((data) => {
+  console.log(data); // Выводим полученные данные в консоль
 });
 
 sample({
