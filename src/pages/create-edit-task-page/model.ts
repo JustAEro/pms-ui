@@ -2,6 +2,7 @@ import { attach, createEvent, createStore, sample } from 'effector';
 
 import {
   CreateTask,
+  CreateTaskDto,
   createTaskMockFx,
   fetchTaskFx,
   Task,
@@ -42,6 +43,9 @@ export const taskExecutorLoginFieldValueChanged = createEvent<string>();
 
 export const $taskTesterLoginFieldValue = createStore('');
 export const taskTesterLoginFieldValueChanged = createEvent<string>();
+
+export const $deadlineDateFieldValue = createStore<string>(''); // example of value (in MSK TZ): 2026-10-16T20:20:00.000
+export const deadlineDateFieldValueChanged = createEvent<string>();
 
 export const $pageMode = createStore<PageMode>(
   window.location.href.includes('create') ? 'create' : 'edit'
@@ -143,6 +147,11 @@ sample({
 });
 
 sample({
+  clock: deadlineDateFieldValueChanged,
+  target: $deadlineDateFieldValue,
+});
+
+sample({
   clock: createOrEditTaskButtonClicked,
   source: $pageMode,
   filter: (pageMode) => pageMode === 'create',
@@ -165,6 +174,8 @@ sample({
     taskDescriptionFieldValue: $taskDescriptionFieldValue,
     taskExecutorLoginFieldValue: $taskExecutorLoginFieldValue,
     taskTesterLoginFieldValue: $taskTesterLoginFieldValue,
+    deadlineDateFieldValue: $deadlineDateFieldValue,
+    paramsWithProjectId: routes.createTaskRoute.$params,
   },
   filter: ({ currentUser, jwtToken }) => !!currentUser && !!jwtToken,
   fn: ({
@@ -174,13 +185,28 @@ sample({
     taskExecutorLoginFieldValue,
     taskNameFieldValue,
     taskTesterLoginFieldValue,
+    deadlineDateFieldValue,
+    paramsWithProjectId,
   }) => {
     const createTask: CreateTask = {
       name: taskNameFieldValue,
       description: taskDescriptionFieldValue,
-      userExecutorLogin: taskExecutorLoginFieldValue,
-      userTesterLogin: taskTesterLoginFieldValue,
+      userExecutorId: taskExecutorLoginFieldValue,
+      userTesterId: taskTesterLoginFieldValue,
+      deadlineDate: `${deadlineDateFieldValue}000+03:00`,
     };
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const dto: CreateTaskDto = {
+      author_id: currentUser!.id,
+      deadline: deadlineDateFieldValue,
+      description: taskDescriptionFieldValue,
+      executor_id: taskExecutorLoginFieldValue,
+      name: taskNameFieldValue,
+      project_id: paramsWithProjectId.projectId,
+      status: 'Открыта',
+      tester_id: taskTesterLoginFieldValue,
+    }; // TODO: use dto after migrating to real API
 
     return {
       createTask,

@@ -17,8 +17,20 @@ export type Task = {
 export type CreateTask = {
   name: string;
   description: string;
-  userExecutorLogin: User['login'];
-  userTesterLogin: User['login'];
+  userExecutorId: User['id'];
+  userTesterId: User['id'];
+  deadlineDate: string;
+};
+
+export type CreateTaskDto = {
+  author_id: string;
+  deadline: string;
+  description: string;
+  executor_id: string;
+  name: string;
+  project_id: string;
+  status: TaskStatus;
+  tester_id: string;
 };
 
 export type TaskStatus = typeof taskStatuses[number];

@@ -18,15 +18,15 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 import {
   $archivedProjectsToShow,
   $areArchivedProjectsLoading,
-  $searchValue,
   $currentPage,
+  $searchValue,
   $totalPages,
   headerModel,
+  nextPageClicked,
   pageMounted,
+  prevPageClicked,
   projectClicked,
   projectsPageButtonClicked,
-  nextPageClicked,
-  prevPageClicked,
   searchValueChanged,
 } from './model';
 

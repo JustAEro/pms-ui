@@ -18,6 +18,7 @@ import {
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
+  $deadlineDateFieldValue,
   $isTaskLoading,
   $notificationToastId,
   $notificationToShow,
@@ -29,6 +30,7 @@ import {
   $taskTesterLoginFieldValue,
   backToPreviousPageClicked,
   createOrEditTaskButtonClicked,
+  deadlineDateFieldValueChanged,
   headerModel,
   pageMounted,
   pageUnmounted,
@@ -89,6 +91,9 @@ export const CreateEditTaskPage: FC = () => {
     onPageUnmount();
     toast.closeAll();
   });
+
+  const deadlineDate = useUnit($deadlineDateFieldValue);
+  const onDeadlineDateChange = useUnit(deadlineDateFieldValueChanged);
 
   return (
     <Box>
@@ -189,6 +194,26 @@ export const CreateEditTaskPage: FC = () => {
                 variant="filled"
               />
             </FormControl>
+
+            <FormControl
+              display="flex"
+              flexDirection="column"
+              alignItems="center"
+              marginTop="30px"
+            >
+              <FormLabel>Дата дедлайна</FormLabel>
+              <input
+                aria-label="Date and time"
+                type="datetime-local"
+                value={deadlineDate}
+                onChange={(e) => {
+                  const newDate = new Date(e.target.value).getTime() / 1000;
+
+                  onDeadlineDateChange(newDate ? value(newDate) : '');
+                }}
+              />
+            </FormControl>
+
             <FormControl
               display="flex"
               flexDirection="column"
@@ -216,3 +241,18 @@ export const CreateEditTaskPage: FC = () => {
     </Box>
   );
 };
+
+function value(epcohSeconds: number) {
+  return formatISOString(epochSecondsToLocalISOString(epcohSeconds));
+}
+
+function formatISOString(value: string) {
+  return value.replace('Z', '');
+}
+
+function epochSecondsToLocalISOString(epochSeconds: number) {
+  return new Date(
+    epochSeconds * 1000 +
+      -new Date(epochSeconds * 1000).getTimezoneOffset() * 60 * 1000
+  ).toISOString();
+}

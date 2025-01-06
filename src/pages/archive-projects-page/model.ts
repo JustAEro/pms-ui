@@ -1,4 +1,4 @@
-import { attach, createEvent, createStore, sample, combine } from 'effector';
+import { attach, combine, createEvent, createStore, sample } from 'effector';
 
 import { fetchArchivedProjectsFx, Project } from '@pms-ui/entities/project';
 import { $userType } from '@pms-ui/entities/user';

@@ -224,29 +224,29 @@ export const createTaskMockFx = createEffect(
     token: string;
     currentUser: User;
   }) => {
-    const { userExecutorLogin, userTesterLogin } = createTask;
+    const { userExecutorId, userTesterId } = createTask;
 
     const author = currentUser;
 
-    const executor = usersList.find((user) => user.login === userExecutorLogin);
+    const executor = usersList.find((user) => user.id === userExecutorId);
 
     if (!executor) {
-      throw new Error('Executor login not found');
+      throw new Error('Executor id not found');
     }
 
-    const tester = usersList.find((user) => user.login === userTesterLogin);
+    const tester = usersList.find((user) => user.id === userTesterId);
 
     if (!tester) {
-      throw new Error('Tester login not found');
+      throw new Error('Tester id not found');
     }
 
     const task: Task = {
       id: String(Date.now()),
       name: createTask.name,
       description: createTask.description,
-      status: 'Открыт',
+      status: 'Открыта',
       creationDate: currentDate,
-      deadlineDate: addDays(currentDate, 1),
+      deadlineDate: new Date(createTask.deadlineDate),
       userAuthor: author,
       userExecutor: executor,
       userTester: tester,
