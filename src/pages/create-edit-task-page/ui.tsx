@@ -25,9 +25,9 @@ import {
   $pageMode,
   $task,
   $taskDescriptionFieldValue,
-  $taskExecutorLoginFieldValue,
+  $taskExecutorIdFieldValue,
   $taskNameFieldValue,
-  $taskTesterLoginFieldValue,
+  $taskTesterIdFieldValue,
   backToPreviousPageClicked,
   createOrEditTaskButtonClicked,
   deadlineDateFieldValueChanged,
@@ -35,9 +35,9 @@ import {
   pageMounted,
   pageUnmounted,
   taskDescriptionFieldValueChanged,
-  taskExecutorLoginFieldValueChanged,
+  taskExecutorIdFieldValueChanged,
   taskNameFieldValueChanged,
-  taskTesterLoginFieldValueChanged,
+  taskTesterIdFieldValueChanged,
 } from './model';
 
 const textFontSizes = [16, 21, 30];
@@ -58,14 +58,14 @@ export const CreateEditTaskPage: FC = () => {
     taskDescriptionFieldValueChanged
   );
 
-  const taskExecutorLoginFieldValue = useUnit($taskExecutorLoginFieldValue);
+  const taskExecutorLoginFieldValue = useUnit($taskExecutorIdFieldValue);
   const onChangeTaskExecutorLoginFieldValue = useUnit(
-    taskExecutorLoginFieldValueChanged
+    taskExecutorIdFieldValueChanged
   );
 
-  const taskTesterLoginFieldValue = useUnit($taskTesterLoginFieldValue);
+  const taskTesterLoginFieldValue = useUnit($taskTesterIdFieldValue);
   const onChangeTaskTesterLoginFieldValue = useUnit(
-    taskTesterLoginFieldValueChanged
+    taskTesterIdFieldValueChanged
   );
 
   const isTaskLoading = useUnit($isTaskLoading);

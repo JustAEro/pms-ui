@@ -1,4 +1,4 @@
-import { attach, createEvent, createStore, sample } from 'effector';
+import { attach, createEvent, createStore, merge, sample } from 'effector';
 
 import {
   CreateTask,
@@ -6,6 +6,9 @@ import {
   createTaskMockFx,
   fetchTaskFx,
   Task,
+  UpdateTask,
+  UpdateTaskDto,
+  updateTaskMockFx,
 } from '@pms-ui/entities/task';
 import { $currentUser, $jwtToken, $userType } from '@pms-ui/entities/user';
 import { controls, routes } from '@pms-ui/shared/routes';
@@ -29,6 +32,7 @@ const loadTaskFx = attach({ effect: fetchTaskFx });
 export const $isTaskLoading = loadTaskFx.pending;
 
 const createTaskScopedFx = attach({ effect: createTaskMockFx });
+const updateTaskScopedFx = attach({ effect: updateTaskMockFx });
 
 export const $task = createStore<Task | null>(null);
 
@@ -38,11 +42,11 @@ export const taskNameFieldValueChanged = createEvent<string>();
 export const $taskDescriptionFieldValue = createStore('');
 export const taskDescriptionFieldValueChanged = createEvent<string>();
 
-export const $taskExecutorLoginFieldValue = createStore('');
-export const taskExecutorLoginFieldValueChanged = createEvent<string>();
+export const $taskExecutorIdFieldValue = createStore('');
+export const taskExecutorIdFieldValueChanged = createEvent<string>();
 
-export const $taskTesterLoginFieldValue = createStore('');
-export const taskTesterLoginFieldValueChanged = createEvent<string>();
+export const $taskTesterIdFieldValue = createStore('');
+export const taskTesterIdFieldValueChanged = createEvent<string>();
 
 export const $deadlineDateFieldValue = createStore<string>(''); // example of value (in MSK TZ): 2026-10-16T20:20:00.000
 export const deadlineDateFieldValueChanged = createEvent<string>();
@@ -111,14 +115,14 @@ sample({
 
 sample({
   clock: loadTaskFx.doneData,
-  fn: (task) => task.userExecutor.login,
-  target: $taskExecutorLoginFieldValue,
+  fn: (task) => task.userExecutor.id,
+  target: $taskExecutorIdFieldValue,
 });
 
 sample({
   clock: loadTaskFx.doneData,
-  fn: (task) => task.userTester.login,
-  target: $taskTesterLoginFieldValue,
+  fn: (task) => task.userTester.id,
+  target: $taskTesterIdFieldValue,
 });
 
 sample({
@@ -137,13 +141,13 @@ sample({
 });
 
 sample({
-  clock: taskExecutorLoginFieldValueChanged,
-  target: $taskExecutorLoginFieldValue,
+  clock: taskExecutorIdFieldValueChanged,
+  target: $taskExecutorIdFieldValue,
 });
 
 sample({
-  clock: taskTesterLoginFieldValueChanged,
-  target: $taskTesterLoginFieldValue,
+  clock: taskTesterIdFieldValueChanged,
+  target: $taskTesterIdFieldValue,
 });
 
 sample({
@@ -172,8 +176,8 @@ sample({
     jwtToken: $jwtToken,
     taskNameFieldValue: $taskNameFieldValue,
     taskDescriptionFieldValue: $taskDescriptionFieldValue,
-    taskExecutorLoginFieldValue: $taskExecutorLoginFieldValue,
-    taskTesterLoginFieldValue: $taskTesterLoginFieldValue,
+    taskExecutorLoginFieldValue: $taskExecutorIdFieldValue,
+    taskTesterLoginFieldValue: $taskTesterIdFieldValue,
     deadlineDateFieldValue: $deadlineDateFieldValue,
     paramsWithProjectId: routes.createTaskRoute.$params,
   },
@@ -194,12 +198,13 @@ sample({
       userExecutorId: taskExecutorLoginFieldValue,
       userTesterId: taskTesterLoginFieldValue,
       deadlineDate: `${deadlineDateFieldValue}000+03:00`,
+      project_id: paramsWithProjectId.projectId,
     };
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const dto: CreateTaskDto = {
       author_id: currentUser!.id,
-      deadline: deadlineDateFieldValue,
+      deadline: `${deadlineDateFieldValue}000+03:00`,
       description: taskDescriptionFieldValue,
       executor_id: taskExecutorLoginFieldValue,
       name: taskNameFieldValue,
@@ -218,13 +223,71 @@ sample({
 });
 
 sample({
-  clock: createTaskScopedFx.doneData,
+  clock: editTaskStarted,
+  source: {
+    currentUser: $currentUser,
+    jwtToken: $jwtToken,
+    taskNameFieldValue: $taskNameFieldValue,
+    taskDescriptionFieldValue: $taskDescriptionFieldValue,
+    taskExecutorLoginFieldValue: $taskExecutorIdFieldValue,
+    taskTesterLoginFieldValue: $taskTesterIdFieldValue,
+    deadlineDateFieldValue: $deadlineDateFieldValue,
+    paramsWithProjectId: routes.createTaskRoute.$params,
+    task: $task,
+  },
+  filter: ({ currentUser, jwtToken, task }) =>
+    !!currentUser && !!jwtToken && !!task,
+  fn: ({
+    currentUser,
+    jwtToken,
+    taskDescriptionFieldValue,
+    taskExecutorLoginFieldValue,
+    taskNameFieldValue,
+    taskTesterLoginFieldValue,
+    deadlineDateFieldValue,
+    paramsWithProjectId,
+    task,
+  }) => {
+    const updateTask: UpdateTask = {
+      name: taskNameFieldValue,
+      description: taskDescriptionFieldValue,
+      userExecutorId: taskExecutorLoginFieldValue,
+      userTesterId: taskTesterLoginFieldValue,
+      deadlineDate: `${deadlineDateFieldValue}000+03:00`,
+      project_id: paramsWithProjectId.projectId,
+      status: task!.status,
+    };
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const dto: UpdateTaskDto = {
+      author_id: currentUser!.id,
+      deadline: `${deadlineDateFieldValue}000+03:00`,
+      description: taskDescriptionFieldValue,
+      executor_id: taskExecutorLoginFieldValue,
+      name: taskNameFieldValue,
+      project_id: paramsWithProjectId.projectId,
+      status: task!.status,
+      tester_id: taskTesterLoginFieldValue,
+    }; // TODO: use dto after migrating to real API
+
+    return {
+      id: task!.id,
+      updateTask,
+      token: jwtToken!,
+      currentUser: currentUser!,
+    };
+  },
+  target: updateTaskScopedFx,
+});
+
+sample({
+  clock: [createTaskScopedFx.doneData, updateTaskScopedFx.doneData],
   fn: (task) => ({ taskId: task.id }),
   target: routes.taskRoute.open,
 });
 
 const errorCreateTaskToastModel = errorToastModelFactory({
-  triggerEvent: createTaskScopedFx.fail,
+  triggerEvent: merge([createTaskScopedFx.fail, updateTaskScopedFx.fail]),
   notificationOptions: {
     status: 'error',
     duration: 9000,
@@ -250,8 +313,8 @@ sample({
     $task.reinit,
     $taskNameFieldValue.reinit,
     $taskDescriptionFieldValue.reinit,
-    $taskExecutorLoginFieldValue.reinit,
-    $taskTesterLoginFieldValue.reinit,
+    $taskExecutorIdFieldValue.reinit,
+    $taskTesterIdFieldValue.reinit,
     $pageMode.reinit,
   ] as const,
 });

@@ -12,6 +12,7 @@ export type Task = {
   userAuthor: User;
   userExecutor: User;
   userTester: User;
+  project_id: string;
 };
 
 export type CreateTask = {
@@ -20,6 +21,7 @@ export type CreateTask = {
   userExecutorId: User['id'];
   userTesterId: User['id'];
   deadlineDate: string;
+  project_id: string;
 };
 
 export type CreateTaskDto = {
@@ -32,6 +34,12 @@ export type CreateTaskDto = {
   status: TaskStatus;
   tester_id: string;
 };
+
+export type UpdateTask = CreateTask & {
+  status: TaskStatus;
+};
+
+export type UpdateTaskDto = CreateTaskDto;
 
 export type TaskStatus = typeof taskStatuses[number];
 
