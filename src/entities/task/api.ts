@@ -3,7 +3,7 @@ import { createEffect } from 'effector';
 
 import { User } from '../user';
 
-import { UpdateTask, Task, CreateTask } from './types';
+import { CreateTask, Task, UpdateTask } from './types';
 
 const usersList: User[] = [
   {

@@ -17,6 +17,7 @@ import {
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
+import { FileUploader } from './file-uploader';
 import {
   $deadlineDateFieldValue,
   $isTaskLoading,
@@ -221,7 +222,7 @@ export const CreateEditTaskPage: FC = () => {
               marginTop="30px"
             >
               <FormLabel>Вложения</FormLabel>
-              <Input width="70%" type="file" />
+              <FileUploader />
             </FormControl>
             <Button
               marginTop="50px"
