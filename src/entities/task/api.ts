@@ -3,7 +3,7 @@ import { createEffect } from 'effector';
 
 import { User } from '../user';
 
-import { Task } from './types';
+import { UpdateTask, Task, CreateTask } from './types';
 
 const usersList: User[] = [
   {
@@ -74,6 +74,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '1',
   },
   {
     id: '2',
@@ -85,6 +86,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '2',
   },
   {
     id: '3',
@@ -96,6 +98,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '3',
   },
   {
     id: '4',
@@ -109,6 +112,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '1',
   },
   {
     id: '5',
@@ -120,6 +124,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '2',
   },
   {
     id: '6',
@@ -131,6 +136,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '3',
   },
   {
     id: '7',
@@ -142,6 +148,7 @@ let tasks: Task[] = [
     userAuthor: usersList[0]!,
     userExecutor: usersList[1]!,
     userTester: usersList[2]!,
+    project_id: '4',
   },
 ];
 
@@ -211,4 +218,110 @@ export const generateTaskPlanByAIFx = createEffect(
         resolve(universalTaskPlan);
       }, 1000);
     })
+);
+
+export const createTaskMockFx = createEffect(
+  async ({
+    createTask,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    token,
+    currentUser,
+  }: {
+    createTask: CreateTask;
+    token: string;
+    currentUser: User;
+  }) => {
+    const { userExecutorId, userTesterId } = createTask;
+
+    const author = currentUser;
+
+    const executor = usersList.find((user) => user.id === userExecutorId);
+
+    if (!executor) {
+      throw new Error('Executor id not found');
+    }
+
+    const tester = usersList.find((user) => user.id === userTesterId);
+
+    if (!tester) {
+      throw new Error('Tester id not found');
+    }
+
+    if (new Date(createTask.deadlineDate).toString() === 'Invalid Date') {
+      throw new Error('Deadline date is not provided');
+    }
+
+    const task: Task = {
+      id: String(Date.now()),
+      name: createTask.name,
+      description: createTask.description,
+      status: 'Открыта',
+      creationDate: currentDate,
+      deadlineDate: new Date(createTask.deadlineDate),
+      userAuthor: author,
+      userExecutor: executor,
+      userTester: tester,
+      project_id: createTask.project_id,
+    };
+
+    tasks = [...tasks, task];
+
+    return structuredClone(task);
+  }
+);
+
+export const updateTaskMockFx = createEffect(
+  async ({
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    id,
+    updateTask,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    token,
+    currentUser,
+  }: {
+    id: string;
+    updateTask: UpdateTask;
+    token: string;
+    currentUser: User;
+  }) => {
+    const { userExecutorId, userTesterId } = updateTask;
+
+    const author = currentUser;
+
+    const executor = usersList.find((user) => user.id === userExecutorId);
+
+    if (!executor) {
+      throw new Error('Executor id not found');
+    }
+
+    const tester = usersList.find((user) => user.id === userTesterId);
+
+    if (!tester) {
+      throw new Error('Tester id not found');
+    }
+
+    if (new Date(updateTask.deadlineDate).toString() === 'Invalid Date') {
+      throw new Error('Deadline date is not provided');
+    }
+
+    const taskToUpdate: Task = {
+      id,
+      name: updateTask.name,
+      description: updateTask.description,
+      status: updateTask.status,
+      creationDate: currentDate,
+      deadlineDate: new Date(updateTask.deadlineDate),
+      userAuthor: author,
+      userExecutor: executor,
+      userTester: tester,
+      project_id: updateTask.project_id,
+    };
+
+    tasks = [
+      taskToUpdate,
+      ...tasks.filter((task) => task.id !== taskToUpdate.id),
+    ];
+
+    return structuredClone(taskToUpdate);
+  }
 );
