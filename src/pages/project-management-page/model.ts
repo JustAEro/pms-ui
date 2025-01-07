@@ -340,13 +340,13 @@ sample({
   },
 });
 
-/*sample({
+/* sample({
   clock: archiveProjectScopedFx.doneData,
   fn: (project) => ({
     ...project,
   }),
   target: [$project, archiveProjectModal.inputs.close] as const,
-});*/
+}); */
 
 sample({
   clock: confirmArchiveProjectButtonClicked,
@@ -369,7 +369,7 @@ sample({
     ...project,
   }),
   target: [$project, archiveProjectModal.inputs.close] as const,
-});*/
+}); */
 
 sample({
   clock: saveChangesButtonClicked,

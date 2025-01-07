@@ -51,6 +51,9 @@ export const taskTesterIdFieldValueChanged = createEvent<string>();
 export const $deadlineDateFieldValue = createStore<string>(''); // example of value (in MSK TZ): 2026-10-16T20:20:00.000
 export const deadlineDateFieldValueChanged = createEvent<string>();
 
+export const $files = createStore<File[] | null>(null);
+export const filesChanged = createEvent<File[]>();
+
 export const $pageMode = createStore<PageMode>(
   window.location.href.includes('create') ? 'create' : 'edit'
 );
@@ -153,6 +156,11 @@ sample({
 sample({
   clock: deadlineDateFieldValueChanged,
   target: $deadlineDateFieldValue,
+});
+
+sample({
+  clock: filesChanged,
+  target: $files,
 });
 
 sample({

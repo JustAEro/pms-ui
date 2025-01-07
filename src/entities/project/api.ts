@@ -319,8 +319,6 @@ export const archiveProjectFx = createEffect(
     if (!response.ok) {
       throw new Error(`Failed to archive project with id ${projectId}`);
     }
-
-    return;
   }
 );
 export const unarchiveProjectMockFx = createEffect(
@@ -347,8 +345,6 @@ export const unarchiveProjectFx = createEffect(
     if (!response.ok) {
       throw new Error(`Failed to unarchive project with id ${projectId}`);
     }
-
-    return;
   }
 );
 
