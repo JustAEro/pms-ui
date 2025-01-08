@@ -41,7 +41,7 @@ export const mapUserServerToUser = (data: any): User => {
     firstName: data.first_name,
     lastName: data.last_name || '', // Если last_name пустое, ставим пустую строку
     projects: [], // Здесь можно добавить логику для получения проектов, если нужно
-    canCreateProjects: data.is_admin, // Преобразуем "is_admin" в "canCreateProjects"
+    canCreateProjects: !data.is_admin, // Преобразуем "is_admin" в "canCreateProjects"
     userType: data.is_admin ? 'admin' : 'user', // Преобразуем "is_admin" в "userType"
     password: '', // Пароль не передается в ответе, его нужно будет получить другим способом
     position: data.position,
