@@ -5,9 +5,9 @@ import { combineEvents } from 'patronum';
 
 import { API_URL } from '@pms-ui/shared/config';
 
-import { mapUserDtoToUser } from './mapping';
+import { mapUserDtoToUser, mapUserServerToUser } from './mapping';
 import { User } from './types';
-
+import { instance } from '@pms-ui/shared/api/http/axios';
 export const authStarted = createEvent();
 export const authSucceeded = createEvent<User>();
 export const authFailed = createEvent<{ error: Error }>();
@@ -16,25 +16,25 @@ export const logoutStarted = createEvent();
 const validateTokenStarted = createEvent<string>();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const validateTokenFx = createEffect(async (token: string) => {
+export const validateTokenFx = createEffect(async () => {
   try {
-    const response = await axios.request({
-      url: `${API_URL}/users/profile`,
+    // Выполняем запрос, интерсептор автоматически добавит токен в заголовки
+    const response = await instance.get('/profile', {
       headers: {
-        Authorization: `Bearer ${token}`,
+        accept: 'application/json',
       },
-      method: 'get',
     });
-    console.log(response.data);
-    return mapUserDtoToUser(response.data);
+
+    // Преобразуем ответ в формат User
+    return mapUserServerToUser(response.data);
   } catch (error) {
+    // Обрабатываем ошибку
     if (error instanceof AxiosError) {
       throw error.response?.data;
     }
     throw error;
   }
 });
-
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const validateTokenMockFx = createEffect((token: string) => {
   if (token === 'AMAMAM') {
@@ -114,13 +114,18 @@ const getTokenFx = createEffect(
     try {
       const response = await axios.request({
         url: `${API_URL}/login`,
-        method: 'post',
-        params: {
+        method: 'POST',
+        headers: {
+          accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+        data: {
           login,
           password,
         },
       });
 
+      // Возвращаем оба токена
       return response.data.access_token;
     } catch (error) {
       if (error instanceof AxiosError) {
@@ -130,7 +135,6 @@ const getTokenFx = createEffect(
     }
   }
 );
-
 export const $currentUser = createStore<User | null>(null);
 export const $userType = $currentUser.map((user) => user?.userType ?? null);
 export const $canCreateProjects = $currentUser.map(
@@ -160,32 +164,32 @@ sample({
 
 sample({
   clock: validateTokenStarted,
-  target: validateTokenMockFx,
+  target: validateTokenFx,
 });
 
 sample({
-  clock: validateTokenMockFx.doneData,
+  clock: validateTokenFx.doneData,
   target: [$currentUser, authSucceeded] as const,
 });
 
 sample({
-  clock: validateTokenMockFx.fail,
+  clock: validateTokenFx.fail,
   fn: () => null,
   target: $currentUser,
 });
 
 sample({
   clock: loginStarted,
-  target: getTokenMockFx,
+  target: getTokenFx,
 });
 
 sample({
-  clock: getTokenMockFx.doneData,
+  clock: getTokenFx.doneData,
   target: [$jwtToken, authStarted] as const,
 });
 
 sample({
-  clock: getTokenMockFx.fail,
+  clock: getTokenFx.fail,
   fn: () => null,
   target: [$jwtToken, authStarted] as const,
 });
@@ -197,7 +201,7 @@ sample({
 });
 
 sample({
-  clock: [getTokenMockFx.failData, validateTokenMockFx.failData],
+  clock: [getTokenFx.failData, validateTokenFx.failData],
   fn: (error) => ({ error }),
   target: authFailed,
 });
