@@ -1,8 +1,10 @@
-import axios from 'axios';
+import axios, { InternalAxiosRequestConfig } from 'axios';
 
 import { API_URL } from '../../config';
 
 import { AnyObject, HttpRequestOptions } from './types';
+
+import { $jwtToken } from '@pms-ui/entities/user';
 
 export const instance = axios.create({
   baseURL: API_URL,
@@ -11,6 +13,27 @@ export const instance = axios.create({
   },
 });
 
+// Добавляем интерсептор для всех запросов
+instance.interceptors.request.use(
+  (config: InternalAxiosRequestConfig) => {
+    // Получаем токен из Effector store
+    const token = $jwtToken.getState(); // Получаем текущее значение токена из стора
+
+    // Проверяем, что запрос не на логин
+    if (token && !config.url?.includes('/login')) {
+      // Убедитесь, что заголовки существуют, и добавьте токен
+      config.headers = {
+        ...config.headers,
+        Authorization: `Bearer ${token}`, // Добавляем токен в заголовки
+      } as any; // Приводим к типу any для обхода ошибки
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 export const request = <T>(
   options: HttpRequestOptions,
   params?: AnyObject
