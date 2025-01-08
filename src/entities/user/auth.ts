@@ -16,7 +16,7 @@ export const logoutStarted = createEvent();
 const validateTokenStarted = createEvent<string>();
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const validateTokenFx = createEffect(async () => {
+const validateTokenFx = createEffect(async () => {
   try {
     // Выполняем запрос, интерсептор автоматически добавит токен в заголовки
     const response = await instance.get('/profile', {
