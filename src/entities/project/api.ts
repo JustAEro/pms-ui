@@ -5,7 +5,7 @@ import { sleep } from '@pms-ui/shared/lib';
 import type { User } from '../user';
 
 import { CreateProject, Project } from './types';
-
+import { instance } from '@pms-ui/shared/api/http/axios';
 const projects: Project[] = [
   {
     id: '1',
@@ -97,14 +97,13 @@ export const fetchProjectFx = createEffect(
 );
 
 export const fetchProjectsFx = createEffect(
-  async ({ pageIndex, pageSize }: { pageIndex: number; pageSize: number }) => {
-    const response = await fetch(
-      `/api/v1/projects?pageIndex=${pageIndex}&pageSize=${pageSize}`
-    );
-    if (!response.ok) {
+  async ({ userId }: { userId: string }) => {
+    try {
+      const response = await instance.get(`/users/${userId}/projects`);
+      return response.data;
+    } catch (error) {
       throw new Error('Ошибка при загрузке проектов');
     }
-    return response.json();
   }
 );
 
