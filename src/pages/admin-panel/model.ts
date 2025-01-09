@@ -22,7 +22,7 @@ export const lastNameEdited = createEvent<string>();
 export const passwordEdited = createEvent<string>();
 export const addAdminButtonClicked = createEvent();
 
-export const openDeleteAdminModal = createEvent<Admin['login']>();
+export const openDeleteAdminModal = createEvent<Admin['id']>();
 export const closeDeleteAdminModal = createEvent();
 export const deleteAdminButtonClicked = createEvent();
 
@@ -35,7 +35,7 @@ const deleteAdminScopedFx = attach({ effect: deleteAdminFx });
 export const $adminsList = createStore<Admin[]>([]);
 export const $isAdminsListLoading = fetchAdminsScopedFx.pending;
 export const $deleteAdminModalIsOpened = createStore(false);
-export const $adminLoginToBeDeleted = createStore<Admin['login']>('');
+export const $adminIdToBeDeleted = createStore<Admin['id']>('');
 
 export const $addAdminModalIsOpened = createStore(false);
 export const $login = createStore('');
@@ -132,13 +132,10 @@ sample({
 sample({
   clock: deleteAdminButtonClicked,
   source: {
-    adminLoginToBeDeleted: $adminLoginToBeDeleted,
-    jwtToken: $jwtToken,
+    adminIdToBeDeleted: $adminIdToBeDeleted,
   },
-  filter: ({ jwtToken }) => !!jwtToken,
-  fn: ({ jwtToken, adminLoginToBeDeleted }) => ({
-    token: jwtToken!,
-    login: adminLoginToBeDeleted,
+  fn: ({ adminIdToBeDeleted }) => ({
+    userId: adminIdToBeDeleted,
   }),
   target: deleteAdminScopedFx,
 });
@@ -149,7 +146,7 @@ sample({
     adminsList: $adminsList,
   },
   fn: ({ adminsList }, { params }) =>
-    adminsList.filter((admin) => admin.login !== params.login),
+    adminsList.filter((admin) => admin.id !== params.userId),
   target: $adminsList,
 });
 
@@ -168,7 +165,7 @@ sample({
 
 sample({
   clock: openDeleteAdminModal,
-  target: $adminLoginToBeDeleted,
+  target: $adminIdToBeDeleted,
 });
 
 sample({
@@ -229,6 +226,6 @@ sample({
     $addAdminModalIsOpened.reinit,
     $password.reinit,
     $deleteAdminModalIsOpened.reinit,
-    $adminLoginToBeDeleted.reinit,
+    $adminIdToBeDeleted.reinit,
   ] as const,
 });

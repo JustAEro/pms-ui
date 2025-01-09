@@ -21,7 +21,7 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 import { AdminsTable } from './admins-table';
 import {
   $addAdminModalIsOpened,
-  $adminLoginToBeDeleted,
+  $adminIdToBeDeleted,
   $adminsList,
   $deleteAdminModalIsOpened,
   $firstName,
@@ -67,7 +67,7 @@ export const AdminsPanelPage: FC = () => {
   const onAddAdminButtonClick = useUnit(addAdminButtonClicked);
 
   const deleteAdminModalIsOpened = useUnit($deleteAdminModalIsOpened);
-  const adminLoginToBeDeleted = useUnit($adminLoginToBeDeleted);
+  const adminLoginToBeDeleted = useUnit($adminIdToBeDeleted);
   const onOpenDeleteAdminModal = useUnit(openDeleteAdminModal);
   const onCloseDeleteAdminModal = useUnit(closeDeleteAdminModal);
 

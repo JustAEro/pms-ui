@@ -54,7 +54,7 @@ export const AdminsTable: FC<AdminsTableProps> = ({
                   <CloseIcon
                     cursor="pointer"
                     onClick={() => {
-                      onDeleteAdminClick(admin.login);
+                      onDeleteAdminClick(admin.id);
                     }}
                   />
                 </Flex>
