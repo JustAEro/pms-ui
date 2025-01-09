@@ -1,4 +1,9 @@
+import { AxiosError } from 'axios';
 import { createEffect } from 'effector';
+
+import { instance } from '@pms-ui/shared/api';
+
+import { CreateUserDto, FindUserDto } from '../user';
 
 import { Admin, CreateAdmin } from './types';
 
@@ -45,7 +50,33 @@ const addAdminMockFx = createEffect(
     })
 );
 
-export const addAdminFx = addAdminMockFx;
+const addAdminApiFx = createEffect(
+  async ({ admin }: { admin: CreateUserDto }) => {
+    try {
+      const response = await instance.post<FindUserDto>(`/users`, admin);
+
+      console.log(response.data);
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
+);
+
+export const addAdminFx = addAdminApiFx;
+
+export const mapCreatedAdminDtoToAdmin = (dto: FindUserDto): Admin => ({
+  login: dto.username,
+  firstName: dto.first_name,
+  lastName: dto.last_name,
+});
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const deleteAdminMockFx = createEffect(
