@@ -140,7 +140,7 @@ export const $userType = $currentUser.map((user) => user?.userType ?? null);
 export const $canCreateProjects = $currentUser.map(
   (user) => user?.canCreateProjects ?? false
 );
-
+export const $userId = $currentUser.map((user) => user?.id ?? null);
 export const $jwtToken = createStore<string | null>(null);
 
 persist({
