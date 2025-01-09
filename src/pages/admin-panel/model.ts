@@ -82,6 +82,13 @@ sample({
 
 sample({
   clock: fetchAdminsScopedFx.doneData,
+  fn: (dto): Admin[] =>
+    dto.map((adminDto) => ({
+      id: adminDto.id,
+      login: adminDto.username,
+      firstName: adminDto.full_name.split(' ')[0] ?? '',
+      lastName: adminDto.full_name.split(' ')[1] ?? '',
+    })),
   target: $adminsList,
 });
 

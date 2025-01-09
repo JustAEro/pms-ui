@@ -28,6 +28,20 @@ export type FindUserDto = Omit<CreateUserDto, 'password'> & {
   updated_at: string;
 };
 
+export type FindUserInPaginationDto = {
+  id: string;
+  username: string;
+  is_admin: boolean;
+  full_name: string;
+};
+
+export type FindUsersPaginationDto = {
+  page_index: number;
+  page_size: number;
+  total: number;
+  items: FindUserInPaginationDto[];
+};
+
 export type User = {
   id: string;
   login: string;

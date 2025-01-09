@@ -3,7 +3,7 @@ import { createEffect } from 'effector';
 
 import { instance } from '@pms-ui/shared/api';
 
-import { CreateUserDto, FindUserDto } from '../user';
+import { CreateUserDto, FindUserDto, FindUsersPaginationDto } from '../user';
 
 import { Admin, CreateAdmin } from './types';
 
@@ -39,7 +39,33 @@ const fetchAdminsMockFx = createEffect(
     })
 );
 
-export const fetchAdminsFx = fetchAdminsMockFx;
+const fetchAdminsApiFx = createEffect(async () => {
+  try {
+    const {
+      data: { total },
+    } = await instance.get<FindUsersPaginationDto>(
+      `/users?isAdmin=true&pageIndex=1&pageSize=1`
+    );
+
+    const {
+      data: { items },
+    } = await instance.get<FindUsersPaginationDto>(
+      `/users?isAdmin=true&pageIndex=1&pageSize=${total}`
+    );
+
+    return items;
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof AxiosError) {
+      throw error.response?.data;
+    }
+
+    throw error;
+  }
+});
+
+export const fetchAdminsFx = fetchAdminsApiFx;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const addAdminMockFx = createEffect(
