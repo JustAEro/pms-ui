@@ -1,10 +1,17 @@
 import axios, { AxiosError } from 'axios';
 import { createEffect } from 'effector';
 
+import { instance } from '@pms-ui/shared/api';
 import { API_URL } from '@pms-ui/shared/config';
 
 import { mapUserDtoToUser } from './mapping';
-import { UpdateUserMeta, User, UserDto } from './types';
+import {
+  CreateUserDto,
+  FindUserDto,
+  UpdateUserMeta,
+  User,
+  UserDto,
+} from './types';
 
 let usersList: User[] = [
   {
@@ -140,23 +147,20 @@ export const fetchUserFx = createEffect(
 );
 
 export const addUserToSystemFx = createEffect(
-  async ({ user, token }: { user: UserDto; token: string }) => {
+  async ({ createUser }: { createUser: CreateUserDto }) => {
     try {
-      const response = await axios.request<UserDto>({
-        url: `${API_URL}/users`,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        method: 'post',
-        data: user,
-      });
+      const response = await instance.post<FindUserDto>(`/users`, createUser);
+
       console.log(response.data);
+
       return response.data;
     } catch (error) {
       console.log(error);
+
       if (error instanceof AxiosError) {
         throw error.response?.data;
       }
+
       throw error;
     }
   }

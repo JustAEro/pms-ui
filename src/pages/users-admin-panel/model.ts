@@ -12,8 +12,8 @@ import {
   $jwtToken,
   $userType,
   addUserToSystemFx,
+  CreateUserDto,
   fetchUsersFx,
-  UserDto,
 } from '@pms-ui/entities/user';
 import { createPagination } from '@pms-ui/shared/lib';
 import { routes } from '@pms-ui/shared/routes';
@@ -222,26 +222,24 @@ sample({
 sample({
   clock: addUserButtonClicked,
   source: {
-    jwtToken: $jwtToken,
     login: $login,
     firstName: $firstName,
     lastName: $lastName,
     password: $password,
   },
-  filter: ({ jwtToken }) => !!jwtToken,
-  fn: ({ jwtToken, login, firstName, lastName, password }) => {
-    const user: UserDto = {
-      login,
-      firstName,
-      lastName,
+  fn: ({ login, firstName, lastName, password }) => {
+    const createUser: CreateUserDto = {
+      username: login,
+      first_name: firstName,
+      last_name: lastName,
+      middle_name: '', // TODO: add later
       password,
       position: 'Пользователь системы',
-      isAdmin: false,
+      is_admin: false,
     };
 
     return {
-      user,
-      token: jwtToken!,
+      createUser,
     };
   },
   target: addUserToSystemScopedFx,

@@ -12,6 +12,22 @@ export type UserDto = {
   password: string;
 };
 
+export type CreateUserDto = {
+  first_name: string;
+  is_admin: boolean;
+  last_name: string;
+  middle_name: string;
+  password: string;
+  position: string;
+  username: string;
+};
+
+export type FindUserDto = Omit<CreateUserDto, 'password'> & {
+  id: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type User = {
   id: string;
   login: string;

@@ -5,7 +5,6 @@ import ReactPaginate from 'react-paginate';
 
 import {
   Box,
-  Checkbox,
   Flex,
   Spinner,
   Table,
@@ -21,12 +20,8 @@ import { PencilIcon } from '@pms-ui/shared/ui';
 
 import {
   $currentPageNumber,
-  $isDisabledCheckboxToChangeAllowToCreateProjects,
   $isUsersListLoading,
   $pagesCount,
-  $usersAllowedToCreateProjectsCheckboxesState,
-  // $usersList,
-  allowToCreateProjectsCheckboxClicked,
   pageNumberChanged,
   usersPagination,
 } from './model';
@@ -40,17 +35,6 @@ export const UsersTable: FC = () => {
   const onPageNumberChange = useUnit(pageNumberChanged);
   // const usersList = useUnit($usersList);
   const isUsersListLoading = useUnit($isUsersListLoading);
-
-  const isDisabledCheckboxToChangeAllowToCreateProjects = useUnit(
-    $isDisabledCheckboxToChangeAllowToCreateProjects
-  );
-  const usersAllowedToCreateProjectsCheckboxesState = useUnit(
-    $usersAllowedToCreateProjectsCheckboxesState
-  );
-
-  const onAllowToCreateProjectsCheckboxClick = useUnit(
-    allowToCreateProjectsCheckboxClicked
-  );
 
   if (isUsersListLoading) {
     return <Spinner marginTop="30px" />;
@@ -136,7 +120,6 @@ export const UsersTable: FC = () => {
               <Th>Логин</Th>
               <Th>Проекты</Th>
               <Th>Редактирование пользователя</Th>
-              <Th>Может создавать проекты</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -155,29 +138,6 @@ export const UsersTable: FC = () => {
                     >
                       <PencilIcon />
                     </Link>
-                  </Flex>
-                </Td>
-                <Td>
-                  <Flex alignItems="center" justifyContent="center">
-                    <Checkbox
-                      isChecked={
-                        usersAllowedToCreateProjectsCheckboxesState[user.id]
-                      }
-                      onChange={() => {
-                        const newStatus =
-                          !usersAllowedToCreateProjectsCheckboxesState[user.id];
-
-                        onAllowToCreateProjectsCheckboxClick({
-                          id: user.id,
-                          newStatus,
-                        });
-                      }}
-                      disabled={isDisabledCheckboxToChangeAllowToCreateProjects}
-                      border="1px solid"
-                      borderColor="#E2E8F0"
-                      borderRadius="6px"
-                      bgColor="#FFFFFF"
-                    />
                   </Flex>
                 </Td>
               </Tr>
