@@ -2,8 +2,8 @@ import { addDays, subDays } from 'date-fns';
 import { createEffect } from 'effector';
 
 import { User } from '../user';
-
-import { CreateTask, Task, UpdateTask } from './types';
+import { instance } from '@pms-ui/shared/api/http/axios';
+import { CreateTask, Task, UpdateTask, CreateTaskDto } from './types';
 
 const usersList: User[] = [
   {
@@ -164,16 +164,12 @@ export const fetchTasksInProjectMockFx = createEffect(
 
 export const fetchTasksInProjectFx = createEffect(
   async ({ projectId }: { projectId: string }) => {
-    const response = await fetch(`/api/v1/projects/${projectId}/tasks`);
-
-    if (!response.ok) {
+    try {
+      const response = await instance.get(`/projects/${projectId}/tasks`);
+      return response.data as Task[];
+    } catch (error) {
       throw new Error(`Failed to fetch tasks for project with id ${projectId}`);
     }
-    const data = await response.json();
-    if (!Array.isArray(data)) {
-      throw new Error('API did not return an array of tasks');
-    }
-    return data as Task[];
   }
 );
 
@@ -219,7 +215,18 @@ export const generateTaskPlanByAIFx = createEffect(
       }, 1000);
     })
 );
+export const createTaskFx = createEffect(
+  async ({ createTask }: { createTask: CreateTaskDto }) => {
+    try {
+      const response = await instance.post('/task', createTask);
 
+      return response.data;
+    } catch (error) {
+      // Обработка ошибки
+      throw new Error('Ошибка при создании задачи');
+    }
+  }
+);
 export const createTaskMockFx = createEffect(
   async ({
     createTask,

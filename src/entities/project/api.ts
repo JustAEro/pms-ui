@@ -87,13 +87,12 @@ export const fetchProjectsMockFx = createEffect(
 
 export const fetchProjectFx = createEffect(
   async ({ projectId }: { projectId: string }) => {
-    const response = await fetch(`/api/v1/projects/${projectId}`);
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch project with id ${projectId}`);
+    try {
+      const response = await instance.get(`/projects/${projectId}`);
+      return response.data as Promise<Project>;
+    } catch (error) {
+      throw new Error('Ошибка при загрузке проекта');
     }
-
-    return response.json() as Promise<Project>;
   }
 );
 
@@ -318,14 +317,10 @@ export const archiveProjectMockFx = createEffect(
 );
 export const archiveProjectFx = createEffect(
   async ({ projectId }: { projectId: string }) => {
-    const response = await fetch(`/api/v1/projects/${projectId}/archive`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
+    try {
+      const response = await instance.put(`/projects/${projectId}/archive`);
+      return response.data;
+    } catch (error) {
       throw new Error(`Failed to archive project with id ${projectId}`);
     }
   }
@@ -344,15 +339,11 @@ export const unarchiveProjectMockFx = createEffect(
 
 export const unarchiveProjectFx = createEffect(
   async ({ projectId }: { projectId: string }) => {
-    const response = await fetch(`/api/v1/projects/${projectId}/unarchive`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to unarchive project with id ${projectId}`);
+    try {
+      const response = await instance.put(`/projects/${projectId}/unarchive`);
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to archive project with id ${projectId}`);
     }
   }
 );

@@ -82,10 +82,9 @@ sample({
 
 sample({
   clock: fetchProjectsScopedFx.doneData,
-  filter: (data) => data.is_active,
+  fn: (data: Project[]) => data.filter((project) => project.is_active === true),
   target: [$projects, $projectsToShow],
 });
-fetchProjectsScopedFx.doneData.watch(console.log);
 
 sample({
   clock: searchValueChanged,

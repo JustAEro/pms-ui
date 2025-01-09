@@ -55,7 +55,8 @@ sample({
 
 sample({
   clock: fetchArchivedProjectsScopedFx.doneData,
-  filter: (data) => !data.is_active,
+  fn: (data: Project[]) =>
+    data.filter((project) => project.is_active === false),
   target: [$archivedProjects, $archivedProjectsToShow],
 });
 

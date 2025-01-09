@@ -3,7 +3,7 @@ import { attach, createEvent, createStore, merge, sample } from 'effector';
 import {
   CreateTask,
   CreateTaskDto,
-  createTaskMockFx,
+  createTaskFx,
   fetchTaskFx,
   Task,
   UpdateTask,
@@ -31,7 +31,7 @@ const editTaskStarted = createEvent();
 const loadTaskFx = attach({ effect: fetchTaskFx });
 export const $isTaskLoading = loadTaskFx.pending;
 
-const createTaskScopedFx = attach({ effect: createTaskMockFx });
+const createTaskScopedFx = attach({ effect: createTaskFx });
 const updateTaskScopedFx = attach({ effect: updateTaskMockFx });
 
 export const $task = createStore<Task | null>(null);
@@ -181,7 +181,6 @@ sample({
   clock: createTaskStarted,
   source: {
     currentUser: $currentUser,
-    jwtToken: $jwtToken,
     taskNameFieldValue: $taskNameFieldValue,
     taskDescriptionFieldValue: $taskDescriptionFieldValue,
     taskExecutorLoginFieldValue: $taskExecutorIdFieldValue,
@@ -189,10 +188,9 @@ sample({
     deadlineDateFieldValue: $deadlineDateFieldValue,
     paramsWithProjectId: routes.createTaskRoute.$params,
   },
-  filter: ({ currentUser, jwtToken }) => !!currentUser && !!jwtToken,
+  filter: ({ currentUser }) => !!currentUser,
   fn: ({
     currentUser,
-    jwtToken,
     taskDescriptionFieldValue,
     taskExecutorLoginFieldValue,
     taskNameFieldValue,
@@ -200,17 +198,8 @@ sample({
     deadlineDateFieldValue,
     paramsWithProjectId,
   }) => {
-    const createTask: CreateTask = {
-      name: taskNameFieldValue,
-      description: taskDescriptionFieldValue,
-      userExecutorId: taskExecutorLoginFieldValue,
-      userTesterId: taskTesterLoginFieldValue,
-      deadlineDate: `${deadlineDateFieldValue}000+03:00`,
-      project_id: paramsWithProjectId.projectId,
-    };
-
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const dto: CreateTaskDto = {
+    const createTask: CreateTaskDto = {
       author_id: currentUser!.id,
       deadline: `${deadlineDateFieldValue}000+03:00`,
       description: taskDescriptionFieldValue,
@@ -223,8 +212,6 @@ sample({
 
     return {
       createTask,
-      token: jwtToken!,
-      currentUser: currentUser!,
     };
   },
   target: createTaskScopedFx,

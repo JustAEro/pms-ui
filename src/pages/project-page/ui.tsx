@@ -127,20 +127,14 @@ export const ProjectPage: FC = () => {
               paddingRight="50px"
               width="100%"
               direction="row"
-              justifyContent="space-between"
+              justifyContent="center"
               gap={10}
             >
-              <Button colorScheme="gray">Список задач проекта</Button>
-
               {isAdminOfProject && (
                 <Button onClick={onProjectManageButtonClick} colorScheme="gray">
                   Управление проектом
                 </Button>
               )}
-
-              <Button colorScheme="gray">Архив задач</Button>
-
-              <Button colorScheme="gray">Требования к проекту</Button>
 
               {!areTasksInProjectLoading && (
                 <Popover placement="top">
@@ -191,19 +185,6 @@ export const ProjectPage: FC = () => {
                         </Text>
                         <Text fontWeight="normal" color="#000000">
                           {tasksExpiredCount}
-                        </Text>
-                      </Flex>
-
-                      <Flex
-                        direction="row"
-                        gap="15px"
-                        justifyContent="space-between"
-                      >
-                        <Text fontWeight="bold" color="#000000">
-                          Архивировано
-                        </Text>
-                        <Text fontWeight="normal" color="#000000">
-                          {tasksArchivedCount}
                         </Text>
                       </Flex>
                     </Flex>
