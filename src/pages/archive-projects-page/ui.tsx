@@ -18,13 +18,9 @@ import { header as pageHeader } from '@pms-ui/widgets/header';
 import {
   $archivedProjectsToShow,
   $areArchivedProjectsLoading,
-  $currentPage,
   $searchValue,
-  $totalPages,
   headerModel,
-  nextPageClicked,
   pageMounted,
-  prevPageClicked,
   projectClicked,
   projectsPageButtonClicked,
   searchValueChanged,
@@ -45,10 +41,6 @@ export const ArchiveProjectsPage: FC = () => {
   const archivedProjects = useUnit($archivedProjectsToShow);
 
   const onProjectClick = useUnit(projectClicked);
-  const currentPage = useUnit($currentPage);
-  const totalPages = useUnit($totalPages);
-  const onNextPageClick = useUnit(nextPageClicked);
-  const onPrevPageClick = useUnit(prevPageClicked);
 
   useEffect(() => {
     onPageMount();
@@ -142,23 +134,6 @@ export const ArchiveProjectsPage: FC = () => {
                 </Box>
               ))}
             </SimpleGrid>
-            <Flex justifyContent="center" alignItems="center" marginTop="20px">
-              <Button
-                onClick={onPrevPageClick}
-                disabled={currentPage <= 1}
-                marginRight="10px"
-              >
-                Предыдущая
-              </Button>
-              <Text>{`${currentPage} из ${totalPages}`}</Text>
-              <Button
-                onClick={onNextPageClick}
-                disabled={currentPage >= totalPages}
-                marginLeft="10px"
-              >
-                Следующая
-              </Button>
-            </Flex>
           </>
         )}
       </Flex>

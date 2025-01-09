@@ -6,6 +6,7 @@ import type { User } from '../user';
 
 import { CreateProject, Project } from './types';
 import { instance } from '@pms-ui/shared/api/http/axios';
+import { $userId } from '@pms-ui/entities/user';
 const projects: Project[] = [
   {
     id: '1',
@@ -121,21 +122,30 @@ export const fetchProjectMockFx = createEffect(
       }, 1000);
     })
 );
+
 export const createProjectFx = createEffect(
   async (project: { name: string; description: string }) => {
-    const response = await fetch('/api/v1/projects', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(project),
-    });
+    try {
+      const response = await instance.post('/projects', project);
+      const projectId = response.data.id;
+      const userId = $userId.getState();
 
-    if (!response.ok) {
-      throw new Error(`Failed to create project: ${response.statusText}`);
+      if (!userId) {
+        throw new Error('Пользователь не найден, невозможно добавить в проект');
+      }
+
+      await addUserToProjectFx({
+        projectId,
+        userId,
+        data: {
+          is_admin_project: true,
+          role: 'Руководитель проекта',
+        },
+      });
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to create project');
     }
-
-    return await response.json();
   }
 );
 export const createProjectMockFx = createEffect(
@@ -416,7 +426,33 @@ export const addUserToProjectMockFx = createEffect(
       }, 200);
     })
 );
-
+export const addUserToProjectFx = createEffect(
+  async ({
+    projectId,
+    userId,
+    data,
+  }: {
+    projectId: string;
+    userId: string;
+    data: {
+      is_admin_project: boolean;
+      role: string;
+    };
+  }) => {
+    try {
+      const response = await instance.post(
+        `/projects/${projectId}/members/${userId}`,
+        {
+          ...data,
+          user_id: userId, // Добавляем `user_id` в тело запроса
+        }
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error('Failed to add user to project');
+    }
+  }
+);
 export const deleteUserFromProjectMockFx = createEffect(
   async ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
