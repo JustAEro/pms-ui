@@ -1,4 +1,5 @@
 export type Admin = {
+  id: string;
   login: string;
   firstName: string;
   lastName: string;

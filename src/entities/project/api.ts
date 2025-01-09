@@ -1,12 +1,13 @@
 import { createEffect } from 'effector';
 
+import { $userId } from '@pms-ui/entities/user';
+import { instance } from '@pms-ui/shared/api/http/axios';
 import { sleep } from '@pms-ui/shared/lib';
 
 import type { User } from '../user';
 
 import { CreateProject, Project } from './types';
-import { instance } from '@pms-ui/shared/api/http/axios';
-import { $userId } from '@pms-ui/entities/user';
+
 const projects: Project[] = [
   {
     id: '1',

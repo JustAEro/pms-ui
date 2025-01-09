@@ -1,9 +1,11 @@
 import { addDays, subDays } from 'date-fns';
 import { createEffect } from 'effector';
 
-import { User } from '../user';
 import { instance } from '@pms-ui/shared/api/http/axios';
-import { CreateTask, Task, UpdateTask, CreateTaskDto } from './types';
+
+import { User } from '../user';
+
+import { CreateTask, CreateTaskDto, Task, UpdateTask } from './types';
 
 const usersList: User[] = [
   {

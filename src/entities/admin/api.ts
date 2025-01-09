@@ -12,16 +12,19 @@ let adminsList: Admin[] = [
     login: 'seg_fault',
     firstName: 'Segun',
     lastName: 'Adebayo',
+    id: '1',
   },
   {
     login: 'mark_down',
     firstName: 'Mark',
     lastName: 'Chandler',
+    id: '2',
   },
   {
     login: 'sirgay_lazar',
     firstName: 'Lazar',
     lastName: 'Nikolov',
+    id: '3',
   },
 ];
 
@@ -76,6 +79,7 @@ export const mapCreatedAdminDtoToAdmin = (dto: FindUserDto): Admin => ({
   login: dto.username,
   firstName: dto.first_name,
   lastName: dto.last_name,
+  id: dto.id,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -95,4 +99,20 @@ const deleteAdminMockFx = createEffect(
     })
 );
 
-export const deleteAdminFx = deleteAdminMockFx;
+const deleteAdminApiFx = createEffect(
+  async ({ userId }: { userId: string }) => {
+    try {
+      await instance.delete(`/users/${userId}`);
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
+);
+
+export const deleteAdminFx = deleteAdminApiFx;
