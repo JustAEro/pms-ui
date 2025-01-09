@@ -176,33 +176,25 @@ export const fetchTasksInProjectFx = createEffect(
 );
 
 export const fetchTaskFx = createEffect(
-  async ({ taskId }: { taskId: string }) =>
-    new Promise<Task>((resolve, reject) => {
-      setTimeout(() => {
-        const foundTask = tasks.find((task) => task.id === taskId);
-
-        if (foundTask) {
-          resolve(foundTask);
-        } else {
-          reject(new Error(`Task with id ${taskId} is not found`));
-        }
-      }, 1000);
-    })
+  async ({ taskId }: { taskId: string }) => {
+    try {
+      const response = await instance.get(`/task/${taskId}`);
+      return response.data as Task;
+    } catch (error) {
+      throw new Error(`Failed to fetch task for project with id ${taskId}`);
+    }
+  }
 );
 
-export const updateTaskFx = createEffect(
-  async (taskToUpdate: Task) =>
-    new Promise<Task>((resolve) => {
-      setTimeout(() => {
-        tasks = [
-          taskToUpdate,
-          ...tasks.filter((task) => task.id !== taskToUpdate.id),
-        ];
-
-        resolve(taskToUpdate);
-      }, 1000);
-    })
-);
+export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
+  try {
+    const taskId = taskToUpdate.id;
+    const response = await instance.put(`/task/${taskId}`, taskToUpdate);
+    return response.data as Task;
+  } catch (error) {
+    throw new Error(`Failed to update task`);
+  }
+});
 
 export const generateTaskPlanByAIFx = createEffect(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
