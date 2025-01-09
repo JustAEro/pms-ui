@@ -4,11 +4,11 @@ import { not } from 'patronum';
 import {
   addAdminFx,
   Admin,
-  CreateAdmin,
   deleteAdminFx,
   fetchAdminsFx,
+  mapCreatedAdminDtoToAdmin,
 } from '@pms-ui/entities/admin';
-import { $jwtToken, $userType } from '@pms-ui/entities/user';
+import { $jwtToken, $userType, CreateUserDto } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -94,17 +94,18 @@ sample({
     password: $password,
     jwtToken: $jwtToken,
   },
-  filter: ({ jwtToken }) => !!jwtToken,
-  fn: ({ jwtToken, login, firstName, lastName, password }) => {
-    const admin: CreateAdmin = {
-      login,
-      firstName,
-      lastName,
+  fn: ({ login, firstName, lastName, password }) => {
+    const admin: CreateUserDto = {
+      username: login,
+      first_name: firstName,
+      last_name: lastName,
       password,
+      is_admin: true,
+      middle_name: '',
+      position: 'Администратор системы',
     };
 
     return {
-      token: jwtToken!,
       admin,
     };
   },
@@ -116,7 +117,10 @@ sample({
   source: {
     adminsList: $adminsList,
   },
-  fn: ({ adminsList }, createdAdmin) => [...adminsList, createdAdmin],
+  fn: ({ adminsList }, createdAdmin) => [
+    ...adminsList,
+    mapCreatedAdminDtoToAdmin(createdAdmin),
+  ],
   target: $adminsList,
 });
 
