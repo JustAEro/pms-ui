@@ -22,6 +22,7 @@ export const routes = {
   taskRoute: createRoute<{ taskId: string }>(),
   createTaskRoute: createRoute<{ projectId: string }>(),
   editTaskRoute: createRoute<{ taskId: string }>(),
+  adminEditRoute: createRoute<{ adminId: string }>(),
 };
 
 const routeObjects = [
@@ -30,6 +31,7 @@ const routeObjects = [
   { path: '/admin-panel', route: routes.adminsPanelRoute },
   { path: '/profile', route: routes.profileRoute },
   { path: '/users-admin-panel/user/:userId/edit', route: routes.userEditRoute },
+  { path: '/admin-panel/admin/:adminId/edit', route: routes.adminEditRoute },
   { path: '/projects', route: routes.projectsRoute },
   { path: '/projects/archive', route: routes.archivedProjectsRoute },
   { path: '/project/:projectId/manage', route: routes.projectManagementRoute },
