@@ -1,10 +1,10 @@
 import axios, { InternalAxiosRequestConfig } from 'axios';
 
+import { $jwtToken } from '@pms-ui/entities/user';
+
 import { API_URL } from '../../config';
 
 import { AnyObject, HttpRequestOptions } from './types';
-
-import { $jwtToken } from '@pms-ui/entities/user';
 
 export const instance = axios.create({
   baseURL: API_URL,
@@ -30,9 +30,7 @@ instance.interceptors.request.use(
 
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 export const request = <T>(
   options: HttpRequestOptions,
