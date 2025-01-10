@@ -1,16 +1,14 @@
-import axios, { AxiosError } from 'axios';
+import { AxiosError } from 'axios';
 import { createEffect } from 'effector';
 
 import { instance } from '@pms-ui/shared/api';
-import { API_URL } from '@pms-ui/shared/config';
 
-import { mapUserDtoToUser } from './mapping';
 import {
   CreateUserDto,
   FindUserDto,
+  FindUsersPaginationDto,
   UpdateUserMeta,
   User,
-  UserDto,
 } from './types';
 
 let usersList: User[] = [
@@ -81,26 +79,24 @@ const fetchUsersMockFx = createEffect(
 );
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const fetchUsersApiFx = createEffect(async ({ token }: { token: string }) => {
-  try {
-    const response = await axios.request<UserDto[]>({
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      url: `${API_URL}/users`,
-      method: 'get',
-    });
+const fetchUsersApiFx = createEffect(
+  async ({ pageIndex, pageSize }: { pageIndex: number; pageSize: number }) => {
+    try {
+      const response = await instance.get<FindUsersPaginationDto>(
+        `/users?isAdmin=false&pageIndex=${pageIndex}&pageSize=${pageSize}`
+      );
 
-    return response.data.map((userDto) => mapUserDtoToUser(userDto));
-  } catch (error) {
-    if (error instanceof AxiosError) {
-      throw error.response?.data;
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+      throw error;
     }
-    throw error;
   }
-});
+);
 
-export const fetchUsersFx = fetchUsersMockFx;
+export const fetchUsersFx = fetchUsersApiFx;
 
 export const fetchUserMockFx = createEffect(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -119,24 +115,11 @@ export const fetchUserMockFx = createEffect(
 );
 
 export const fetchUserFx = createEffect(
-  async ({ userId, token }: { userId: string; token: string }) => {
+  async ({ userId }: { userId: string }) => {
     try {
-      const response = await axios.request<UserDto[]>({
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        url: `${API_URL}/users`,
-        method: 'get',
-      });
+      const response = await instance.get<FindUserDto>(`/users/${userId}`);
 
-      const users = response.data.map((userDto) => mapUserDtoToUser(userDto));
-      const user = users.find((user) => user.id === userId);
-
-      if (!user) {
-        throw Error(`User with id ${userId} is not found`);
-      }
-
-      return user;
+      return response.data;
     } catch (error) {
       if (error instanceof AxiosError) {
         throw error.response?.data;

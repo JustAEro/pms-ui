@@ -3,11 +3,12 @@ import { createEffect, createEvent, createStore, sample } from 'effector';
 import { persist } from 'effector-storage/local';
 import { combineEvents } from 'patronum';
 
+import { instance } from '@pms-ui/shared/api/http/axios';
 import { API_URL } from '@pms-ui/shared/config';
 
 import { mapUserDtoToUser, mapUserServerToUser } from './mapping';
 import { User } from './types';
-import { instance } from '@pms-ui/shared/api/http/axios';
+
 export const authStarted = createEvent();
 export const authSucceeded = createEvent<User>();
 export const authFailed = createEvent<{ error: Error }>();

@@ -8,7 +8,7 @@ import {
   fetchProjectsFx,
   Project,
 } from '@pms-ui/entities/project';
-import { $userType, $userId } from '@pms-ui/entities/user';
+import { $userId, $userType } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 

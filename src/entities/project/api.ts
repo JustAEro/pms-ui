@@ -1,3 +1,4 @@
+import { AxiosError } from 'axios';
 import { createEffect } from 'effector';
 
 import { $userId } from '@pms-ui/entities/user';
@@ -6,7 +7,7 @@ import { sleep } from '@pms-ui/shared/lib';
 
 import type { User } from '../user';
 
-import { CreateProject, Project } from './types';
+import { CreateProject, FindProjectDto, Project } from './types';
 
 const projects: Project[] = [
   {
@@ -396,6 +397,26 @@ export const fetchProjectsOfUserMockFx = createEffect(
         resolve(projectsOfUser);
       }, 1000);
     })
+);
+
+export const fetchProjectsOfUserApiFx = createEffect(
+  async ({ userId }: { userId: string }) => {
+    try {
+      const response = await instance.get<FindProjectDto[]>(
+        `/users/${userId}/projects`
+      );
+
+      return response.data;
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
 );
 
 export const addUserToProjectMockFx = createEffect(

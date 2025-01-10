@@ -9,11 +9,18 @@ import {
 import { not, or, spread } from 'patronum';
 
 import {
+  fetchProjectsOfUserApiFx,
+  FindProjectDto,
+  findProjectDtoToProject,
+} from '@pms-ui/entities/project';
+import {
   $jwtToken,
   $userType,
   addUserToSystemFx,
   CreateUserDto,
+  fetchUserFx,
   fetchUsersFx,
+  User,
 } from '@pms-ui/entities/user';
 import { createPagination } from '@pms-ui/shared/lib';
 import { routes } from '@pms-ui/shared/routes';
@@ -41,24 +48,60 @@ const reset = createEvent();
 const fetchUsersWithPaginationFx = attach({
   source: $jwtToken,
   async effect(token, params: { limit: number; offset: number }) {
-    if (!token) {
-      throw new Error('No auth token');
+    const findUsersPaginationDto = await fetchUsersFx({
+      pageSize: params.limit,
+      pageIndex: params.offset,
+    });
+
+    const findUserDtos = await Promise.all(
+      findUsersPaginationDto.items.map(async (dto) =>
+        fetchUserFx({ userId: dto.id })
+      )
+    );
+
+    let projectsOfUsers: Record<string, FindProjectDto[]> = {};
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const dto of findUsersPaginationDto.items) {
+      // eslint-disable-next-line no-await-in-loop
+      const projects = await fetchProjectsOfUserApiFx({ userId: dto.id });
+
+      projectsOfUsers = {
+        ...projectsOfUsers,
+        [dto.id]: projects,
+      };
     }
 
-    const users = await fetchUsersFx({ token });
-    console.log(params);
+    const users: User[] = findUsersPaginationDto.items.map((dto) => {
+      const findUserDto = findUserDtos.find((user) => user.id === dto.id);
 
-    const slicedUsers = structuredClone(users).slice(
-      params.offset,
-      params.offset + params.limit
-    );
-    console.log(slicedUsers);
+      if (!findUserDto) {
+        throw new Error('Verbose user info not found');
+      }
 
-    // await sleep(300);
+      const projectsOfUser = projectsOfUsers[dto.id];
 
-    return slicedUsers;
+      if (!projectsOfUser) {
+        throw new Error('Projects of user not found');
+      }
+
+      return {
+        id: dto.id,
+        login: dto.username,
+        firstName: findUserDto.first_name,
+        lastName: findUserDto.last_name,
+        canCreateProjects: true,
+        userType: 'user',
+        position: findUserDto.position,
+        password: '',
+        projects: projectsOfUser.map((dto) => findProjectDtoToProject(dto)),
+      };
+    });
+
+    return users;
   },
 });
+
 const fetchPagesCountFx = attach({
   source: $jwtToken,
   async effect(token, params: { limit: number }) {
@@ -66,11 +109,12 @@ const fetchPagesCountFx = attach({
       throw new Error('No auth token');
     }
 
-    const users = await fetchUsersFx({ token });
+    const users = await fetchUsersFx({ pageSize: params.limit, pageIndex: 1 });
 
-    return Math.ceil(users.length / params.limit);
+    return Math.ceil(users.total / users.page_size);
   },
 });
+
 const addUserToSystemScopedFx = attach({ effect: addUserToSystemFx });
 const changeIsAllowedToCreateProjectsForUserFx = createEffect(
   async ({ id, newStatus }: { id: string; newStatus: boolean }) =>
@@ -123,7 +167,7 @@ export const headerModel = pageHeader.model.createModel({ $userType });
 export const usersPagination = createPagination({
   limit: $usersLimitOnPage,
   effect: fetchUsersWithPaginationFx,
-  mapParams: ({ page, limit }) => ({ limit, offset: page * limit }),
+  mapParams: ({ page, limit }) => ({ limit, offset: page + 1 }),
   mapResult: (users) => users,
 });
 
@@ -308,5 +352,9 @@ sample({
 
 sample({
   clock: reset,
-  target: [resetModalState, usersPagination.reset] as const,
+  target: [
+    resetModalState,
+    $currentPageNumber.reinit,
+    usersPagination.reset,
+  ] as const,
 });
