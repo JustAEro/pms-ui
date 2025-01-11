@@ -12,6 +12,7 @@ import {
   AddProjectMemberDto,
   CreateProject,
   FindProjectDto,
+  GetProjectMemberDto,
   GetProjectsDto,
   Project,
 } from './types';
@@ -285,6 +286,73 @@ export const fetchAdminsOfProjectMockFx = createEffect(
         resolve(adminsList);
       }, 1000);
     })
+);
+
+export const fetchAdminsOfProjectsApiFx = createEffect(
+  async ({ projectIds }: { projectIds: string[] }) => {
+    const membersOfProjects = await Promise.all(
+      projectIds.map(async (projectId) => {
+        try {
+          const membersResponse = await instance.get<GetProjectMemberDto[]>(
+            `/projects/${projectId}/members`
+          );
+
+          return membersResponse.data;
+        } catch (error) {
+          console.log(error);
+
+          if (error instanceof AxiosError) {
+            throw error.response?.data;
+          }
+
+          throw error;
+        }
+      })
+    );
+
+    const projectsToMembersMap: Record<string, GetProjectMemberDto[]> =
+      Object.fromEntries(
+        projectIds.map((projectId, index) => [
+          projectId,
+          membersOfProjects[index]!,
+        ])
+      );
+
+    return projectsToMembersMap;
+  }
+);
+
+export const updateIsAdminRoleOfUserInProjectApiFx = createEffect(
+  async ({
+    projectId,
+    // eslint-disable-next-line camelcase
+    user_id,
+    // eslint-disable-next-line camelcase
+    is_admin_project,
+  }: {
+    projectId: string;
+    user_id: string;
+    is_admin_project: boolean;
+  }) => {
+    try {
+      await instance.put(`/projects/${projectId}/members`, {
+        // eslint-disable-next-line camelcase
+        is_admin_project,
+        // eslint-disable-next-line camelcase
+        role: is_admin_project ? 'Руководитель проекта' : 'Участник',
+        // eslint-disable-next-line camelcase
+        user_id,
+      });
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
 );
 
 export const editProjectMockFx = createEffect(async (project: Project) => {

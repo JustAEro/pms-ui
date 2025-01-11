@@ -28,3 +28,11 @@ export type GetProjectsDto = {
   total: number;
   items: Project[];
 };
+
+export type GetProjectMemberDto = {
+  full_name: string;
+  user_id: string;
+  role: string;
+  is_admin_project: boolean;
+  username: string;
+};
