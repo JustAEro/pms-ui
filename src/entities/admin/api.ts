@@ -3,7 +3,14 @@ import { createEffect } from 'effector';
 
 import { instance } from '@pms-ui/shared/api';
 
-import { CreateUserDto, FindUserDto, FindUsersPaginationDto } from '../user';
+import {
+  CreateUserDto,
+  FindUserDto,
+  FindUsersPaginationDto,
+  UpdateUserDto,
+  UpdateUserMeta,
+  fetchUserFx,
+} from '../user';
 
 import { Admin, CreateAdmin } from './types';
 
@@ -142,3 +149,36 @@ const deleteAdminApiFx = createEffect(
 );
 
 export const deleteAdminFx = deleteAdminApiFx;
+
+export const updateAdminMetaInSystemApiFx = createEffect(
+  async ({
+    newMeta,
+    adminToUpdate,
+  }: {
+    newMeta: UpdateUserMeta;
+    adminToUpdate: Admin;
+  }) => {
+    const updateDto: UpdateUserDto = {
+      username: newMeta.login,
+      first_name: newMeta.firstName,
+      last_name: newMeta.lastName,
+      password: newMeta.password,
+      position: 'Администратор системы',
+      is_admin: true,
+      middle_name: '',
+    };
+
+    await instance.put<FindUserDto>(`/users/${adminToUpdate.id}`, updateDto);
+
+    const user = await fetchUserFx({ userId: adminToUpdate.id });
+
+    const admin: Admin = {
+      id: user.id,
+      login: user.username,
+      firstName: user.first_name,
+      lastName: user.last_name,
+    };
+
+    return admin;
+  }
+);

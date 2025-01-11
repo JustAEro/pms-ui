@@ -34,6 +34,7 @@ import {
   closeAddAdminModal,
   closeDeleteAdminModal,
   deleteAdminButtonClicked,
+  editAdminButtonClicked,
   firstNameEdited,
   headerModel,
   lastNameEdited,
@@ -76,6 +77,8 @@ export const AdminsPanelPage: FC = () => {
   const adminsList = useUnit($adminsList);
   const isAdminsListLoading = useUnit($isAdminsListLoading);
 
+  const onEditAdminButtonClick = useUnit(editAdminButtonClicked);
+
   useEffect(() => {
     onPageMount();
   }, [onPageMount]);
@@ -102,6 +105,7 @@ export const AdminsPanelPage: FC = () => {
             adminsList={adminsList}
             isAdminsListLoading={isAdminsListLoading}
             onDeleteAdminClick={onOpenDeleteAdminModal}
+            onEditAdminButtonClick={onEditAdminButtonClick}
           />
         </TableContainer>
         <Button

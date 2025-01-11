@@ -18,12 +18,16 @@ type AdminsTableProps = {
   adminsList: Admin[];
   isAdminsListLoading: boolean;
   onDeleteAdminClick: (payload: string) => string;
+  onEditAdminButtonClick: (payload: { adminId: string }) => {
+    adminId: string;
+  };
 };
 
 export const AdminsTable: FC<AdminsTableProps> = ({
   adminsList,
   isAdminsListLoading,
   onDeleteAdminClick,
+  onEditAdminButtonClick,
 }: AdminsTableProps) => (
   <>
     {isAdminsListLoading && <Spinner />}
@@ -45,7 +49,11 @@ export const AdminsTable: FC<AdminsTableProps> = ({
               <Td>
                 <Flex alignItems="center" justifyContent="center">
                   <div>
-                    <PencilIcon />
+                    <PencilIcon
+                      onClick={() => {
+                        onEditAdminButtonClick({ adminId: admin.id });
+                      }}
+                    />
                   </div>
                 </Flex>
               </Td>

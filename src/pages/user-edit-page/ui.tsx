@@ -1,6 +1,6 @@
 import { useUnit } from 'effector-react';
 import { FC, useEffect } from 'react';
-import { useBoolean } from 'usehooks-ts';
+import { useBoolean, useUnmount } from 'usehooks-ts';
 
 import {
   ChevronLeftIcon,
@@ -28,6 +28,7 @@ import {
   Spinner,
   Text,
   Tooltip,
+  useToast,
   VStack,
 } from '@chakra-ui/react';
 import trashIcon from '@pms-ui/shared/ui/assets/svg/trash-icon.svg';
@@ -38,10 +39,13 @@ import {
   $deleteUserModalIsOpened,
   $isDiscardChangesButtonEnabled,
   $isSaveChangesButtonEnabled,
+  $isUserAdminOfProjects,
   $isUserToEditLoading,
   $loginFieldValue,
   $nameFieldValue,
   $newPasswordFieldValue,
+  $notificationToastId,
+  $notificationToShow,
   $pageMode,
   $projects,
   $projectsOfUser,
@@ -56,6 +60,7 @@ import {
   deleteUserFromProjectButtonClicked,
   discardChangesButtonClicked,
   headerModel,
+  isAdminOfProjectCheckboxClicked,
   loginFieldChanged,
   nameFieldChanged,
   newPasswordFieldChanged,
@@ -130,6 +135,27 @@ export const UserEditPage: FC = () => {
   const projectsOfUser = useUnit($projectsOfUser);
 
   const onProjectToAddClick = useUnit(projectToAddClicked);
+
+  const isUserAdminOfProjects = useUnit($isUserAdminOfProjects);
+
+  const onIsAdminOfProjectCheckboxClick = useUnit(
+    isAdminOfProjectCheckboxClicked
+  );
+
+  const toast = useToast();
+  const notificationToShow = useUnit($notificationToShow);
+  const toastId = useUnit($notificationToastId);
+
+  useEffect(() => {
+    if (notificationToShow) {
+      toast({ ...notificationToShow, position: 'top-right' });
+    }
+  }, [notificationToShow, toast, toastId]);
+
+  useUnmount(() => {
+    onPageUnmount();
+    toast.closeAll();
+  });
 
   return (
     <Box>
@@ -317,6 +343,13 @@ export const UserEditPage: FC = () => {
                         <Flex direction="row" alignItems="center" gap={5}>
                           <Text fontSize="18px">Администратор проекта</Text>
                           <Checkbox
+                            isChecked={isUserAdminOfProjects[project.id]}
+                            onChange={(e) => {
+                              onIsAdminOfProjectCheckboxClick({
+                                projectId: project.id,
+                                is_admin_project: e.target.checked,
+                              });
+                            }}
                             borderColor="#000000"
                             bgColor="#FFFFFF"
                             colorScheme="blue"
