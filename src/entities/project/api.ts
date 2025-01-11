@@ -7,7 +7,14 @@ import { sleep } from '@pms-ui/shared/lib';
 
 import type { User } from '../user';
 
-import { CreateProject, FindProjectDto, Project } from './types';
+import { findProjectDtoToProject } from './mapping';
+import {
+  AddProjectMemberDto,
+  CreateProject,
+  FindProjectDto,
+  GetProjectsDto,
+  Project,
+} from './types';
 
 const projects: Project[] = [
   {
@@ -108,6 +115,21 @@ export const fetchProjectsFx = createEffect(
     }
   }
 );
+
+export const fetchProjectsApiFx = createEffect(async () => {
+  try {
+    const response = await instance.get<GetProjectsDto>(`/projects`);
+    return response.data.items;
+  } catch (error) {
+    console.log(error);
+
+    if (error instanceof AxiosError) {
+      throw error.response?.data;
+    }
+
+    throw error;
+  }
+});
 
 export const fetchProjectMockFx = createEffect(
   async ({ projectId }: { projectId: string }) =>
@@ -419,6 +441,17 @@ export const fetchProjectsOfUserApiFx = createEffect(
   }
 );
 
+export const fetchProjectsOfUserFx = createEffect<
+  { userId: string },
+  Project[]
+>(async ({ userId }: { userId: string }) => {
+  const dtos = await fetchProjectsOfUserApiFx({ userId });
+
+  const projects = dtos.map((dto) => findProjectDtoToProject(dto));
+
+  return projects;
+});
+
 export const addUserToProjectMockFx = createEffect(
   async ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -466,6 +499,35 @@ export const addUserToProjectFx = createEffect(
     }
   }
 );
+
+export const addUserToProjectApiFx = createEffect(
+  async ({
+    projectId,
+    userId,
+    dto,
+  }: {
+    projectId: string;
+    userId: string;
+    dto: AddProjectMemberDto;
+  }) => {
+    try {
+      await instance.post(`/projects/${projectId}/members/${userId}`, dto);
+
+      const project = await fetchProjectFx({ projectId });
+
+      return project;
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
+);
+
 export const deleteUserFromProjectMockFx = createEffect(
   async ({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -495,4 +557,30 @@ export const deleteUserFromProjectMockFx = createEffect(
         resolve(projectToBeDeletedFrom!);
       }, 200);
     })
+);
+
+export const deleteUserFromProjectApiFx = createEffect(
+  async ({
+    userId,
+    projectId,
+  }: {
+    userId: string;
+    projectId: Project['id'];
+  }) => {
+    try {
+      const project = await fetchProjectFx({ projectId });
+
+      await instance.delete(`/projects/${projectId}/members/${userId}`);
+
+      return project;
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
 );

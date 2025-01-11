@@ -15,3 +15,16 @@ export type FindProjectDto = {
   name: string;
   updated_at: string;
 };
+
+export type AddProjectMemberDto = {
+  is_admin_project: boolean;
+  role: string;
+  user_id: string;
+};
+
+export type GetProjectsDto = {
+  page_index: number;
+  page_size: number;
+  total: number;
+  items: Project[];
+};

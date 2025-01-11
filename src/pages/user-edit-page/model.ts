@@ -1,17 +1,17 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 
 import {
-  addUserToProjectMockFx,
-  deleteUserFromProjectMockFx,
-  fetchProjectsMockFx,
-  fetchProjectsOfUserMockFx,
+  addUserToProjectApiFx,
+  deleteUserFromProjectApiFx,
+  fetchProjectsApiFx,
+  fetchProjectsOfUserFx,
   Project,
 } from '@pms-ui/entities/project';
 import {
   $jwtToken,
   $userType,
   deleteUserFromSystemFx,
-  fetchUserMockFx,
+  fetchUserFullInfoFx,
   updateUserMetaInSystemFx,
   User,
 } from '@pms-ui/entities/user';
@@ -35,9 +35,9 @@ export const discardChangesButtonClicked = createEvent();
 const resetFormState = createEvent();
 
 const fetchProjectsOfUserScopedFx = attach({
-  effect: fetchProjectsOfUserMockFx,
+  effect: fetchProjectsOfUserFx,
 });
-const fetchUserScopedFx = attach({ effect: fetchUserMockFx });
+const fetchUserScopedFx = attach({ effect: fetchUserFullInfoFx });
 const updateUserMetaInSystemScopedFx = attach({
   effect: updateUserMetaInSystemFx,
 });
@@ -76,10 +76,10 @@ export const backToDefaultPageClicked = createEvent();
 export const projectToAddClicked = createEvent<Project>();
 
 const deleteUserFromSystemScopedFx = attach({ effect: deleteUserFromSystemFx });
-const fetchProjectsScopedFx = attach({ effect: fetchProjectsMockFx });
-const addUserToProjectScopedFx = attach({ effect: addUserToProjectMockFx });
+const fetchProjectsScopedFx = attach({ effect: fetchProjectsApiFx });
+const addUserToProjectScopedFx = attach({ effect: addUserToProjectApiFx });
 const deleteUserFromProjectScopedFx = attach({
-  effect: deleteUserFromProjectMockFx,
+  effect: deleteUserFromProjectApiFx,
 });
 
 export const $isSaveChangesButtonEnabled = combine(
@@ -137,12 +137,11 @@ sample({
     routes.userEditRoute.updated,
   ],
   source: {
-    token: $jwtToken,
     userType: $userType,
     pageParams: routes.userEditRoute.$params,
   },
-  filter: ({ userType, token }) => userType === 'admin' && !!token,
-  fn: ({ pageParams, token }) => ({ userId: pageParams.userId, token: token! }),
+  filter: ({ userType }) => userType === 'admin',
+  fn: ({ pageParams }) => ({ userId: pageParams.userId }),
   target: [fetchUserScopedFx, fetchProjectsOfUserScopedFx] as const,
 });
 
@@ -162,10 +161,9 @@ sample({
     userToEdit: $userToEdit,
     token: $jwtToken,
   },
-  filter: ({ token, userToEdit }) => !!token && !!userToEdit,
-  fn: ({ token, userToEdit }) => ({
-    user: userToEdit!,
-    token: token!,
+  filter: ({ userToEdit }) => !!userToEdit,
+  fn: ({ userToEdit }) => ({
+    userId: userToEdit!.id,
   }),
   target: deleteUserFromSystemScopedFx,
 });
@@ -228,29 +226,27 @@ sample({
   clock: saveChangesButtonClicked,
   source: {
     userToEdit: $userToEdit,
-    token: $jwtToken,
     nameFieldValue: $nameFieldValue,
     surnameFieldValue: $surnameFieldValue,
     loginFieldValue: $loginFieldValue,
     newPasswordFieldValue: $newPasswordFieldValue,
   },
-  filter: ({ token, userToEdit }) => !!token && !!userToEdit,
+  filter: ({ userToEdit }) => !!userToEdit,
   fn: ({
-    token,
     userToEdit,
     nameFieldValue,
     surnameFieldValue,
     loginFieldValue,
     newPasswordFieldValue,
   }) => ({
-    meta: {
+    newMeta: {
       id: userToEdit!.id,
       firstName: nameFieldValue,
       lastName: surnameFieldValue,
       login: loginFieldValue,
       password: newPasswordFieldValue,
     },
-    token: token!,
+    userToUpdate: userToEdit!,
   }),
   target: updateUserMetaInSystemScopedFx,
 });
@@ -287,13 +283,16 @@ sample({
   clock: projectToAddClicked,
   source: {
     userToEdit: $userToEdit,
-    token: $jwtToken,
   },
-  filter: ({ userToEdit, token }) => !!userToEdit && !!token,
-  fn: ({ userToEdit, token }, project) => ({
+  filter: ({ userToEdit }) => !!userToEdit,
+  fn: ({ userToEdit }, project) => ({
     userId: userToEdit!.id,
-    project,
-    token: token!,
+    projectId: project.id,
+    dto: {
+      is_admin_project: false,
+      role: 'Участник',
+      user_id: userToEdit!.id,
+    },
   }),
   target: addUserToProjectScopedFx,
 });
@@ -303,7 +302,7 @@ sample({
   source: {
     projectsOfUser: $projectsOfUser,
   },
-  fn: ({ projectsOfUser }, { params }) => [...projectsOfUser, params.project],
+  fn: ({ projectsOfUser }, { result }) => [...projectsOfUser, result],
   target: $projectsOfUser,
 });
 
