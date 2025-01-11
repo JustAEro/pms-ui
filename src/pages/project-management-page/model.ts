@@ -86,7 +86,7 @@ export const $userToBeDeleted = createStore<AddProjectMemberDto | null>(null);
 export const $editProjectModalName = createStore('');
 export const $editProjectModalDescription = createStore('');
 
-export const $addUserLoginFieldValue = createStore<string | null>(null);
+export const $addUserLoginFieldValue = createStore<string>('');
 
 export const $isConfirmEditProjectButtonDisabled = or(
   combine(
