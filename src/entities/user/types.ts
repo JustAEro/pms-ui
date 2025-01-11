@@ -22,6 +22,8 @@ export type CreateUserDto = {
   username: string;
 };
 
+export type UpdateUserDto = CreateUserDto;
+
 export type FindUserDto = Omit<CreateUserDto, 'password'> & {
   id: string;
   created_at: string;

@@ -3,10 +3,13 @@ import { createEffect } from 'effector';
 
 import { instance } from '@pms-ui/shared/api';
 
+import { fetchProjectsOfUserApiFx, findProjectDtoToProject } from '../project';
+
 import {
   CreateUserDto,
   FindUserDto,
   FindUsersPaginationDto,
+  UpdateUserDto,
   UpdateUserMeta,
   User,
 } from './types';
@@ -129,6 +132,35 @@ export const fetchUserFx = createEffect(
   }
 );
 
+export const fetchUserFullInfoFx = createEffect<{ userId: string }, User>(
+  async ({ userId }) => {
+    try {
+      const findUserDto = await fetchUserFx({ userId });
+
+      const projectsOfUserDto = await fetchProjectsOfUserApiFx({ userId });
+
+      const user: User = {
+        id: findUserDto.id,
+        login: findUserDto.username,
+        firstName: findUserDto.first_name,
+        lastName: findUserDto.last_name,
+        canCreateProjects: true,
+        userType: 'user',
+        password: '',
+        position: findUserDto.position,
+        projects: projectsOfUserDto.map((dto) => findProjectDtoToProject(dto)),
+      };
+
+      return user;
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+      throw error;
+    }
+  }
+);
+
 export const addUserToSystemFx = createEffect(
   async ({ createUser }: { createUser: CreateUserDto }) => {
     try {
@@ -168,7 +200,23 @@ const deleteUserFromSystemMockFx = createEffect(
     })
 );
 
-export const deleteUserFromSystemFx = deleteUserFromSystemMockFx;
+const deleteUserFromSystemApiFx = createEffect(
+  async ({ userId }: { userId: string }) => {
+    try {
+      await instance.delete(`/users/${userId}`);
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
+  }
+);
+
+export const deleteUserFromSystemFx = deleteUserFromSystemApiFx;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const updateUserMetaInSystemMockFx = createEffect(
@@ -196,4 +244,30 @@ const updateUserMetaInSystemMockFx = createEffect(
     })
 );
 
-export const updateUserMetaInSystemFx = updateUserMetaInSystemMockFx;
+const updateUserMetaInSystemApiFx = createEffect(
+  async ({
+    newMeta,
+    userToUpdate,
+  }: {
+    newMeta: UpdateUserMeta;
+    userToUpdate: User;
+  }) => {
+    const updateDto: UpdateUserDto = {
+      username: newMeta.login,
+      first_name: newMeta.firstName,
+      last_name: newMeta.lastName,
+      password: newMeta.password,
+      position: userToUpdate.position,
+      is_admin: false,
+      middle_name: '',
+    };
+
+    await instance.put<FindUserDto>(`/users/${userToUpdate.id}`, updateDto);
+
+    const user = await fetchUserFullInfoFx({ userId: userToUpdate.id });
+
+    return user;
+  }
+);
+
+export const updateUserMetaInSystemFx = updateUserMetaInSystemApiFx;
