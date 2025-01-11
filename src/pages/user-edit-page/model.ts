@@ -1,11 +1,20 @@
-import { attach, combine, createEvent, createStore, sample } from 'effector';
+import {
+  attach,
+  combine,
+  createEvent,
+  createStore,
+  merge,
+  sample,
+} from 'effector';
 
 import {
   addUserToProjectApiFx,
   deleteUserFromProjectApiFx,
+  fetchAdminsOfProjectsApiFx,
   fetchProjectsApiFx,
   fetchProjectsOfUserFx,
   Project,
+  updateIsAdminRoleOfUserInProjectApiFx,
 } from '@pms-ui/entities/project';
 import {
   $jwtToken,
@@ -16,6 +25,7 @@ import {
   User,
 } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
+import { errorToastModelFactory } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 export const pageMounted = createEvent();
@@ -75,11 +85,22 @@ export const backToDefaultPageClicked = createEvent();
 
 export const projectToAddClicked = createEvent<Project>();
 
+export const isAdminOfProjectCheckboxClicked = createEvent<{
+  projectId: string;
+  is_admin_project: boolean;
+}>();
+
 const deleteUserFromSystemScopedFx = attach({ effect: deleteUserFromSystemFx });
 const fetchProjectsScopedFx = attach({ effect: fetchProjectsApiFx });
 const addUserToProjectScopedFx = attach({ effect: addUserToProjectApiFx });
 const deleteUserFromProjectScopedFx = attach({
   effect: deleteUserFromProjectApiFx,
+});
+const fetchAdminsOfProjectsScopedFx = attach({
+  effect: fetchAdminsOfProjectsApiFx,
+});
+const updateIsAdminRoleOfUserInProjectScopedFx = attach({
+  effect: updateIsAdminRoleOfUserInProjectApiFx,
 });
 
 export const $isSaveChangesButtonEnabled = combine(
@@ -121,6 +142,8 @@ export const $isUserToEditLoading = fetchUserScopedFx.pending;
 export const $projects = createStore<Project[]>([]);
 export const $projectsOfUser = createStore<Project[]>([]);
 
+export const $isUserAdminOfProjects = createStore<Record<string, boolean>>({}); // projectId -> isAdminOfProject
+
 export const headerModel = pageHeader.model.createModel({ $userType });
 
 // sample({
@@ -129,6 +152,29 @@ export const headerModel = pageHeader.model.createModel({ $userType });
 //   filter: (userType) => userType !== 'admin',
 //   target: routes.homeRoute.open,
 // });
+
+const errorToastModel = errorToastModelFactory({
+  triggerEvent: merge([
+    fetchProjectsOfUserScopedFx.fail,
+    fetchUserScopedFx.fail,
+    updateUserMetaInSystemScopedFx.fail,
+    addUserToProjectScopedFx.fail,
+    deleteUserFromSystemScopedFx.fail,
+    fetchProjectsScopedFx.fail,
+    addUserToProjectScopedFx.fail,
+    deleteUserFromProjectScopedFx.fail,
+    fetchAdminsOfProjectsScopedFx.fail,
+    updateIsAdminRoleOfUserInProjectScopedFx.fail,
+  ]),
+  notificationOptions: {
+    status: 'error',
+    duration: 9000,
+    isClosable: true,
+  },
+});
+
+export const { $notificationToShow, $notificationToastId } =
+  errorToastModel.outputs;
 
 sample({
   clock: [
@@ -153,6 +199,60 @@ sample({
 sample({
   clock: fetchProjectsOfUserScopedFx.doneData,
   target: $projectsOfUser,
+});
+
+sample({
+  clock: fetchProjectsOfUserScopedFx.doneData,
+  fn: (projects) => ({ projectIds: projects.map((project) => project.id) }),
+  target: fetchAdminsOfProjectsScopedFx,
+});
+
+sample({
+  clock: fetchAdminsOfProjectsScopedFx.doneData,
+  source: {
+    userToEdit: $userToEdit,
+  },
+  filter: ({ userToEdit }) => !!userToEdit,
+  fn: ({ userToEdit }, adminsOfProjectsRecord) =>
+    Object.fromEntries(
+      Object.entries(adminsOfProjectsRecord).map(
+        ([projectId, projectMembers]) => [
+          projectId,
+          !!projectMembers.find(
+            (member) =>
+              member.user_id === userToEdit!.id &&
+              member.is_admin_project === true
+          ),
+        ]
+      )
+    ),
+  target: $isUserAdminOfProjects,
+});
+
+sample({
+  clock: isAdminOfProjectCheckboxClicked,
+  source: {
+    userToEdit: $userToEdit,
+  },
+  filter: ({ userToEdit }) => !!userToEdit,
+  // eslint-disable-next-line camelcase
+  fn: ({ userToEdit }, { projectId, is_admin_project }) => ({
+    projectId,
+    user_id: userToEdit!.id,
+    // eslint-disable-next-line camelcase
+    is_admin_project,
+  }),
+  target: updateIsAdminRoleOfUserInProjectScopedFx,
+});
+
+sample({
+  clock: updateIsAdminRoleOfUserInProjectScopedFx.done,
+  source: $isUserAdminOfProjects,
+  fn: (isUserAdminOfProjects, { params }) => ({
+    ...isUserAdminOfProjects,
+    [params.projectId]: params.is_admin_project,
+  }),
+  target: $isUserAdminOfProjects,
 });
 
 sample({
