@@ -26,6 +26,8 @@ export const openDeleteAdminModal = createEvent<Admin['id']>();
 export const closeDeleteAdminModal = createEvent();
 export const deleteAdminButtonClicked = createEvent();
 
+export const editAdminButtonClicked = createEvent<{ adminId: string }>();
+
 const reset = createEvent();
 
 const fetchAdminsScopedFx = attach({ effect: fetchAdminsFx });
@@ -222,6 +224,11 @@ sample({
 sample({
   clock: [closeAddAdminModal, closeDeleteAdminModal],
   target: reset,
+});
+
+sample({
+  clock: editAdminButtonClicked,
+  target: routes.adminEditRoute.open,
 });
 
 sample({
