@@ -2,7 +2,7 @@ import { format } from 'date-fns';
 import { useUnit } from 'effector-react';
 import { FC, Fragment, useEffect } from 'react';
 
-import { AddIcon } from '@chakra-ui/icons';
+import { AddIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -29,7 +29,6 @@ import {
 } from '@chakra-ui/react';
 import { statusKeyCanGoToColumnsValue } from '@pms-ui/entities/task';
 import { routes } from '@pms-ui/shared/routes';
-import archiveIcon from '@pms-ui/shared/ui/assets/svg/archive-icon.svg';
 import pencilIcon from '@pms-ui/shared/ui/assets/svg/pencil.svg';
 import refreshIcon from '@pms-ui/shared/ui/assets/svg/refresh-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -96,9 +95,19 @@ export const TaskPage: FC = () => {
         {isTaskLoading && <Spinner marginTop="30px" />}
         {!isTaskLoading && task && (
           <>
-            <Flex direction="column">
-              <Flex marginTop="30px" marginLeft="50px" direction="row">
-                <Text marginLeft="250px" fontWeight="bold" fontSize={21}>
+            <Flex
+              direction="column"
+              alignItems="center"
+              justifyContent="center"
+            >
+              <Flex marginTop="30px" gap={10} direction="row">
+                <ChevronLeftIcon
+                  cursor="pointer"
+                  onClick={() => {
+                    routes.projectRoute.open({ projectId: task.project_id });
+                  }}
+                />
+                <Text fontWeight="bold" fontSize={21}>
                   {task.name}
                 </Text>
                 <Tooltip label="Редактировать задачу" placement="top">
@@ -106,7 +115,6 @@ export const TaskPage: FC = () => {
                     onClick={() => {
                       routes.editTaskRoute.open({ taskId: task.id });
                     }}
-                    marginLeft="20px"
                     cursor="pointer"
                     marginTop="10px"
                     w="16px"
@@ -126,7 +134,6 @@ export const TaskPage: FC = () => {
                         task.status === 'Закрыт' || task.status === 'Архив'
                       }
                       color="#EDF2F7"
-                      marginLeft="100px"
                       marginBottom="15px"
                     >
                       <Text color="#000000">{task.status}</Text>
@@ -167,17 +174,14 @@ export const TaskPage: FC = () => {
                   </MenuList>
                 </Menu>
               </Flex>
-              <Text maxW="800px" fontSize={18} marginLeft="50px">
-                {task.description}
-              </Text>
-              <HStack
-                marginTop="30px"
-                paddingLeft="50px"
-                paddingRight="50px"
-                paddingBottom="30px"
-                alignItems="start"
-              >
-                <SimpleGrid columns={2} spacingY={8}>
+              <p style={{ whiteSpace: 'pre-wrap' }}>
+                <Text maxW="800px" fontSize={18}>
+                  {task.description}
+                </Text>
+              </p>
+
+              <HStack marginTop="30px" paddingBottom="30px" alignItems="start">
+                <SimpleGrid columns={2} spacingY={8} spacingX="200px">
                   <Text fontSize="18px" fontWeight="bold">
                     Исполнитель
                   </Text>
@@ -221,32 +225,31 @@ export const TaskPage: FC = () => {
                   <Text fontSize="18px">
                     {format(task.deadlineDate, 'dd.MM.yyyy HH:mm')}
                   </Text>
-
-                  {!taskPlan && (
-                    <Button
-                      marginTop="20px"
-                      width="fit-content"
-                      colorScheme="teal"
-                      disabled={isTaskPlanLoading}
-                      onClick={onClickGenerateTaskPlanByAIButton}
-                    >
-                      Сгенерировать план выполнения задачи с помощью ИИ{' '}
-                      {isTaskPlanLoading && <Spinner marginLeft="10px" />}
-                    </Button>
-                  )}
-
-                  {taskPlan && (
-                    <Flex direction="column" gap="5px">
-                      <Text width="500px" fontSize="18px" fontWeight="bold">
-                        Сгенерированный план выполнения задачи
-                      </Text>
-                      <p style={{ whiteSpace: 'pre-wrap', width: '500px' }}>
-                        <Text fontSize="18px">{taskPlan}</Text>
-                      </p>
-                    </Flex>
-                  )}
                 </SimpleGrid>
               </HStack>
+              {!taskPlan && (
+                <Button
+                  marginTop="20px"
+                  width="fit-content"
+                  colorScheme="teal"
+                  disabled={isTaskPlanLoading}
+                  onClick={onClickGenerateTaskPlanByAIButton}
+                >
+                  Сгенерировать план выполнения задачи с помощью ИИ{' '}
+                  {isTaskPlanLoading && <Spinner marginLeft="10px" />}
+                </Button>
+              )}
+
+              {taskPlan && (
+                <Flex direction="column" gap="5px" marginBottom="20px">
+                  <Text width="500px" fontSize="18px" fontWeight="bold">
+                    Сгенерированный план выполнения задачи
+                  </Text>
+                  <p style={{ whiteSpace: 'pre-wrap', width: '500px' }}>
+                    <Text fontSize="18px">{taskPlan}</Text>
+                  </p>
+                </Flex>
+              )}
             </Flex>
 
             <Modal
@@ -309,6 +312,7 @@ export const TaskPage: FC = () => {
   );
 };
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const TestCasesBoard: FC = () => {
   const a = 1;
 

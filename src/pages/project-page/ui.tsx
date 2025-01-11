@@ -37,6 +37,7 @@ import {
   statusKeyCanGoToColumnsValue,
   TaskOnBoard,
 } from '@pms-ui/entities/task';
+import { truncateString } from '@pms-ui/shared/lib';
 import { routes } from '@pms-ui/shared/routes';
 import statsIcon from '@pms-ui/shared/ui/assets/svg/stats-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -54,7 +55,6 @@ import {
   $projectNotification,
   $projectToastId,
   $reviewTasks,
-  $tasksArchivedCount,
   $tasksExpiredCount,
   $tasksTotalCount,
   $testingTasks,
@@ -92,7 +92,6 @@ export const ProjectPage: FC = () => {
   const isAdminOfProject = true;
 
   const tasksTotalCount = useUnit($tasksTotalCount);
-  const tasksArchivedCount = useUnit($tasksArchivedCount);
   const tasksExpiredCount = useUnit($tasksExpiredCount);
 
   const onProjectManageButtonClick = useUnit(projectManageButtonClicked);
@@ -392,12 +391,12 @@ const ProjectBoard: FC = () => {
                             }}
                             cursor="pointer"
                             fontSize="20px"
-                          >{`#${task.name}`}</Text>
+                          >{`#${truncateString(task.name, 25)}`}</Text>
                         </Link>
                       </Flex>
                       <Flex marginTop="20px">
                         <Text fontSize="20px" fontWeight="bold">
-                          {task.description}
+                          {truncateString(task.description, 50)}
                         </Text>
                       </Flex>
                     </Box>
