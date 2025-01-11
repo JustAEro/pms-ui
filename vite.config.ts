@@ -21,15 +21,14 @@ export default defineConfig({
   },
   server: {
     proxy: {
+      '/api/v1/ai': {
+        target: 'http://localhost:8000',
+        secure: false,
+      },
       '/api': {
         target: 'http://localhost:8080',
         secure: false,
-        //rewrite: (path) => path.replace(/^\/api/, '/api'),
-      },
-      '/ai': {
-        target: 'http://localhost:8000/api/v1/ai',
-        secure: false,
-        //rewrite: (path) => path.replace(/^\/api/, '/api'),
+        // rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
     },
   },

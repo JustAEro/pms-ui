@@ -1,13 +1,13 @@
 import { addDays, subDays } from 'date-fns';
 import { createEffect } from 'effector';
 
+import { fetchUserFullInfoFx } from '@pms-ui/entities/user';
 import { instance } from '@pms-ui/shared/api/http/axios';
 
 import { User } from '../user';
 
-import { CreateTask, CreateTaskDto, Task, TaskDto, UpdateTask } from './types';
 import { mapTaskDtoToTask } from './mapping';
-import { fetchUserFullInfoFx } from '@pms-ui/entities/user';
+import { CreateTask, CreateTaskDto, Task, TaskDto, UpdateTask } from './types';
 
 const usersList: User[] = [
   {
@@ -221,7 +221,7 @@ export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
   }
 });
 
-/*export const generateTaskPlanByAIFx = createEffect(
+/* export const generateTaskPlanByAIFx = createEffect(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async ({ taskId, taskName }: { taskId: string; taskName: string }) =>
     new Promise<string>((resolve) => {
@@ -233,20 +233,23 @@ export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
         resolve(universalTaskPlan);
       }, 1000);
     })
-);*/
+); */
+
 export const generateTaskPlanByAIFx = createEffect(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async ({ taskId, taskName }: { taskId: string; taskName: string }) => {
     const requestBody = {
-      request: `Generate task plan for task: ${taskName} (ID: ${taskId})`,
+      request: `${taskName}`,
     };
 
     try {
-      const response = await fetch('/ai', {
+      const response = await fetch('/api/v1/ai', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(requestBody),
+        redirect: 'follow',
       });
 
       if (!response.ok) {
@@ -254,12 +257,13 @@ export const generateTaskPlanByAIFx = createEffect(
       }
 
       const data = await response.json();
-      return data.plan; // Assuming the response has a 'plan' field
+      return data.response; // Assuming the response has a 'response' field
     } catch (error) {
       throw new Error('Error generating task plan: ');
     }
   }
 );
+
 export const createTaskFx = createEffect(
   async ({ createTask }: { createTask: CreateTaskDto }) => {
     try {
