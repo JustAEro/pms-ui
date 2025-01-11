@@ -2,7 +2,7 @@ import { useUnit } from 'effector-react';
 import { FC, useEffect } from 'react';
 import { useBoolean } from 'usehooks-ts';
 
-import { CloseIcon, ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
+import { ViewIcon, ViewOffIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -20,11 +20,11 @@ import {
   Spacer,
   Spinner,
   Text,
-  Tooltip,
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
+  $adminToEdit,
   $deleteUserModalIsOpened,
   $isDiscardChangesButtonEnabled,
   $isSaveChangesButtonEnabled,
@@ -33,7 +33,6 @@ import {
   $nameFieldValue,
   $newPasswordFieldValue,
   $surnameFieldValue,
-  $adminToEdit,
   closeDeleteUserModal,
   deleteUserButtonClicked,
   discardChangesButtonClicked,
@@ -41,7 +40,6 @@ import {
   loginFieldChanged,
   nameFieldChanged,
   newPasswordFieldChanged,
-  openDeleteUserModal,
   pageMounted,
   pageUnmounted,
   saveChangesButtonClicked,
@@ -67,7 +65,6 @@ export const AdminEditPage: FC = () => {
   const isUserToEditLoading = useUnit($isUserToEditLoading);
 
   const deleteUserModalIsOpened = useUnit($deleteUserModalIsOpened);
-  const onOpenDeleteUserModal = useUnit(openDeleteUserModal);
   const onCloseDeleteUserModal = useUnit(closeDeleteUserModal);
   const onDeleteUserButtonClick = useUnit(deleteUserButtonClicked);
 
@@ -107,24 +104,9 @@ export const AdminEditPage: FC = () => {
               gap="20px"
             >
               <Text fontWeight="bold" fontSize={textFontSizes}>
-                Редактирование пользователя {userToEdit.firstName}{' '}
+                Редактирование администратора {userToEdit.firstName}{' '}
                 {userToEdit.lastName} ({userToEdit.login})
               </Text>
-              <div style={{ marginBottom: '10px' }}>
-                <Tooltip
-                  hasArrow
-                  bgColor="#D9D9D9"
-                  color="#000000"
-                  label="Удаление пользователя"
-                >
-                  <CloseIcon
-                    onClick={onOpenDeleteUserModal}
-                    width="14px"
-                    height="14px"
-                    cursor="pointer"
-                  />
-                </Tooltip>
-              </div>
             </Flex>
 
             <SimpleGrid

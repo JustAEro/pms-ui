@@ -1,13 +1,12 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 
-import { Admin } from '@pms-ui/entities/admin';
+import { Admin, updateAdminMetaInSystemApiFx } from '@pms-ui/entities/admin';
 import { Project } from '@pms-ui/entities/project';
 import {
   $jwtToken,
   $userType,
   deleteUserFromSystemFx,
   fetchUserFx,
-  updateUserMetaInSystemFx,
 } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -29,8 +28,8 @@ export const discardChangesButtonClicked = createEvent();
 const resetFormState = createEvent();
 
 const fetchUserScopedFx = attach({ effect: fetchUserFx });
-const updateUserMetaInSystemScopedFx = attach({
-  effect: updateUserMetaInSystemFx,
+const updateAdminMetaInSystemScopedFx = attach({
+  effect: updateAdminMetaInSystemApiFx,
 });
 
 export const $loginFieldValue = createStore<string>('');
@@ -63,8 +62,6 @@ sample({
 
 export const addUserToProjectButtonClicked = createEvent();
 export const backToDefaultPageClicked = createEvent();
-
-export const projectToAddClicked = createEvent<Project>();
 
 const deleteUserFromSystemScopedFx = attach({ effect: deleteUserFromSystemFx });
 
@@ -102,8 +99,6 @@ export const $projectToBeDeletedFrom = createStore<Project['id'] | null>(null);
 
 export const $isUserToEditLoading = fetchUserScopedFx.pending;
 
-export const $projects = createStore<Project[]>([]);
-
 export const headerModel = pageHeader.model.createModel({ $userType });
 
 // sample({
@@ -134,6 +129,12 @@ sample({
 
 sample({
   clock: fetchUserScopedFx.doneData,
+  fn: (dto): Admin => ({
+    id: dto.id,
+    login: dto.username,
+    firstName: dto.first_name,
+    lastName: dto.last_name,
+  }),
   target: $adminToEdit,
 });
 
@@ -141,12 +142,10 @@ sample({
   clock: deleteUserButtonClicked,
   source: {
     userToEdit: $adminToEdit,
-    token: $jwtToken,
   },
-  filter: ({ token, userToEdit }) => !!token && !!userToEdit,
-  fn: ({ token, userToEdit }) => ({
-    user: userToEdit!,
-    token: token!,
+  filter: ({ userToEdit }) => !!userToEdit,
+  fn: ({ userToEdit }) => ({
+    userId: userToEdit!.id,
   }),
   target: deleteUserFromSystemScopedFx,
 });
@@ -215,29 +214,28 @@ sample({
     loginFieldValue: $loginFieldValue,
     newPasswordFieldValue: $newPasswordFieldValue,
   },
-  filter: ({ token, userToEdit }) => !!token && !!userToEdit,
+  filter: ({ userToEdit }) => !!userToEdit,
   fn: ({
-    token,
     userToEdit,
     nameFieldValue,
     surnameFieldValue,
     loginFieldValue,
     newPasswordFieldValue,
   }) => ({
-    meta: {
+    newMeta: {
       id: userToEdit!.id,
       firstName: nameFieldValue,
       lastName: surnameFieldValue,
       login: loginFieldValue,
       password: newPasswordFieldValue,
     },
-    token: token!,
+    adminToUpdate: userToEdit!,
   }),
-  target: updateUserMetaInSystemScopedFx,
+  target: updateAdminMetaInSystemScopedFx,
 });
 
 sample({
-  clock: updateUserMetaInSystemScopedFx.doneData,
+  clock: updateAdminMetaInSystemScopedFx.doneData,
   target: [
     $adminToEdit,
     $nameFieldValue.reinit,

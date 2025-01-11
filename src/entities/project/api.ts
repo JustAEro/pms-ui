@@ -554,13 +554,10 @@ export const addUserToProjectFx = createEffect(
     };
   }) => {
     try {
-      const response = await instance.post(
-        `/projects/${projectId}/members/${userId}`,
-        {
-          ...data,
-          user_id: userId, // Добавляем `user_id` в тело запроса
-        }
-      );
+      const response = await instance.post(`/projects/${projectId}/members`, {
+        ...data,
+        user_id: userId, // Добавляем `user_id` в тело запроса
+      });
       return response.data;
     } catch (error) {
       throw new Error('Failed to add user to project');
@@ -571,6 +568,7 @@ export const addUserToProjectFx = createEffect(
 export const addUserToProjectApiFx = createEffect(
   async ({
     projectId,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     userId,
     dto,
   }: {
@@ -579,7 +577,7 @@ export const addUserToProjectApiFx = createEffect(
     dto: AddProjectMemberDto;
   }) => {
     try {
-      await instance.post(`/projects/${projectId}/members/${userId}`, dto);
+      await instance.post(`/projects/${projectId}/members`, dto);
 
       const project = await fetchProjectFx({ projectId });
 
