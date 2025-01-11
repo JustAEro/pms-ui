@@ -238,14 +238,14 @@ export const ProjectManagementPage: FC = () => {
                     </Thead>
                     <Tbody>
                       {membersOfProject.map((user) => (
-                        <Tr key={user.id} height="40px">
-                          <Td>{`${user.firstName} ${user.lastName}`}</Td>
+                        <Tr key={user.user_id} height="40px">
+                          <Td>{`${user.full_name} `}</Td>
                           <Td>
                             <Flex alignItems="center" justifyContent="center">
                               <Checkbox
-                                isChecked={adminsMap[user.id]}
+                                isChecked={adminsMap[user.user_id]}
                                 onChange={() => {
-                                  onAdminCheckboxCheck(user.id);
+                                  onAdminCheckboxCheck(user.user_id);
                                 }}
                                 disabled={!!isProjectArchived}
                                 border="1px solid"
@@ -350,7 +350,7 @@ export const ProjectManagementPage: FC = () => {
                       }
                       width="80%"
                       variant="filled"
-                      placeholder="Логин"
+                      placeholder="ID пользователя"
                     />
                   </Flex>
                   <Spacer height="50px" />
@@ -535,7 +535,7 @@ export const ProjectManagementPage: FC = () => {
                   <Flex alignItems="center" justifyContent="center">
                     <Text width="80%" textAlign="justify">
                       {`Вы действительно хотите удалить пользователя
-                     ${userToBeDeleted?.login} из проекта?`}
+                     ${userToBeDeleted?.username} из проекта?`}
                     </Text>
                   </Flex>
                   <Spacer height="50px" />
@@ -553,7 +553,7 @@ export const ProjectManagementPage: FC = () => {
                   <Flex alignItems="center" justifyContent="center">
                     <Button
                       onClick={() => {
-                        const id = userToBeDeleted?.id;
+                        const id = userToBeDeleted?.user_id;
 
                         if (id) {
                           onConfirmDeleteUserFromProjectButtonClick(id);
