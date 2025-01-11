@@ -20,6 +20,8 @@ export type AddProjectMemberDto = {
   is_admin_project: boolean;
   role: string;
   user_id: string;
+  full_name?: string;
+  username?: string;
 };
 
 export type GetProjectsDto = {

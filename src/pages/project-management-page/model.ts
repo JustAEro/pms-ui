@@ -4,17 +4,18 @@ import { combineEvents, or, spread } from 'patronum';
 
 import {
   type Project,
-  addMemberToProjectMockFx,
+  addUserToProjectFx,
   archiveProjectFx,
-  deleteMemberFromProjectMockFx,
-  editProjectMockFx,
+  deleteMemberFromProjectFx,
+  editProjectFx,
   fetchAdminsOfProjectMockFx,
-  fetchMembersOfProjectMockFx,
+  fetchMembersOfProjectFx,
   fetchProjectFx,
   unarchiveProjectFx,
   updateAdminsOfProjectMockFx,
+  AddProjectMemberDto,
 } from '@pms-ui/entities/project';
-import { type User, $userType } from '@pms-ui/entities/user';
+import { type User, $userId, $userType } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';
 import { modal } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -29,7 +30,8 @@ export const confirmAddUserToProjectButtonClicked = createEvent();
 
 export const backToProjectButtonClicked = createEvent();
 
-export const deleteUserFromProjectButtonClicked = createEvent<User>();
+export const deleteUserFromProjectButtonClicked =
+  createEvent<AddProjectMemberDto>();
 export const confirmDeleteUserFromProjectButtonClicked =
   createEvent<User['id']>();
 
@@ -49,16 +51,14 @@ export const adminCheckboxChecked = createEvent<User['id']>();
 
 const fetchProjectScopedFx = attach({ effect: fetchProjectFx });
 const fetchMembersOfProjectScopedFx = attach({
-  effect: fetchMembersOfProjectMockFx,
+  effect: fetchMembersOfProjectFx,
 });
-const fetchAdminsOfProjectScopedFx = attach({
-  effect: fetchAdminsOfProjectMockFx,
-});
-const editProjectScopedFx = attach({ effect: editProjectMockFx });
+
+const editProjectScopedFx = attach({ effect: editProjectFx });
 const deleteMemberFromProjectScopedFx = attach({
-  effect: deleteMemberFromProjectMockFx,
+  effect: deleteMemberFromProjectFx,
 });
-const addMemberToProjectScopedFx = attach({ effect: addMemberToProjectMockFx });
+const addMemberToProjectScopedFx = attach({ effect: addUserToProjectFx });
 const archiveProjectScopedFx = attach({ effect: archiveProjectFx });
 const unarchiveProjectScopedFx = attach({ effect: unarchiveProjectFx });
 const updateAdminsOfProjectScopedFx = attach({
@@ -72,22 +72,21 @@ export const $isProjectArchived = $project.map((project) =>
 export const $isProjectLoading = fetchProjectScopedFx.pending;
 export const $isProjectEditInProgress = editProjectScopedFx.pending;
 
-export const $membersOfProject = createStore<User[]>([]);
-export const $adminsOfProject = createStore<User[]>([]);
+export const $membersOfProject = createStore<AddProjectMemberDto[]>([]);
+export const $adminsOfProject = createStore<AddProjectMemberDto[]>([]);
 export const $isMembersOfProjectLoading = or(
-  fetchMembersOfProjectScopedFx.pending,
-  fetchAdminsOfProjectScopedFx.pending
+  fetchMembersOfProjectScopedFx.pending
 );
 
 export const $adminsMap = createStore<Record<User['id'], boolean>>({});
 const $loadedFromServerAdminsMap = createStore<Record<User['id'], boolean>>({});
 
-export const $userToBeDeleted = createStore<User | null>(null);
+export const $userToBeDeleted = createStore<AddProjectMemberDto | null>(null);
 
 export const $editProjectModalName = createStore('');
 export const $editProjectModalDescription = createStore('');
 
-export const $addUserLoginFieldValue = createStore('');
+export const $addUserLoginFieldValue = createStore<string | null>(null);
 
 export const $isConfirmEditProjectButtonDisabled = or(
   combine(
@@ -132,11 +131,7 @@ sample({
   },
   filter: ({ userType }) => userType === 'user',
   fn: ({ pageParams }) => ({ projectId: pageParams.projectId }),
-  target: [
-    fetchProjectScopedFx,
-    fetchMembersOfProjectScopedFx,
-    fetchAdminsOfProjectScopedFx,
-  ] as const,
+  target: [fetchProjectScopedFx, fetchMembersOfProjectScopedFx] as const,
 });
 
 sample({
@@ -166,21 +161,16 @@ sample({
 });
 
 sample({
-  clock: fetchAdminsOfProjectScopedFx.doneData,
+  clock: fetchMembersOfProjectScopedFx.doneData,
+  fn: (members) => members.filter((member) => member.is_admin_project === true),
   target: $adminsOfProject,
 });
 
 sample({
-  clock: combineEvents({
-    users: fetchMembersOfProjectScopedFx.doneData,
-    admins: fetchAdminsOfProjectScopedFx.doneData,
-  }),
-  fn: ({ users, admins }) =>
+  clock: fetchMembersOfProjectScopedFx.doneData,
+  fn: (users) =>
     Object.fromEntries(
-      users.map((user) => [
-        user.id,
-        !!admins.find((admin) => admin.id === user.id),
-      ])
+      users.map((user) => [user.user_id, user.is_admin_project])
     ),
   target: [$adminsMap, $loadedFromServerAdminsMap],
 });
@@ -282,14 +272,23 @@ sample({
 
 sample({
   clock: confirmAddUserToProjectButtonClicked,
-  source: $addUserLoginFieldValue,
+  source: {
+    userid: $addUserLoginFieldValue,
+    project: $project,
+  },
+  fn: ({ userid, project }) => ({
+    projectId: project!.id,
+    dto: {
+      is_admin_project: false,
+      role: 'Участник',
+      user_id: userid!,
+    },
+  }),
   target: addMemberToProjectScopedFx,
 });
 
 sample({
   clock: addMemberToProjectScopedFx.doneData,
-  source: $membersOfProject,
-  fn: (members, newMember) => [...members, newMember],
   target: [$membersOfProject, addUserModal.inputs.close] as const,
 });
 
@@ -311,17 +310,16 @@ sample({
 
 sample({
   clock: confirmDeleteUserFromProjectButtonClicked,
+  source: { userid: $userId, project: $project },
+  fn: ({ userid, project }) => ({
+    projectId: project!.id,
+    userId: userid!,
+  }),
   target: deleteMemberFromProjectScopedFx,
 });
 
 sample({
-  clock: deleteMemberFromProjectScopedFx.done,
-  source: $membersOfProject,
-  fn: (members, { params: userId }) => {
-    const newMembers = members.filter((user) => user.id !== userId);
-
-    return newMembers;
-  },
+  clock: deleteMemberFromProjectScopedFx.doneData,
   target: [$membersOfProject, deleteFromProjectModal.inputs.close] as const,
 });
 
@@ -389,8 +387,8 @@ sample({
   fn: (members, admins) =>
     Object.fromEntries(
       members.map((user) => [
-        user.id,
-        !!admins.find((admin) => admin.id === user.id),
+        user.user_id,
+        !!admins.find((admin) => admin.id === user.user_id),
       ])
     ),
   target: [$loadedFromServerAdminsMap, $adminsMap],

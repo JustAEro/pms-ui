@@ -159,10 +159,10 @@ export const createProjectFx = createEffect(
 
       await addUserToProjectFx({
         projectId,
-        userId,
-        data: {
+        dto: {
           is_admin_project: true,
-          role: 'Руководитель проекта',
+          role: 'Участник',
+          user_id: userId!,
         },
       });
       return response.data;
@@ -276,6 +276,18 @@ export const fetchMembersOfProjectMockFx = createEffect(
       }, 2000);
     })
 );
+export const fetchMembersOfProjectFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    try {
+      const response = await instance.get<AddProjectMemberDto[]>(
+        `/projects/${projectId}/members`
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(`Failed to fetch project with id ${projectId}`);
+    }
+  }
+);
 
 export const fetchAdminsOfProjectMockFx = createEffect(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -286,7 +298,14 @@ export const fetchAdminsOfProjectMockFx = createEffect(
       }, 1000);
     })
 );
-
+export const editProjectFx = createEffect(async (project: Project) => {
+  try {
+    const response = await instance.put(`/projects/${project.id}`, project);
+    return response.data;
+  } catch (error) {
+    throw new Error('Failed to edit project');
+  }
+});
 export const editProjectMockFx = createEffect(async (project: Project) => {
   const { id, name, description } = project;
 
@@ -305,6 +324,29 @@ export const editProjectMockFx = createEffect(async (project: Project) => {
 export const deleteMemberFromProjectMockFx = createEffect(
   async (userId: User['id']) => {
     usersList = usersList.filter((user) => user.id !== userId);
+  }
+);
+export const deleteMemberFromProjectFx = createEffect(
+  async ({
+    userId,
+    projectId,
+  }: {
+    userId: string;
+    projectId: Project['id'];
+  }) => {
+    try {
+      await instance.delete(`/projects/${projectId}/members/${userId}`);
+      const response = await fetchMembersOfProjectFx({ projectId });
+      return response;
+    } catch (error) {
+      console.log(error);
+
+      if (error instanceof AxiosError) {
+        throw error.response?.data;
+      }
+
+      throw error;
+    }
   }
 );
 
@@ -475,25 +517,15 @@ export const addUserToProjectMockFx = createEffect(
 export const addUserToProjectFx = createEffect(
   async ({
     projectId,
-    userId,
-    data,
+    dto,
   }: {
     projectId: string;
-    userId: string;
-    data: {
-      is_admin_project: boolean;
-      role: string;
-    };
+    dto: AddProjectMemberDto;
   }) => {
     try {
-      const response = await instance.post(
-        `/projects/${projectId}/members/${userId}`,
-        {
-          ...data,
-          user_id: userId, // Добавляем `user_id` в тело запроса
-        }
-      );
-      return response.data;
+      await instance.post(`/projects/${projectId}/members`, dto);
+      const response = await fetchMembersOfProjectFx({ projectId });
+      return response;
     } catch (error) {
       throw new Error('Failed to add user to project');
     }
