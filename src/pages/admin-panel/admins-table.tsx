@@ -1,3 +1,4 @@
+import { useUnit } from 'effector-react';
 import { FC } from 'react';
 
 import { CloseIcon } from '@chakra-ui/icons';
@@ -12,6 +13,7 @@ import {
   Tr,
 } from '@chakra-ui/react';
 import { Admin } from '@pms-ui/entities/admin';
+import { $currentUser } from '@pms-ui/entities/user';
 import { PencilIcon } from '@pms-ui/shared/ui';
 
 type AdminsTableProps = {
@@ -28,49 +30,57 @@ export const AdminsTable: FC<AdminsTableProps> = ({
   isAdminsListLoading,
   onDeleteAdminClick,
   onEditAdminButtonClick,
-}: AdminsTableProps) => (
-  <>
-    {isAdminsListLoading && <Spinner />}
-    {!isAdminsListLoading && (
-      <Table size="sm" variant="striped">
-        <Thead height="40px">
-          <Tr>
-            <Th>Имя администратора</Th>
-            <Th>Логин</Th>
-            <Th>Редактирование администратора</Th>
-            <Th>Удаление администратора</Th>
-          </Tr>
-        </Thead>
-        <Tbody>
-          {adminsList.map((admin) => (
-            <Tr key={admin.login} height="40px">
-              <Td>{`${admin.firstName} ${admin.lastName}`}</Td>
-              <Td>{`${admin.login}`}</Td>
-              <Td>
-                <Flex alignItems="center" justifyContent="center">
-                  <div>
-                    <PencilIcon
+}: AdminsTableProps) => {
+  const currentUser = useUnit($currentUser);
+
+  return (
+    <>
+      {isAdminsListLoading && <Spinner />}
+      {!isAdminsListLoading && (
+        <Table size="sm" variant="striped">
+          <Thead height="40px">
+            <Tr>
+              <Th>Имя администратора</Th>
+              <Th>Логин</Th>
+              <Th>Редактирование администратора</Th>
+              <Th>Удаление администратора</Th>
+            </Tr>
+          </Thead>
+          <Tbody>
+            {adminsList.map((admin) => (
+              <Tr key={admin.login} height="40px">
+                <Td>{`${admin.firstName} ${admin.lastName}`}</Td>
+                <Td>{`${admin.login}`}</Td>
+                <Td>
+                  <Flex alignItems="center" justifyContent="center">
+                    <div>
+                      <PencilIcon
+                        onClick={() => {
+                          onEditAdminButtonClick({ adminId: admin.id });
+                        }}
+                      />
+                    </div>
+                  </Flex>
+                </Td>
+                <Td>
+                  <Flex alignItems="center" justifyContent="center">
+                    <CloseIcon
+                      cursor={
+                        currentUser?.id === admin.id ? 'not-allowed' : 'pointer'
+                      }
                       onClick={() => {
-                        onEditAdminButtonClick({ adminId: admin.id });
+                        if (!(currentUser?.id === admin.id)) {
+                          onDeleteAdminClick(admin.id);
+                        }
                       }}
                     />
-                  </div>
-                </Flex>
-              </Td>
-              <Td>
-                <Flex alignItems="center" justifyContent="center">
-                  <CloseIcon
-                    cursor="pointer"
-                    onClick={() => {
-                      onDeleteAdminClick(admin.id);
-                    }}
-                  />
-                </Flex>
-              </Td>
-            </Tr>
-          ))}
-        </Tbody>
-      </Table>
-    )}
-  </>
-);
+                  </Flex>
+                </Td>
+              </Tr>
+            ))}
+          </Tbody>
+        </Table>
+      )}
+    </>
+  );
+};
