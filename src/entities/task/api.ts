@@ -209,7 +209,11 @@ export const fetchTaskFx = createEffect(
 export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
   try {
     const taskId = taskToUpdate.id;
-    await instance.put(`/task/${taskId}`, taskToUpdate);
+    const task = {
+      ...taskToUpdate,
+      deadline: taskToUpdate.deadlineDate.toISOString(),
+    };
+    await instance.put(`/task/${taskId}`, task);
     const updatedTask = await fetchTaskFx({ taskId });
     return updatedTask;
   } catch (error) {
