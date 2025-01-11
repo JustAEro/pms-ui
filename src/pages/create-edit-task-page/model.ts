@@ -8,7 +8,7 @@ import {
   Task,
   UpdateTask,
   UpdateTaskDto,
-  updateTaskMockFx,
+  updateTaskFx,
 } from '@pms-ui/entities/task';
 import { $currentUser, $jwtToken, $userType } from '@pms-ui/entities/user';
 import { controls, routes } from '@pms-ui/shared/routes';
@@ -32,7 +32,7 @@ const loadTaskFx = attach({ effect: fetchTaskFx });
 export const $isTaskLoading = loadTaskFx.pending;
 
 const createTaskScopedFx = attach({ effect: createTaskFx });
-const updateTaskScopedFx = attach({ effect: updateTaskMockFx });
+const updateTaskScopedFx = attach({ effect: updateTaskFx });
 
 export const $task = createStore<Task | null>(null);
 
@@ -264,13 +264,13 @@ sample({
       status: task!.status,
       tester_id: taskTesterLoginFieldValue,
     }; // TODO: use dto after migrating to real API
-
-    return {
-      id: task!.id,
-      updateTask,
-      token: jwtToken!,
-      currentUser: currentUser!,
+    const tasknotnull = task!;
+    const taskfn: Task = {
+      ...tasknotnull,
+      ...updateTask,
+      deadlineDate: new Date(`${deadlineDateFieldValue}000+03:00`),
     };
+    return taskfn;
   },
   target: updateTaskScopedFx,
 });

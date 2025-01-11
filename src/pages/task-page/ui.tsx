@@ -98,7 +98,6 @@ export const TaskPage: FC = () => {
           <>
             <Flex direction="column">
               <Flex marginTop="30px" marginLeft="50px" direction="row">
-                <Text fontSize={21}>{`#${task.id}`}</Text>
                 <Text marginLeft="250px" fontWeight="bold" fontSize={21}>
                   {task.name}
                 </Text>
@@ -115,16 +114,7 @@ export const TaskPage: FC = () => {
                     src={pencilIcon}
                   />
                 </Tooltip>
-                <Tooltip label="Архивировать задачу" placement="top">
-                  <Image
-                    marginLeft="20px"
-                    cursor="pointer"
-                    marginTop="10px"
-                    w="18px"
-                    h="18px"
-                    src={archiveIcon}
-                  />
-                </Tooltip>
+
                 <Menu matchWidth>
                   <MenuButton
                     disabled={
@@ -187,8 +177,6 @@ export const TaskPage: FC = () => {
                 paddingBottom="30px"
                 alignItems="start"
               >
-                <TestCasesBoard />
-                <Spacer />
                 <SimpleGrid columns={2} spacingY={8}>
                   <Text fontSize="18px" fontWeight="bold">
                     Исполнитель

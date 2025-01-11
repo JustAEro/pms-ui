@@ -1,4 +1,4 @@
-import { User } from '../user';
+import { User, FindUserDto } from '../user';
 
 import { taskStatuses, taskStatusesNotShownOnBoard } from './constants';
 
@@ -13,6 +13,18 @@ export type Task = {
   userExecutor: User;
   userTester: User;
   project_id: string;
+};
+export type TaskDto = {
+  id: string;
+  name: string;
+  description: string;
+  status: TaskStatus;
+  project_id: string;
+  author_id: string;
+  executor_id: string;
+  tester_id: string;
+  created_at: string;
+  deadline: string;
 };
 
 export type CreateTask = {

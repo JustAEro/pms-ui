@@ -5,7 +5,9 @@ import { instance } from '@pms-ui/shared/api/http/axios';
 
 import { User } from '../user';
 
-import { CreateTask, CreateTaskDto, Task, UpdateTask } from './types';
+import { CreateTask, CreateTaskDto, Task, TaskDto, UpdateTask } from './types';
+import { mapTaskDtoToTask } from './mapping';
+import { fetchUserFullInfoFx } from '@pms-ui/entities/user';
 
 const usersList: User[] = [
   {
@@ -176,10 +178,28 @@ export const fetchTasksInProjectFx = createEffect(
 );
 
 export const fetchTaskFx = createEffect(
-  async ({ taskId }: { taskId: string }) => {
+  async ({ taskId }: { taskId: string }): Promise<Task> => {
     try {
-      const response = await instance.get(`/task/${taskId}`);
-      return response.data as Task;
+      // Запрос на получение задачи
+      const response = await instance.get<TaskDto>(`/task/${taskId}`);
+      const taskData = response.data;
+
+      // Параллельное выполнение запросов для получения пользователей
+      const [userAuthor, userExecutor, userTester] = await Promise.all([
+        fetchUserFullInfoFx({ userId: taskData.author_id }),
+        fetchUserFullInfoFx({ userId: taskData.executor_id }),
+        fetchUserFullInfoFx({ userId: taskData.tester_id }),
+      ]);
+
+      // Использование функции для преобразования данных задачи
+      const data = mapTaskDtoToTask(
+        taskData,
+        userAuthor,
+        userExecutor,
+        userTester
+      );
+      console.log(data);
+      return data;
     } catch (error) {
       throw new Error(`Failed to fetch task for project with id ${taskId}`);
     }
@@ -189,8 +209,9 @@ export const fetchTaskFx = createEffect(
 export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
   try {
     const taskId = taskToUpdate.id;
-    const response = await instance.put(`/task/${taskId}`, taskToUpdate);
-    return response.data as Task;
+    await instance.put(`/task/${taskId}`, taskToUpdate);
+    const updatedTask = await fetchTaskFx({ taskId });
+    return updatedTask;
   } catch (error) {
     throw new Error(`Failed to update task`);
   }
