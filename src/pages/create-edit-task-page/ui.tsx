@@ -126,7 +126,7 @@ export const CreateEditTaskPage: FC = () => {
                 {pageMode === 'create'
                   ? 'Создание задачи'
                   : `Редактирование задачи `}
-                {task && `${task.id}`}
+                {task && `${task.name}`}
               </Text>
             </Flex>
             <FormControl
@@ -215,15 +215,6 @@ export const CreateEditTaskPage: FC = () => {
               />
             </FormControl>
 
-            <FormControl
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              marginTop="30px"
-            >
-              <FormLabel>Вложения</FormLabel>
-              <FileUploader />
-            </FormControl>
             <Button
               marginTop="50px"
               marginBottom="50px"

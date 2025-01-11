@@ -26,6 +26,11 @@ export default defineConfig({
         secure: false,
         //rewrite: (path) => path.replace(/^\/api/, '/api'),
       },
+      '/ai': {
+        target: 'http://localhost:8000/api/v1/ai',
+        secure: false,
+        //rewrite: (path) => path.replace(/^\/api/, '/api'),
+      },
     },
   },
 })

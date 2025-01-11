@@ -350,7 +350,7 @@ export const ProjectManagementPage: FC = () => {
                       }
                       width="80%"
                       variant="filled"
-                      placeholder="Логин"
+                      placeholder="ID пользователя"
                     />
                   </Flex>
                   <Spacer height="50px" />
