@@ -1,19 +1,18 @@
 import { attach, combine, createEvent, createStore, sample } from 'effector';
 import stringify from 'json-stable-stringify';
-import { combineEvents, or, spread } from 'patronum';
+import { or, spread } from 'patronum';
 
 import {
   type Project,
+  AddProjectMemberDto,
   addUserToProjectFx,
   archiveProjectFx,
   deleteMemberFromProjectFx,
   editProjectFx,
-  fetchAdminsOfProjectMockFx,
   fetchMembersOfProjectFx,
   fetchProjectFx,
   unarchiveProjectFx,
   updateAdminsOfProjectFx,
-  AddProjectMemberDto,
 } from '@pms-ui/entities/project';
 import { type User, $userId, $userType } from '@pms-ui/entities/user';
 import { routes } from '@pms-ui/shared/routes';

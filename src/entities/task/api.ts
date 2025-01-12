@@ -399,3 +399,39 @@ export const updateTaskMockFx = createEffect(
     return structuredClone(taskToUpdate);
   }
 );
+
+export const fetchClosedTasksFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    try {
+      const response = await instance.get<TaskDto[]>(
+        `/projects/${projectId}/tasks`
+      );
+      const taskDataArray = response.data.filter(
+        (task) => task.status === 'Завершена'
+      );
+
+      const tasks = await Promise.all(
+        taskDataArray.map(async (taskData) => {
+          // Параллельные запросы для каждого пользователя
+          const [userAuthor, userExecutor, userTester] = await Promise.all([
+            fetchUserFullInfoFx({ userId: taskData.author_id }),
+            fetchUserFullInfoFx({ userId: taskData.executor_id }),
+            fetchUserFullInfoFx({ userId: taskData.tester_id }),
+          ]);
+
+          // Применяем mapTaskDtoToTask к каждому элементу массива
+          return mapTaskDtoToTask(
+            taskData,
+            userAuthor,
+            userExecutor,
+            userTester
+          );
+        })
+      );
+
+      return tasks;
+    } catch (error) {
+      throw new Error(`Failed to fetch tasks for project with id ${projectId}`);
+    }
+  }
+);

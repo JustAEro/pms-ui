@@ -5,11 +5,11 @@ import { instance } from '@pms-ui/shared/api';
 
 import {
   CreateUserDto,
+  fetchUserFx,
   FindUserDto,
   FindUsersPaginationDto,
   UpdateUserDto,
   UpdateUserMeta,
-  fetchUserFx,
 } from '../user';
 
 import { Admin, CreateAdmin } from './types';

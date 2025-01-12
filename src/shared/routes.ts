@@ -23,6 +23,7 @@ export const routes = {
   createTaskRoute: createRoute<{ projectId: string }>(),
   editTaskRoute: createRoute<{ taskId: string }>(),
   adminEditRoute: createRoute<{ adminId: string }>(),
+  closedTasksOfProjectRoute: createRoute<{ projectId: string }>(),
 };
 
 const routeObjects = [
@@ -35,6 +36,10 @@ const routeObjects = [
   { path: '/projects', route: routes.projectsRoute },
   { path: '/projects/archive', route: routes.archivedProjectsRoute },
   { path: '/project/:projectId/manage', route: routes.projectManagementRoute },
+  {
+    path: '/project/:projectId/closed-tasks',
+    route: routes.closedTasksOfProjectRoute,
+  },
   { path: '/project/:projectId', route: routes.projectRoute },
   { path: '/create-task/:projectId', route: routes.createTaskRoute },
   { path: '/edit-task/:taskId', route: routes.editTaskRoute },

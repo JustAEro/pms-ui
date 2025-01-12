@@ -2,7 +2,7 @@
 import { useUnit } from 'effector-react';
 import { FC, ReactNode, useEffect } from 'react';
 
-import { AddIcon } from '@chakra-ui/icons';
+import { AddIcon, ChevronLeftIcon } from '@chakra-ui/icons';
 import {
   Box,
   Button,
@@ -38,7 +38,7 @@ import {
   TaskOnBoard,
 } from '@pms-ui/entities/task';
 import { truncateString } from '@pms-ui/shared/lib';
-import { routes } from '@pms-ui/shared/routes';
+import { controls, routes } from '@pms-ui/shared/routes';
 import statsIcon from '@pms-ui/shared/ui/assets/svg/stats-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
@@ -119,9 +119,21 @@ export const ProjectPage: FC = () => {
             alignItems="center"
             gap="20px"
           >
-            <Text fontWeight="bold" fontSize={textFontSizes}>
-              Доска проекта {project.name}
-            </Text>
+            <Flex
+              direction="row"
+              justifyContent="center"
+              alignItems="center"
+              gap={10}
+            >
+              <ChevronLeftIcon
+                onClick={() => controls.back()}
+                cursor="pointer"
+              />
+              <Text fontWeight="bold" fontSize={textFontSizes}>
+                Доска проекта {project.name}
+              </Text>
+            </Flex>
+
             <Flex
               marginTop="30px"
               paddingLeft="50px"
@@ -136,6 +148,17 @@ export const ProjectPage: FC = () => {
                   Управление проектом
                 </Button>
               )}
+
+              <Button
+                onClick={() => {
+                  routes.closedTasksOfProjectRoute.open({
+                    projectId: project.id,
+                  });
+                }}
+                colorScheme="gray"
+              >
+                Завершенные задачи
+              </Button>
 
               {!areTasksInProjectLoading && (
                 <Popover placement="top">
@@ -206,16 +229,18 @@ export const ProjectPage: FC = () => {
                 </Popover>
               )}
 
-              <Tooltip placement="top" label="Создать задачу">
-                <Button
-                  onClick={() => {
-                    routes.createTaskRoute.open({ projectId: project.id });
-                  }}
-                  colorScheme="gray"
-                >
-                  <AddIcon />
-                </Button>
-              </Tooltip>
+              {project.is_active && (
+                <Tooltip placement="top" label="Создать задачу">
+                  <Button
+                    onClick={() => {
+                      routes.createTaskRoute.open({ projectId: project.id });
+                    }}
+                    colorScheme="gray"
+                  >
+                    <AddIcon />
+                  </Button>
+                </Tooltip>
+              )}
             </Flex>
 
             {!areTasksInProjectLoading && <ProjectBoard />}
