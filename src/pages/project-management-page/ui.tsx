@@ -44,6 +44,7 @@ import {
   $isConfirmEditProjectButtonDisabled,
   $isMembersOfProjectLoading,
   $isProjectArchived,
+  $isUserAdmin,
   $isProjectEditInProgress,
   $isProjectLoading,
   $isSaveChangesAndCancelChangesButtonsDisabled,
@@ -81,6 +82,7 @@ export const ProjectManagementPage: FC = () => {
   const project = useUnit($project);
   const isProjectLoading = useUnit($isProjectLoading);
   const isProjectArchived = useUnit($isProjectArchived);
+  const isUserAdmin = useUnit($isUserAdmin);
   const isProjectEditInProgress = useUnit($isProjectEditInProgress);
   const isConfirmEditProjectButtonDisabled = useUnit(
     $isConfirmEditProjectButtonDisabled
@@ -191,27 +193,29 @@ export const ProjectManagementPage: FC = () => {
               <Text fontWeight="bold" fontSize={textFontSizes}>
                 Управление проектом {project.name}
               </Text>
-              {!isProjectArchived && (
+              {isUserAdmin && !isProjectArchived && (
                 <PencilIcon onClick={onOpenEditProjectModal} />
               )}
-              <Box marginLeft="2vw" marginRight="-3vw">
-                <Tooltip
-                  label={
-                    isProjectArchived
-                      ? 'Разархивировать проект'
-                      : 'Архивировать проект'
-                  }
-                  placement="top"
-                >
-                  <Image
-                    onClick={onOpenArchiveProjectModal}
-                    cursor="pointer"
-                    w="20px"
-                    h="20px"
-                    src={archiveIcon}
-                  />
-                </Tooltip>
-              </Box>
+              {isUserAdmin && (
+                <Box marginLeft="2vw" marginRight="-3vw">
+                  <Tooltip
+                    label={
+                      isProjectArchived
+                        ? 'Разархивировать проект'
+                        : 'Архивировать проект'
+                    }
+                    placement="top"
+                  >
+                    <Image
+                      onClick={onOpenArchiveProjectModal}
+                      cursor="pointer"
+                      w="20px"
+                      h="20px"
+                      src={archiveIcon}
+                    />
+                  </Tooltip>
+                </Box>
+              )}
             </Flex>
 
             {isMembersOfProjectLoading && (
@@ -245,9 +249,16 @@ export const ProjectManagementPage: FC = () => {
                               <Checkbox
                                 isChecked={adminsMap[user.user_id]}
                                 onChange={() => {
-                                  onAdminCheckboxCheck(user.user_id);
+                                  if (!isProjectArchived && isUserAdmin) {
+                                    onAdminCheckboxCheck(user.user_id);
+                                  }
                                 }}
-                                disabled={!!isProjectArchived}
+                                disabled={!!isProjectArchived && !isUserAdmin}
+                                cursor={
+                                  !isProjectArchived && isUserAdmin
+                                    ? 'pointer'
+                                    : 'not-allowed'
+                                }
                                 border="1px solid"
                                 borderColor="#E2E8F0"
                                 borderRadius="6px"
@@ -259,12 +270,14 @@ export const ProjectManagementPage: FC = () => {
                             <Flex justifyContent="center">
                               <Image
                                 onClick={() => {
-                                  if (!isProjectArchived) {
+                                  if (!isProjectArchived && isUserAdmin) {
                                     onOpenDeleteUserFromProjectModal(user);
                                   }
                                 }}
                                 cursor={
-                                  !isProjectArchived ? 'pointer' : 'not-allowed'
+                                  !isProjectArchived && isUserAdmin
+                                    ? 'pointer'
+                                    : 'not-allowed'
                                 }
                                 src={trashIcon}
                                 alt=""
@@ -279,7 +292,7 @@ export const ProjectManagementPage: FC = () => {
                   </Table>
                 </TableContainer>
 
-                {!isProjectArchived && (
+                {isUserAdmin && !isProjectArchived && (
                   <>
                     <Flex direction="row" marginTop="20px">
                       <Button
@@ -452,65 +465,68 @@ export const ProjectManagementPage: FC = () => {
               </ModalContent>
             </Modal>
 
-            <Modal
-              size="xl"
-              isOpen={archiveProjectModalIsOpened}
-              onClose={onCloseArchiveProjectModal}
-            >
-              <ModalOverlay />
-              <ModalContent>
-                <ModalCloseButton />
-                <ModalHeader>
-                  <Flex
-                    marginTop="10px"
-                    alignItems="center"
-                    justifyContent="center"
-                  >
-                    <Text fontWeight="bold" fontSize={textFontSizes}>
-                      {isProjectArchived ? 'Разархивирование' : 'Архивирование'}{' '}
-                      проекта
-                    </Text>
-                  </Flex>
-                </ModalHeader>
-                <ModalBody>
-                  <Spacer height="20px" />
-                  <Flex alignItems="center" justifyContent="center">
-                    <Text width="80%" textAlign="center">
-                      {`Вы действительно хотите ${
-                        isProjectArchived ? 'разархивировать' : 'архивировать'
-                      } проект
+            {isUserAdmin && (
+              <Modal
+                size="xl"
+                isOpen={archiveProjectModalIsOpened}
+                onClose={onCloseArchiveProjectModal}
+              >
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalCloseButton />
+                  <ModalHeader>
+                    <Flex
+                      marginTop="10px"
+                      alignItems="center"
+                      justifyContent="center"
+                    >
+                      <Text fontWeight="bold" fontSize={textFontSizes}>
+                        {isProjectArchived
+                          ? 'Разархивирование'
+                          : 'Архивирование'}{' '}
+                        проекта
+                      </Text>
+                    </Flex>
+                  </ModalHeader>
+                  <ModalBody>
+                    <Spacer height="20px" />
+                    <Flex alignItems="center" justifyContent="center">
+                      <Text width="80%" textAlign="center">
+                        {`Вы действительно хотите ${
+                          isProjectArchived ? 'разархивировать' : 'архивировать'
+                        } проект
                      ${project.name}?`}
-                    </Text>
-                  </Flex>
-                  <Spacer height="50px" />
-                  <Flex alignItems="center" justifyContent="center">
-                    <Button
-                      onClick={onCloseArchiveProjectModal}
-                      width="80%"
-                      variant="solid"
-                      textColor="#3182CE"
-                      backgroundColor="white"
-                      border="1px solid #3182CE"
-                    >
-                      Отмена
-                    </Button>
-                  </Flex>
-                  <Spacer height="25px" />
-                  <Flex alignItems="center" justifyContent="center">
-                    <Button
-                      onClick={onConfirmArchiveProjectButtonClick}
-                      width="80%"
-                      variant="solid"
-                      colorScheme="blue"
-                    >
-                      {isProjectArchived ? 'Разархивировать' : 'Архивировать'}
-                    </Button>
-                  </Flex>
-                  <Spacer height="20px" />
-                </ModalBody>
-              </ModalContent>
-            </Modal>
-
+                      </Text>
+                    </Flex>
+                    <Spacer height="50px" />
+                    <Flex alignItems="center" justifyContent="center">
+                      <Button
+                        onClick={onCloseArchiveProjectModal}
+                        width="80%"
+                        variant="solid"
+                        textColor="#3182CE"
+                        backgroundColor="white"
+                        border="1px solid #3182CE"
+                      >
+                        Отмена
+                      </Button>
+                    </Flex>
+                    <Spacer height="25px" />
+                    <Flex alignItems="center" justifyContent="center">
+                      <Button
+                        onClick={onConfirmArchiveProjectButtonClick}
+                        width="80%"
+                        variant="solid"
+                        colorScheme="blue"
+                      >
+                        {isProjectArchived ? 'Разархивировать' : 'Архивировать'}
+                      </Button>
+                    </Flex>
+                    <Spacer height="20px" />
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            )}
             <Modal
               size="xl"
               isOpen={deleteUserFromProjectModalIsOpened}

@@ -69,6 +69,7 @@ export const $project = createStore<Project | null>(null);
 export const $isProjectArchived = $project.map((project) =>
   project ? !project.is_active : null
 );
+
 export const $isProjectLoading = fetchProjectScopedFx.pending;
 export const $isProjectEditInProgress = editProjectScopedFx.pending;
 
@@ -79,6 +80,9 @@ export const $isMembersOfProjectLoading = or(
 );
 
 export const $adminsMap = createStore<Record<User['id'], boolean>>({});
+export const $isUserAdmin = combine($adminsMap, $userId, (adminsMap, userId) =>
+  userId ? adminsMap[userId] === true : null
+);
 const $loadedFromServerAdminsMap = createStore<Record<User['id'], boolean>>({});
 
 export const $userToBeDeleted = createStore<AddProjectMemberDto | null>(null);
