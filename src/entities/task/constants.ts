@@ -6,11 +6,10 @@ export const taskStatuses = [
   'В работе',
   'На тестировании',
   'На ревью',
-  'Закрыт',
-  'Архив',
+  'Завершена',
 ] as const;
 
-export const taskStatusesNotShownOnBoard = ['Закрыт', 'Архив'] as const;
+export const taskStatusesNotShownOnBoard = ['Завершена', 'Архив'] as const;
 
 export const columnNames: DisplayedOnBoardTaskStatus[] = [
   'Отложено',

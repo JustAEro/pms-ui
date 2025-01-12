@@ -90,7 +90,7 @@ sample({
   clock: newStatusClicked,
   source: $task,
   filter: (task, { newStatus }): task is Task =>
-    task !== null && newStatus !== 'Закрыт',
+    task !== null && newStatus !== 'Завершена',
   fn: (task: Task, { newStatus }) => {
     const updatedTask: Task = { ...task, status: newStatus };
 
@@ -103,7 +103,7 @@ sample({
   clock: newStatusClicked,
   source: $task,
   filter: (task, { newStatus }): task is Task =>
-    task !== null && newStatus === 'Закрыт',
+    task !== null && newStatus === 'Завершена',
   target: closeTaskModalOpened,
 });
 
@@ -131,7 +131,7 @@ sample({
   source: $task,
   filter: (task): task is Task => task !== null,
   fn: (task: Task) => {
-    const updatedTask: Task = { ...task, status: 'Закрыт' };
+    const updatedTask: Task = { ...task, status: 'Завершена' };
 
     return updatedTask;
   },

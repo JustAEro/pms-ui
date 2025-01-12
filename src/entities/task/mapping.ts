@@ -1,5 +1,7 @@
-import { Task, TaskDto, TaskStatus, CreateTaskDto } from './types';
 import { User } from '../user';
+
+import { CreateTaskDto, Task, TaskDto, TaskStatus } from './types';
+
 export const mapTaskDtoToTask = (
   taskDto: TaskDto,
   userAuthor: User,
@@ -22,15 +24,13 @@ export const mapTaskDtoToTask = (
   return task;
 };
 
-export const mapTaskToCreateTaskDto = (task: Task): CreateTaskDto => {
-  return {
-    author_id: task.userAuthor.id, // Используем ID автора задачи
-    deadline: task.deadlineDate.toISOString(), // Преобразуем дату в строку ISO
-    description: task.description,
-    executor_id: task.userExecutor.id, // Используем ID исполнителя задачи
-    name: task.name,
-    project_id: task.project_id,
-    status: task.status,
-    tester_id: task.userTester.id, // Используем ID тестера задачи
-  };
-};
+export const mapTaskToCreateTaskDto = (task: Task): CreateTaskDto => ({
+  author_id: task.userAuthor.id, // Используем ID автора задачи
+  deadline: task.deadlineDate.toISOString(), // Преобразуем дату в строку ISO
+  description: task.description,
+  executor_id: task.userExecutor.id, // Используем ID исполнителя задачи
+  name: task.name,
+  project_id: task.project_id,
+  status: task.status,
+  tester_id: task.userTester.id, // Используем ID тестера задачи
+});

@@ -46,11 +46,11 @@ const updateTaskScopedFx = attach({ effect: updateTaskFx });
 
 const $tasksInProject = createStore<Task[]>([]);
 export const $tasksTotalCount = $tasksInProject.map((tasks) => tasks.length);
-export const $tasksArchivedCount = $tasksInProject.map(
-  (tasks) => tasks.filter((task) => task.status === 'Архив').length
-);
 export const $tasksExpiredCount = $tasksInProject.map(
   (tasks) => tasks.filter((task) => task.deadlineDate < new Date()).length
+);
+export const $tasksClosedCount = $tasksInProject.map(
+  (tasks) => tasks.filter((task) => task.status === 'Завершена').length
 );
 
 const $tasksInProjectOnBoard = $tasksInProject.map((tasks) =>

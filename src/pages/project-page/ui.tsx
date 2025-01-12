@@ -55,6 +55,7 @@ import {
   $projectNotification,
   $projectToastId,
   $reviewTasks,
+  $tasksClosedCount,
   $tasksExpiredCount,
   $tasksTotalCount,
   $testingTasks,
@@ -93,6 +94,7 @@ export const ProjectPage: FC = () => {
 
   const tasksTotalCount = useUnit($tasksTotalCount);
   const tasksExpiredCount = useUnit($tasksExpiredCount);
+  const tasksClosedCount = useUnit($tasksClosedCount);
 
   const onProjectManageButtonClick = useUnit(projectManageButtonClicked);
 
@@ -184,6 +186,19 @@ export const ProjectPage: FC = () => {
                         </Text>
                         <Text fontWeight="normal" color="#000000">
                           {tasksExpiredCount}
+                        </Text>
+                      </Flex>
+
+                      <Flex
+                        direction="row"
+                        gap="15px"
+                        justifyContent="space-between"
+                      >
+                        <Text fontWeight="bold" color="#000000">
+                          Завершено
+                        </Text>
+                        <Text fontWeight="normal" color="#000000">
+                          {tasksClosedCount}
                         </Text>
                       </Flex>
                     </Flex>

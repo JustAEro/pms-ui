@@ -110,29 +110,26 @@ export const TaskPage: FC = () => {
                 <Text fontWeight="bold" fontSize={21}>
                   {task.name}
                 </Text>
-                <Tooltip label="Редактировать задачу" placement="top">
-                  <Image
-                    onClick={() => {
-                      routes.editTaskRoute.open({ taskId: task.id });
-                    }}
-                    cursor="pointer"
-                    marginTop="10px"
-                    w="16px"
-                    h="16px"
-                    src={pencilIcon}
-                  />
-                </Tooltip>
+
+                {task.status !== 'Завершена' && (
+                  <Tooltip label="Редактировать задачу" placement="top">
+                    <Image
+                      onClick={() => {
+                        routes.editTaskRoute.open({ taskId: task.id });
+                      }}
+                      cursor="pointer"
+                      marginTop="10px"
+                      w="16px"
+                      h="16px"
+                      src={pencilIcon}
+                    />
+                  </Tooltip>
+                )}
 
                 <Menu matchWidth>
-                  <MenuButton
-                    disabled={
-                      task.status === 'Закрыт' || task.status === 'Архив'
-                    }
-                  >
+                  <MenuButton disabled={task.status === 'Завершена'}>
                     <Button
-                      disabled={
-                        task.status === 'Закрыт' || task.status === 'Архив'
-                      }
+                      disabled={task.status === 'Завершена'}
                       color="#EDF2F7"
                       marginBottom="15px"
                     >
@@ -140,7 +137,7 @@ export const TaskPage: FC = () => {
                     </Button>
                   </MenuButton>
                   <MenuList>
-                    {task.status !== 'Закрыт' && task.status !== 'Архив' && (
+                    {task.status !== 'Завершена' && (
                       <>
                         {statusKeyCanGoToColumnsValue[task.status].map(
                           (possibleNextStatus) => (
@@ -163,11 +160,11 @@ export const TaskPage: FC = () => {
                         <MenuItem
                           onClick={() => {
                             onNewStatusClick({
-                              newStatus: 'Закрыт',
+                              newStatus: 'Завершена',
                             });
                           }}
                         >
-                          <Text fontSize="16px">Закрыт</Text>
+                          <Text fontSize="16px">Завершена</Text>
                         </MenuItem>
                       </>
                     )}

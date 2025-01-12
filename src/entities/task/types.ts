@@ -1,4 +1,4 @@
-import { User, FindUserDto } from '../user';
+import { User } from '../user';
 
 import { taskStatuses, taskStatusesNotShownOnBoard } from './constants';
 
