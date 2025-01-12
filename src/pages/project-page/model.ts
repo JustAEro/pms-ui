@@ -167,7 +167,9 @@ sample({
   }),
   target: updateTaskScopedFx,
 });
-
+updateTaskScopedFx.watch((params) => {
+  console.log('updateTaskScopedFx params:', params);
+});
 sample({
   clock: updateTaskScopedFx.doneData,
   source: $tasksInProject,
@@ -177,7 +179,9 @@ sample({
     ),
   target: $tasksInProject,
 });
-
+updateTaskScopedFx.doneData.watch((data) => {
+  console.log('updateTaskScopedFx.doneData:', data);
+});
 // sample({
 //   clock: updateTaskScopedFx.doneData,
 //   source: $project,

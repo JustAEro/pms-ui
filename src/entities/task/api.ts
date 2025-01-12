@@ -6,7 +6,7 @@ import { instance } from '@pms-ui/shared/api/http/axios';
 
 import { User } from '../user';
 
-import { mapTaskDtoToTask } from './mapping';
+import { mapTaskDtoToTask, mapTaskToCreateTaskDto } from './mapping';
 import { CreateTask, CreateTaskDto, Task, TaskDto, UpdateTask } from './types';
 
 const usersList: User[] = [
@@ -169,8 +169,31 @@ export const fetchTasksInProjectMockFx = createEffect(
 export const fetchTasksInProjectFx = createEffect(
   async ({ projectId }: { projectId: string }) => {
     try {
-      const response = await instance.get(`/projects/${projectId}/tasks`);
-      return response.data as Task[];
+      const response = await instance.get<TaskDto[]>(
+        `/projects/${projectId}/tasks`
+      );
+      const taskDataArray = response.data;
+
+      const tasks = await Promise.all(
+        taskDataArray.map(async (taskData) => {
+          // Параллельные запросы для каждого пользователя
+          const [userAuthor, userExecutor, userTester] = await Promise.all([
+            fetchUserFullInfoFx({ userId: taskData.author_id }),
+            fetchUserFullInfoFx({ userId: taskData.executor_id }),
+            fetchUserFullInfoFx({ userId: taskData.tester_id }),
+          ]);
+
+          // Применяем mapTaskDtoToTask к каждому элементу массива
+          return mapTaskDtoToTask(
+            taskData,
+            userAuthor,
+            userExecutor,
+            userTester
+          );
+        })
+      );
+
+      return tasks;
     } catch (error) {
       throw new Error(`Failed to fetch tasks for project with id ${projectId}`);
     }
@@ -198,7 +221,6 @@ export const fetchTaskFx = createEffect(
         userExecutor,
         userTester
       );
-      console.log(data);
       return data;
     } catch (error) {
       throw new Error(`Failed to fetch task for project with id ${taskId}`);
@@ -209,11 +231,7 @@ export const fetchTaskFx = createEffect(
 export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
   try {
     const taskId = taskToUpdate.id;
-    const task = {
-      ...taskToUpdate,
-      deadline: taskToUpdate.deadlineDate.toISOString(),
-    };
-    await instance.put(`/task/${taskId}`, task);
+    await instance.put(`/task/${taskId}`, mapTaskToCreateTaskDto(taskToUpdate));
     const updatedTask = await fetchTaskFx({ taskId });
     return updatedTask;
   } catch (error) {
