@@ -47,6 +47,10 @@ export const ProfilePage: FC = () => {
             </Text>
             <Text fontSize="18px">{currentUser.login}</Text>
             <Text fontSize="18px" fontWeight="bold">
+              ID
+            </Text>
+            <Text fontSize="18px">{currentUser.id}</Text>
+            <Text fontSize="18px" fontWeight="bold">
               Имя
             </Text>
             <Text fontSize="18px">{currentUser.firstName}</Text>
