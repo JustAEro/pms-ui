@@ -35,7 +35,7 @@ import { PencilIcon } from '@pms-ui/shared/ui';
 import archiveIcon from '@pms-ui/shared/ui/assets/svg/archive-icon.svg';
 import trashIcon from '@pms-ui/shared/ui/assets/svg/trash-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
-
+import { $userId } from '@pms-ui/entities/user';
 import {
   $addUserLoginFieldValue,
   $adminsMap,
@@ -93,7 +93,7 @@ export const ProjectManagementPage: FC = () => {
   const isMembersOfProjectLoading = useUnit($isMembersOfProjectLoading);
 
   const userToBeDeleted = useUnit($userToBeDeleted);
-
+  const userID = useUnit($userId);
   const addUserLoginFieldValue = useUnit($addUserLoginFieldValue);
   const onAddUserLoginFieldValueChange = useUnit(addUserLoginFieldValueChanged);
 
@@ -249,13 +249,23 @@ export const ProjectManagementPage: FC = () => {
                               <Checkbox
                                 isChecked={adminsMap[user.user_id]}
                                 onChange={() => {
-                                  if (!isProjectArchived && isUserAdmin) {
+                                  if (
+                                    !isProjectArchived &&
+                                    isUserAdmin &&
+                                    userID !== user.user_id
+                                  ) {
                                     onAdminCheckboxCheck(user.user_id);
                                   }
                                 }}
-                                disabled={!!isProjectArchived && !isUserAdmin}
+                                disabled={
+                                  !!isProjectArchived &&
+                                  !isUserAdmin &&
+                                  userID !== user.user_id
+                                }
                                 cursor={
-                                  !isProjectArchived && isUserAdmin
+                                  !isProjectArchived &&
+                                  isUserAdmin &&
+                                  userID !== user.user_id
                                     ? 'pointer'
                                     : 'not-allowed'
                                 }
