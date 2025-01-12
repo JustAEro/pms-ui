@@ -30,6 +30,7 @@ import {
   useDroppable,
 } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import { Project } from '@pms-ui/entities/project';
 import {
   columnKeyAcceptsFromStatusesValue,
   columnNames,
@@ -243,7 +244,7 @@ export const ProjectPage: FC = () => {
               )}
             </Flex>
 
-            {!areTasksInProjectLoading && <ProjectBoard />}
+            {!areTasksInProjectLoading && <ProjectBoard project={project} />}
             {areTasksInProjectLoading && <Spinner />}
           </Flex>
         )}
@@ -252,7 +253,7 @@ export const ProjectPage: FC = () => {
   );
 };
 
-const ProjectBoard: FC = () => {
+const ProjectBoard: FC<{ project: Project }> = ({ project }) => {
   const postponedTasks = useUnit($postponedTasks);
   const openedTasks = useUnit($openedTasks);
   const inProgressTasks = useUnit($inProgressTasks);
@@ -280,7 +281,7 @@ const ProjectBoard: FC = () => {
 
   const isTaskUpdateLoading = useUnit($isTaskUpdateLoading);
 
-  const isDndDisabled = isTaskUpdateLoading;
+  const isDndDisabled = isTaskUpdateLoading || !project.is_active;
 
   const mapStatusToTasks: Record<DisplayedOnBoardTaskStatus, TaskOnBoard[]> = {
     Отложено: postponedTasks,
