@@ -39,6 +39,7 @@ import {
   $isTaskPlanLoading,
   $notificationToastId,
   $notificationToShow,
+  $projectOfTask,
   $task,
   $taskPlan,
   closeTaskModalClosed,
@@ -60,6 +61,8 @@ export const TaskPage: FC = () => {
 
   const task = useUnit($task);
   const isTaskLoading = useUnit($isTaskLoading);
+
+  const projectOfTask = useUnit($projectOfTask);
 
   const onNewStatusClick = useUnit(newStatusClicked);
 
@@ -111,7 +114,7 @@ export const TaskPage: FC = () => {
                   {task.name}
                 </Text>
 
-                {task.status !== 'Завершена' && (
+                {task.status !== 'Завершена' && projectOfTask?.is_active && (
                   <Tooltip label="Редактировать задачу" placement="top">
                     <Image
                       onClick={() => {
@@ -127,9 +130,15 @@ export const TaskPage: FC = () => {
                 )}
 
                 <Menu matchWidth>
-                  <MenuButton disabled={task.status === 'Завершена'}>
+                  <MenuButton
+                    disabled={
+                      task.status === 'Завершена' || !projectOfTask?.is_active
+                    }
+                  >
                     <Button
-                      disabled={task.status === 'Завершена'}
+                      disabled={
+                        task.status === 'Завершена' || !projectOfTask?.is_active
+                      }
                       color="#EDF2F7"
                       marginBottom="15px"
                     >

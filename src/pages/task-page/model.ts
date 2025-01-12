@@ -1,5 +1,6 @@
 import { attach, createEvent, createStore, sample } from 'effector';
 
+import { fetchProjectFx, Project } from '@pms-ui/entities/project';
 import {
   fetchTaskFx,
   generateTaskPlanByAIFx,
@@ -35,8 +36,11 @@ export const fetchTestScenariosOfTaskScopedFx = attach({
   effect: fetchTestScenariosOfTask,
 });
 const updateTaskScopedFx = attach({ effect: updateTaskFx });
+const fetchProjectOfTaskScopedFx = attach({ effect: fetchProjectFx });
 
 export const $task = createStore<Task | null>(null);
+
+export const $projectOfTask = createStore<Project | null>(null);
 
 export const $taskPlan = createStore('');
 export const $isTaskPlanLoading = generateTaskPlanByAIScopedFx.pending;
@@ -79,6 +83,18 @@ sample({
 sample({
   clock: fetchTaskScopedFx.doneData,
   target: $task,
+});
+
+sample({
+  clock: fetchTaskScopedFx.doneData,
+  // eslint-disable-next-line camelcase
+  fn: ({ project_id }) => ({ projectId: project_id }),
+  target: fetchProjectOfTaskScopedFx,
+});
+
+sample({
+  clock: fetchProjectOfTaskScopedFx.doneData,
+  target: $projectOfTask,
 });
 
 sample({
@@ -167,5 +183,6 @@ sample({
     $isCloseTaskModalOpened.reinit,
     errorFetchTaskToastModel.inputs.reset,
     $taskPlan.reinit,
+    $projectOfTask.reinit,
   ],
 });
