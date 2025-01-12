@@ -66,52 +66,6 @@ export const ProfilePage: FC = () => {
               {userType === 'user' && 'Пользователь'}
             </Text>
           </SimpleGrid>
-
-          {userType === 'user' && (
-            <Flex direction="column" alignItems="start" justifyContent="start">
-              <Text
-                marginTop="50px"
-                marginLeft="50px"
-                fontWeight="bold"
-                fontSize="18px"
-                alignSelf="center"
-              >
-                Список проектов, в которых Вы состоите
-              </Text>
-              <VStack
-                paddingBottom="10px"
-                marginTop="20px"
-                marginLeft="50px"
-                spacing="15px"
-              >
-                {currentUser.projects.map((project) => (
-                  <Box
-                    width="50vw"
-                    maxWidth="50vw"
-                    bgColor="#D9D9D9"
-                    key={project.id}
-                    paddingLeft="20px"
-                    paddingTop="10px"
-                    paddingRight="20px"
-                    paddingBottom="10px"
-                  >
-                    <Flex direction="column" justifyContent="start">
-                      <Link
-                        to={routes.projectRoute}
-                        params={{ projectId: project.id }}
-                      >
-                        <Text fontWeight="bold" fontSize="18px">
-                          {project.name}
-                        </Text>
-                      </Link>
-
-                      <Text fontSize="18px">{project.description}</Text>
-                    </Flex>
-                  </Box>
-                ))}
-              </VStack>
-            </Flex>
-          )}
         </Flex>
       )}
     </Box>
