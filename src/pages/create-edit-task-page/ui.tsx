@@ -17,7 +17,6 @@ import {
 } from '@chakra-ui/react';
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
-import { FileUploader } from './file-uploader';
 import {
   $deadlineDateFieldValue,
   $isTaskLoading,

@@ -1,3 +1,4 @@
+import { convertDateToUTC } from '@pms-ui/shared/lib';
 import { User } from '../user';
 
 import { CreateTaskDto, Task, TaskDto, TaskStatus } from './types';
@@ -14,7 +15,7 @@ export const mapTaskDtoToTask = (
     description: taskDto.description,
     status: taskDto.status as TaskStatus,
     creationDate: new Date(taskDto.created_at),
-    deadlineDate: new Date(taskDto.deadline.replace('Z', '')),
+    deadlineDate: new Date(taskDto.deadline),
     userAuthor,
     userExecutor,
     userTester,
@@ -26,7 +27,7 @@ export const mapTaskDtoToTask = (
 
 export const mapTaskToCreateTaskDto = (task: Task): CreateTaskDto => ({
   author_id: task.userAuthor.id, // Используем ID автора задачи
-  deadline: task.deadlineDate.toISOString(), // Преобразуем дату в строку ISO
+  deadline: convertDateToUTC(task.deadlineDate), // Преобразуем дату в строку ISO
   description: task.description,
   executor_id: task.userExecutor.id, // Используем ID исполнителя задачи
   name: task.name,

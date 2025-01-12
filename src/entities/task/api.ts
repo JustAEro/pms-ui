@@ -3,6 +3,7 @@ import { createEffect } from 'effector';
 
 import { fetchUserFullInfoFx } from '@pms-ui/entities/user';
 import { instance } from '@pms-ui/shared/api/http/axios';
+import { convertToUTC } from '@pms-ui/shared/lib';
 
 import { User } from '../user';
 
@@ -285,7 +286,10 @@ export const generateTaskPlanByAIFx = createEffect(
 export const createTaskFx = createEffect(
   async ({ createTask }: { createTask: CreateTaskDto }) => {
     try {
-      const response = await instance.post('/task', createTask);
+      const response = await instance.post('/task', {
+        ...createTask,
+        deadline: convertToUTC(createTask.deadline),
+      });
 
       return response.data;
     } catch (error) {

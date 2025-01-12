@@ -1,7 +1,6 @@
 import { attach, createEvent, createStore, merge, sample } from 'effector';
 
 import {
-  CreateTask,
   CreateTaskDto,
   createTaskFx,
   fetchTaskFx,
@@ -10,7 +9,8 @@ import {
   UpdateTaskDto,
   updateTaskFx,
 } from '@pms-ui/entities/task';
-import { $currentUser, $jwtToken, $userType } from '@pms-ui/entities/user';
+import { $currentUser, $userType } from '@pms-ui/entities/user';
+import { convertToMoscowTime } from '@pms-ui/shared/lib';
 import { controls, routes } from '@pms-ui/shared/routes';
 import { errorToastModelFactory } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -99,6 +99,14 @@ sample({
   target: loadTaskFx,
 });
 
+loadTaskFx.doneData.watch((payload) => console.log(JSON.stringify(payload)));
+loadTaskFx.doneData.watch((payload) => console.log(payload));
+loadTaskFx.doneData.watch((payload) =>
+  console.log(payload.deadlineDate.toISOString())
+);
+loadTaskFx.doneData.watch((payload) =>
+  console.log(payload.deadlineDate.toString())
+);
 sample({
   clock: loadTaskFx.doneData,
   target: $task,
@@ -128,6 +136,12 @@ sample({
   target: $taskTesterIdFieldValue,
 });
 
+sample({
+  clock: loadTaskFx.doneData,
+  fn: (task) => convertToMoscowTime(task.deadlineDate).replace('+03:00', ''),
+  target: $deadlineDateFieldValue,
+});
+$deadlineDateFieldValue.watch(console.log);
 sample({
   clock: backToPreviousPageClicked,
   target: controls.back,
@@ -201,7 +215,7 @@ sample({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const createTask: CreateTaskDto = {
       author_id: currentUser!.id,
-      deadline: `${deadlineDateFieldValue}000+03:00`,
+      deadline: `${deadlineDateFieldValue}+03:00`,
       description: taskDescriptionFieldValue,
       executor_id: taskExecutorLoginFieldValue,
       name: taskNameFieldValue,
@@ -221,7 +235,6 @@ sample({
   clock: editTaskStarted,
   source: {
     currentUser: $currentUser,
-    jwtToken: $jwtToken,
     taskNameFieldValue: $taskNameFieldValue,
     taskDescriptionFieldValue: $taskDescriptionFieldValue,
     taskExecutorLoginFieldValue: $taskExecutorIdFieldValue,
@@ -230,11 +243,9 @@ sample({
     paramsWithProjectId: routes.createTaskRoute.$params,
     task: $task,
   },
-  filter: ({ currentUser, jwtToken, task }) =>
-    !!currentUser && !!jwtToken && !!task,
+  filter: ({ currentUser, task }) => !!currentUser && !!task,
   fn: ({
     currentUser,
-    jwtToken,
     taskDescriptionFieldValue,
     taskExecutorLoginFieldValue,
     taskNameFieldValue,
@@ -248,7 +259,7 @@ sample({
       description: taskDescriptionFieldValue,
       userExecutorId: taskExecutorLoginFieldValue,
       userTesterId: taskTesterLoginFieldValue,
-      deadlineDate: `${deadlineDateFieldValue}000+03:00`,
+      deadlineDate: `${deadlineDateFieldValue}+03:00`,
       project_id: paramsWithProjectId.projectId,
       status: task!.status,
     };
@@ -256,7 +267,7 @@ sample({
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const dto: UpdateTaskDto = {
       author_id: currentUser!.id,
-      deadline: `${deadlineDateFieldValue}000+03:00`,
+      deadline: `${deadlineDateFieldValue}+03:00`,
       description: taskDescriptionFieldValue,
       executor_id: taskExecutorLoginFieldValue,
       name: taskNameFieldValue,
@@ -268,7 +279,7 @@ sample({
     const taskfn: Task = {
       ...tasknotnull,
       ...updateTask,
-      deadlineDate: new Date(`${deadlineDateFieldValue}000+03:00`),
+      deadlineDate: new Date(`${deadlineDateFieldValue}+03:00`),
     };
     return taskfn;
   },
