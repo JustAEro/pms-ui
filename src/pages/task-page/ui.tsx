@@ -28,7 +28,7 @@ import {
   useToast,
 } from '@chakra-ui/react';
 import { statusKeyCanGoToColumnsValue } from '@pms-ui/entities/task';
-import { routes } from '@pms-ui/shared/routes';
+import { controls, routes } from '@pms-ui/shared/routes';
 import pencilIcon from '@pms-ui/shared/ui/assets/svg/pencil.svg';
 import refreshIcon from '@pms-ui/shared/ui/assets/svg/refresh-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
@@ -104,7 +104,7 @@ export const TaskPage: FC = () => {
                 <ChevronLeftIcon
                   cursor="pointer"
                   onClick={() => {
-                    routes.projectRoute.open({ projectId: task.project_id });
+                    controls.back();
                   }}
                 />
                 <Text fontWeight="bold" fontSize={21}>
@@ -264,7 +264,7 @@ export const TaskPage: FC = () => {
                     justifyContent="center"
                   >
                     <Text fontWeight="bold" fontSize={textFontSizes}>
-                      Закрытие задачи
+                      Завершение задачи
                     </Text>
                   </Flex>
                 </ModalHeader>
@@ -272,7 +272,7 @@ export const TaskPage: FC = () => {
                   <Spacer height="20px" />
                   <Flex alignItems="center" justifyContent="center">
                     <Text width="80%" textAlign="justify">
-                      {`Вы действительно хотите закрыть задачу
+                      {`Вы действительно хотите завершить задачу
                      ${task.name}? Данное действие необратимо`}
                     </Text>
                   </Flex>
@@ -295,7 +295,7 @@ export const TaskPage: FC = () => {
                       variant="solid"
                       colorScheme="red"
                     >
-                      Закрыть
+                      Завершить
                     </Button>
                   </Flex>
                   <Spacer height="20px" />

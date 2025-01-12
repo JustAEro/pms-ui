@@ -7,6 +7,7 @@ import { $userType, UserType } from '@pms-ui/entities/user';
 import { AdminEditPage } from '@pms-ui/pages/admin-edit-page';
 import { AdminsPanelPage } from '@pms-ui/pages/admin-panel';
 import { ArchiveProjectsPage } from '@pms-ui/pages/archive-projects-page';
+import { ClosedTasksOfProjectPage } from '@pms-ui/pages/closed-tasks-of-project-page';
 import { CreateEditTaskPage } from '@pms-ui/pages/create-edit-task-page';
 import { HomePage } from '@pms-ui/pages/home';
 import { ProfilePage } from '@pms-ui/pages/profile';
@@ -78,6 +79,10 @@ export const App: FC = () => {
         <Route
           route={routes.editTaskRoute}
           view={usersPageView(CreateEditTaskPage, userType)}
+        />
+        <Route
+          route={routes.closedTasksOfProjectRoute}
+          view={usersPageView(ClosedTasksOfProjectPage, userType)}
         />
       </RouterProvider>
     </ChakraProvider>
