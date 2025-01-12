@@ -482,7 +482,31 @@ export const unarchiveProjectFx = createEffect(
     }
   }
 );
+export const updateAdminsOfProjectFx = createEffect(
+  async ({
+    adminsData,
+    projectId,
+  }: {
+    adminsData: { id: string; isAdmin: boolean }[];
+    projectId: string;
+  }) => {
+    // Выполняем PUT запросы для каждого пользователя
+    await Promise.all(
+      adminsData.map(({ id, isAdmin }) => {
+        const dto = {
+          is_admin_project: isAdmin, // передаем isAdmin как флаг
+          user_id: id, // id пользователя
+          role: isAdmin ? 'Руководитель проекта' : 'Участник', // Пример роли, зависит от isAdmin
+        };
+        return instance.put(`/projects/${projectId}/members`, dto);
+      })
+    );
 
+    // Получаем обновленный список участников проекта
+    const response = await fetchMembersOfProjectFx({ projectId });
+    return response;
+  }
+);
 export const updateAdminsOfProjectMockFx = createEffect(
   async (adminsIds: User['id'][]) => {
     console.log(adminsIds);

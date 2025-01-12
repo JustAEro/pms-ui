@@ -12,7 +12,7 @@ import {
   fetchMembersOfProjectFx,
   fetchProjectFx,
   unarchiveProjectFx,
-  updateAdminsOfProjectMockFx,
+  updateAdminsOfProjectFx,
   AddProjectMemberDto,
 } from '@pms-ui/entities/project';
 import { type User, $userId, $userType } from '@pms-ui/entities/user';
@@ -62,7 +62,7 @@ const addMemberToProjectScopedFx = attach({ effect: addUserToProjectFx });
 const archiveProjectScopedFx = attach({ effect: archiveProjectFx });
 const unarchiveProjectScopedFx = attach({ effect: unarchiveProjectFx });
 const updateAdminsOfProjectScopedFx = attach({
-  effect: updateAdminsOfProjectMockFx,
+  effect: updateAdminsOfProjectFx,
 });
 
 export const $project = createStore<Project | null>(null);
@@ -371,14 +371,23 @@ sample({
 
 sample({
   clock: saveChangesButtonClicked,
-  source: $adminsMap,
-  fn: (adminsMap) =>
-    Object.keys(
-      Object.fromEntries(
-        Object.entries(adminsMap).filter(([, isAdmin]) => isAdmin)
-      )
-    ),
-  target: updateAdminsOfProjectScopedFx,
+  source: {
+    adminsMap: $adminsMap,
+    project: $project,
+  },
+  fn: ({ adminsMap, project }) => {
+    // Формируем массив объектов с id и isAdmin
+    const adminsData = Object.entries(adminsMap).map(([id, isAdmin]) => ({
+      id,
+      isAdmin,
+    }));
+
+    return {
+      adminsData, // Массив объектов с id и isAdmin
+      projectId: project!.id, // ID проекта
+    };
+  },
+  target: updateAdminsOfProjectFx,
 });
 
 sample({
@@ -388,7 +397,7 @@ sample({
     Object.fromEntries(
       members.map((user) => [
         user.user_id,
-        !!admins.find((admin) => admin.id === user.user_id),
+        !!admins.find((admin) => admin.user_id === user.user_id),
       ])
     ),
   target: [$loadedFromServerAdminsMap, $adminsMap],
