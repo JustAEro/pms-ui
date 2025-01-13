@@ -1,5 +1,6 @@
+import { chakraComponents, NoticeProps, Select } from 'chakra-react-select';
 import { useUnit } from 'effector-react';
-import { FC, useEffect } from 'react';
+import { FC, Fragment, useEffect } from 'react';
 import { useUnmount } from 'usehooks-ts';
 
 import { ChevronLeftIcon } from '@chakra-ui/icons';
@@ -18,6 +19,8 @@ import {
 import { header as pageHeader } from '@pms-ui/widgets/header';
 
 import {
+  $activeUserExecutorOption,
+  $activeUserTesterOption,
   $deadlineDateFieldValue,
   $isTaskLoading,
   $notificationToastId,
@@ -25,20 +28,20 @@ import {
   $pageMode,
   $task,
   $taskDescriptionFieldValue,
-  $taskExecutorIdFieldValue,
   $taskNameFieldValue,
-  $taskTesterIdFieldValue,
+  $userOptions,
   backToPreviousPageClicked,
   createOrEditTaskButtonClicked,
   deadlineDateFieldValueChanged,
+  executorMenuClicked,
   headerModel,
   pageMounted,
   pageUnmounted,
   taskDescriptionFieldValueChanged,
-  taskExecutorIdFieldValueChanged,
   taskNameFieldValueChanged,
-  taskTesterIdFieldValueChanged,
+  testerMenuClicked,
 } from './model';
+import { UserOption } from './types';
 
 const textFontSizes = [16, 21, 30];
 
@@ -56,16 +59,6 @@ export const CreateEditTaskPage: FC = () => {
   const taskDescriptionFieldValue = useUnit($taskDescriptionFieldValue);
   const onChangeTaskDescriptionFieldValue = useUnit(
     taskDescriptionFieldValueChanged
-  );
-
-  const taskExecutorLoginFieldValue = useUnit($taskExecutorIdFieldValue);
-  const onChangeTaskExecutorLoginFieldValue = useUnit(
-    taskExecutorIdFieldValueChanged
-  );
-
-  const taskTesterLoginFieldValue = useUnit($taskTesterIdFieldValue);
-  const onChangeTaskTesterLoginFieldValue = useUnit(
-    taskTesterIdFieldValueChanged
   );
 
   const isTaskLoading = useUnit($isTaskLoading);
@@ -94,6 +87,16 @@ export const CreateEditTaskPage: FC = () => {
 
   const deadlineDate = useUnit($deadlineDateFieldValue);
   const onDeadlineDateChange = useUnit(deadlineDateFieldValueChanged);
+
+  const onExecutorMenuClick = useUnit(executorMenuClicked);
+
+  const userOptions = useUnit($userOptions);
+
+  const activeUserExecutorOption = useUnit($activeUserExecutorOption);
+
+  const activeUserTesterOption = useUnit($activeUserTesterOption);
+
+  const onTesterMenuClick = useUnit(testerMenuClicked);
 
   return (
     <Box>
@@ -167,6 +170,48 @@ export const CreateEditTaskPage: FC = () => {
               marginTop="30px"
             >
               <FormLabel>Исполнитель задачи</FormLabel>
+
+              {/* <Menu matchWidth>
+                <MenuButton disabled={false}>
+                  <Button disabled={false} color="#EDF2F7" marginBottom="15px">
+                    <Text color="#000000">{menuText}</Text>
+                  </Button>
+                </MenuButton>
+                <MenuList>
+                  {membersOfProject.map((member) => (
+                    <Fragment key={member.user_id}>
+                      <MenuItem
+                        onClick={() => {
+                          onExecutorMenuClick({
+                            userId: member.user_id,
+                            menuText: `${member.full_name} (${member.username})`,
+                          });
+                        }}
+                      >
+                        <Text fontSize="16px">{`${member.full_name} (${member.username})`}</Text>
+                      </MenuItem>
+                    </Fragment>
+                  ))}
+                </MenuList>
+              </Menu> */}
+
+              <div style={{ width: '70%' }}>
+                <Select
+                  size="lg"
+                  variant="filled"
+                  placeholder="Выберите исполнителя задачи"
+                  components={{ NoOptionsMessage }}
+                  options={userOptions}
+                  value={activeUserExecutorOption}
+                  onChange={(option: UserOption) => {
+                    onExecutorMenuClick({
+                      userId: option.userId,
+                    });
+                  }}
+                />
+              </div>
+
+              {/* 
               <Input
                 value={taskExecutorLoginFieldValue}
                 onChange={(e) =>
@@ -175,7 +220,7 @@ export const CreateEditTaskPage: FC = () => {
                 size="lg"
                 width="70%"
                 variant="filled"
-              />
+              /> */}
             </FormControl>
             <FormControl
               display="flex"
@@ -184,7 +229,24 @@ export const CreateEditTaskPage: FC = () => {
               marginTop="30px"
             >
               <FormLabel>Тестировщик</FormLabel>
-              <Input
+
+              <div style={{ width: '70%' }}>
+                <Select
+                  size="lg"
+                  variant="filled"
+                  placeholder="Выберите исполнителя задачи"
+                  components={{ NoOptionsMessage }}
+                  options={userOptions}
+                  value={activeUserTesterOption}
+                  onChange={(option: UserOption) => {
+                    onTesterMenuClick({
+                      userId: option.userId,
+                    });
+                  }}
+                />
+              </div>
+
+              {/* <Input
                 value={taskTesterLoginFieldValue}
                 onChange={(e) =>
                   onChangeTaskTesterLoginFieldValue(e.target.value)
@@ -192,7 +254,7 @@ export const CreateEditTaskPage: FC = () => {
                 size="lg"
                 width="70%"
                 variant="filled"
-              />
+              /> */}
             </FormControl>
 
             <FormControl
@@ -232,6 +294,12 @@ export const CreateEditTaskPage: FC = () => {
     </Box>
   );
 };
+
+const NoOptionsMessage = (props: NoticeProps) => (
+  <chakraComponents.NoOptionsMessage {...props}>
+    <span>Пользователи не найдены</span>
+  </chakraComponents.NoOptionsMessage>
+);
 
 function value(epcohSeconds: number) {
   return formatISOString(epochSecondsToLocalISOString(epcohSeconds));

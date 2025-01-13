@@ -8,7 +8,14 @@ import { convertToUTC } from '@pms-ui/shared/lib';
 import { User } from '../user';
 
 import { mapTaskDtoToTask, mapTaskToCreateTaskDto } from './mapping';
-import { CreateTask, CreateTaskDto, Task, TaskDto, UpdateTask } from './types';
+import {
+  CreateTask,
+  CreateTaskDto,
+  Task,
+  TaskDto,
+  UpdateTask,
+  UpdateTaskDto,
+} from './types';
 
 const usersList: User[] = [
   {
@@ -239,6 +246,19 @@ export const updateTaskFx = createEffect(async (taskToUpdate: Task) => {
     throw new Error(`Failed to update task`);
   }
 });
+
+export const updateTaskDtoFx = createEffect(
+  async ({ dto, taskId }: { dto: UpdateTaskDto; taskId: string }) => {
+    try {
+      await instance.put(`/task/${taskId}`, dto);
+
+      const updatedTask = await fetchTaskFx({ taskId });
+      return updatedTask;
+    } catch (error) {
+      throw new Error(`Failed to update task`);
+    }
+  }
+);
 
 /* export const generateTaskPlanByAIFx = createEffect(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

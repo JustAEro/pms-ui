@@ -1,19 +1,28 @@
-import { attach, createEvent, createStore, merge, sample } from 'effector';
+import {
+  attach,
+  createEvent,
+  createStore,
+  merge,
+  sample,
+  Store,
+} from 'effector';
 
+import { fetchUsersOfProjectFx } from '@pms-ui/entities/project';
 import {
   CreateTaskDto,
   createTaskFx,
   fetchTaskFx,
   Task,
-  UpdateTask,
   UpdateTaskDto,
-  updateTaskFx,
+  updateTaskDtoFx,
 } from '@pms-ui/entities/task';
-import { $currentUser, $userType } from '@pms-ui/entities/user';
-import { convertToMoscowTime } from '@pms-ui/shared/lib';
+import { $currentUser, $userType, User } from '@pms-ui/entities/user';
+import { convertToMoscowTime, convertToUTC } from '@pms-ui/shared/lib';
 import { controls, routes } from '@pms-ui/shared/routes';
 import { errorToastModelFactory } from '@pms-ui/shared/ui';
 import { header as pageHeader } from '@pms-ui/widgets/header';
+
+import { UserOption } from './types';
 
 type PageMode = 'create' | 'edit';
 
@@ -28,11 +37,29 @@ export const createOrEditTaskButtonClicked = createEvent();
 const createTaskStarted = createEvent();
 const editTaskStarted = createEvent();
 
+export const executorMenuClicked = createEvent<{
+  userId: string;
+}>();
+
+export const testerMenuClicked = createEvent<{
+  userId: string;
+}>();
+
 const loadTaskFx = attach({ effect: fetchTaskFx });
 export const $isTaskLoading = loadTaskFx.pending;
 
 const createTaskScopedFx = attach({ effect: createTaskFx });
-const updateTaskScopedFx = attach({ effect: updateTaskFx });
+const updateTaskScopedFx = attach({ effect: updateTaskDtoFx });
+
+const fetchMembersOfProjectScopedFx = attach({
+  effect: fetchUsersOfProjectFx,
+});
+
+export const $membersOfProject = createStore<User[]>([]);
+
+export const $activeUserExecutorOption = createStore<UserOption | null>(null);
+
+export const $activeUserTesterOption = createStore<UserOption | null>(null);
 
 export const $task = createStore<Task | null>(null);
 
@@ -56,6 +83,15 @@ export const filesChanged = createEvent<File[]>();
 
 export const $pageMode = createStore<PageMode>(
   window.location.href.includes('create') ? 'create' : 'edit'
+);
+
+export const $userOptions: Store<UserOption[]> = $membersOfProject.map(
+  (members) =>
+    members.map((member) => ({
+      label: `${member.firstName} ${member.lastName} (${member.login})`,
+      value: member.id,
+      userId: member.id,
+    }))
 );
 
 export const headerModel = pageHeader.model.createModel({ $userType });
@@ -107,9 +143,29 @@ loadTaskFx.doneData.watch((payload) =>
 loadTaskFx.doneData.watch((payload) =>
   console.log(payload.deadlineDate.toString())
 );
+
 sample({
   clock: loadTaskFx.doneData,
   target: $task,
+});
+
+sample({
+  clock: loadTaskFx.doneData,
+  fn: (task) => ({ projectId: task.project_id }),
+  target: fetchMembersOfProjectScopedFx,
+});
+
+sample({
+  clock: pageMounted,
+  source: routes.createTaskRoute.$params,
+  filter: () => window.location.href.includes('create'),
+  fn: (params) => ({ projectId: params.projectId }),
+  target: fetchMembersOfProjectScopedFx,
+});
+
+sample({
+  clock: fetchMembersOfProjectScopedFx.doneData,
+  target: $membersOfProject,
 });
 
 sample({
@@ -132,6 +188,34 @@ sample({
 
 sample({
   clock: loadTaskFx.doneData,
+  fn: (task) => {
+    const optionToBeActive: UserOption = {
+      label: `${task.userExecutor.firstName} ${task.userExecutor.lastName} (${task.userExecutor.login})`,
+      value: task.userExecutor.id,
+      userId: task.userExecutor.id,
+    };
+
+    return optionToBeActive;
+  },
+  target: $activeUserExecutorOption,
+});
+
+sample({
+  clock: loadTaskFx.doneData,
+  fn: (task) => {
+    const optionToBeActive: UserOption = {
+      label: `${task.userTester.firstName} ${task.userTester.lastName} (${task.userTester.login})`,
+      value: task.userTester.id,
+      userId: task.userTester.id,
+    };
+
+    return optionToBeActive;
+  },
+  target: $activeUserTesterOption,
+});
+
+sample({
+  clock: loadTaskFx.doneData,
   fn: (task) => task.userTester.id,
   target: $taskTesterIdFieldValue,
 });
@@ -145,6 +229,52 @@ $deadlineDateFieldValue.watch(console.log);
 sample({
   clock: backToPreviousPageClicked,
   target: controls.back,
+});
+
+sample({
+  clock: executorMenuClicked,
+  fn: ({ userId }) => userId,
+  target: $taskExecutorIdFieldValue,
+});
+
+sample({
+  clock: executorMenuClicked,
+  source: $userOptions,
+  fn: (options, { userId }) => {
+    const option = options.find((option) => option.userId === userId);
+
+    const optionToBeActive: UserOption = {
+      label: option?.label ?? '',
+      value: option?.value ?? '',
+      userId: option?.userId ?? '',
+    };
+
+    return optionToBeActive;
+  },
+  target: $activeUserExecutorOption,
+});
+
+sample({
+  clock: testerMenuClicked,
+  fn: ({ userId }) => userId,
+  target: $taskTesterIdFieldValue,
+});
+
+sample({
+  clock: testerMenuClicked,
+  source: $userOptions,
+  fn: (options, { userId }) => {
+    const option = options.find((option) => option.userId === userId);
+
+    const optionToBeActive: UserOption = {
+      label: option?.label ?? '',
+      value: option?.value ?? '',
+      userId: option?.userId ?? '',
+    };
+
+    return optionToBeActive;
+  },
+  target: $activeUserTesterOption,
 });
 
 sample({
@@ -237,51 +367,36 @@ sample({
     currentUser: $currentUser,
     taskNameFieldValue: $taskNameFieldValue,
     taskDescriptionFieldValue: $taskDescriptionFieldValue,
-    taskExecutorLoginFieldValue: $taskExecutorIdFieldValue,
-    taskTesterLoginFieldValue: $taskTesterIdFieldValue,
+    taskExecutorIdFieldValue: $taskExecutorIdFieldValue,
+    taskTesterIdFieldValue: $taskTesterIdFieldValue,
     deadlineDateFieldValue: $deadlineDateFieldValue,
-    paramsWithProjectId: routes.createTaskRoute.$params,
     task: $task,
   },
   filter: ({ currentUser, task }) => !!currentUser && !!task,
   fn: ({
     currentUser,
     taskDescriptionFieldValue,
-    taskExecutorLoginFieldValue,
+    taskExecutorIdFieldValue,
     taskNameFieldValue,
-    taskTesterLoginFieldValue,
+    taskTesterIdFieldValue,
     deadlineDateFieldValue,
-    paramsWithProjectId,
     task,
   }) => {
-    const updateTask: UpdateTask = {
-      name: taskNameFieldValue,
-      description: taskDescriptionFieldValue,
-      userExecutorId: taskExecutorLoginFieldValue,
-      userTesterId: taskTesterLoginFieldValue,
-      deadlineDate: `${deadlineDateFieldValue}+03:00`,
-      project_id: paramsWithProjectId.projectId,
-      status: task!.status,
-    };
-
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const dto: UpdateTaskDto = {
       author_id: currentUser!.id,
-      deadline: `${deadlineDateFieldValue}+03:00`,
+      deadline: convertToUTC(`${deadlineDateFieldValue}+03:00`),
       description: taskDescriptionFieldValue,
-      executor_id: taskExecutorLoginFieldValue,
+      executor_id: taskExecutorIdFieldValue,
       name: taskNameFieldValue,
-      project_id: paramsWithProjectId.projectId,
+      project_id: task!.project_id,
       status: task!.status,
-      tester_id: taskTesterLoginFieldValue,
-    }; // TODO: use dto after migrating to real API
-    const tasknotnull = task!;
-    const taskfn: Task = {
-      ...tasknotnull,
-      ...updateTask,
-      deadlineDate: new Date(`${deadlineDateFieldValue}+03:00`),
+      tester_id: taskTesterIdFieldValue,
     };
-    return taskfn;
+
+    return {
+      dto,
+      taskId: task!.id,
+    };
   },
   target: updateTaskScopedFx,
 });
@@ -322,5 +437,8 @@ sample({
     $taskExecutorIdFieldValue.reinit,
     $taskTesterIdFieldValue.reinit,
     $pageMode.reinit,
+    $membersOfProject.reinit,
+    $activeUserExecutorOption.reinit,
+    $activeUserTesterOption.reinit,
   ] as const,
 });

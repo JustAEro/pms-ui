@@ -1,7 +1,7 @@
 import { AxiosError } from 'axios';
 import { createEffect } from 'effector';
 
-import { $userId } from '@pms-ui/entities/user';
+import { $userId, fetchUserFullInfoFx } from '@pms-ui/entities/user';
 import { instance } from '@pms-ui/shared/api/http/axios';
 import { sleep } from '@pms-ui/shared/lib';
 
@@ -286,6 +286,29 @@ export const fetchMembersOfProjectFx = createEffect(
       return response.data;
     } catch (error) {
       throw new Error(`Failed to fetch project with id ${projectId}`);
+    }
+  }
+);
+
+export const fetchUsersOfProjectFx = createEffect(
+  async ({ projectId }: { projectId: string }) => {
+    try {
+      const response = await instance.get<AddProjectMemberDto[]>(
+        `/projects/${projectId}/members`
+      );
+      const members = response.data;
+
+      const usersResponse = await Promise.all(
+        members.map(async (member) => {
+          const user = await fetchUserFullInfoFx({ userId: member.user_id });
+
+          return user;
+        })
+      );
+
+      return usersResponse;
+    } catch (error) {
+      throw new Error(`Failed to fetch users of project with id ${projectId}`);
     }
   }
 );

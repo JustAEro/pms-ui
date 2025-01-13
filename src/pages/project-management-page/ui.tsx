@@ -31,11 +31,12 @@ import {
   Tooltip,
   Tr,
 } from '@chakra-ui/react';
+import { $userId } from '@pms-ui/entities/user';
 import { PencilIcon } from '@pms-ui/shared/ui';
 import archiveIcon from '@pms-ui/shared/ui/assets/svg/archive-icon.svg';
 import trashIcon from '@pms-ui/shared/ui/assets/svg/trash-icon.svg';
 import { header as pageHeader } from '@pms-ui/widgets/header';
-import { $userId } from '@pms-ui/entities/user';
+
 import {
   $addUserLoginFieldValue,
   $adminsMap,
@@ -44,11 +45,11 @@ import {
   $isConfirmEditProjectButtonDisabled,
   $isMembersOfProjectLoading,
   $isProjectArchived,
-  $isUserAdmin,
   $isProjectEditInProgress,
   $isProjectLoading,
   $isSaveChangesAndCancelChangesButtonsDisabled,
   $isUpdateAdminsOfProjectInProgress,
+  $isUserAdmin,
   $membersOfProject,
   $project,
   $userToBeDeleted,
