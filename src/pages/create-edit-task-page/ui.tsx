@@ -234,7 +234,7 @@ export const CreateEditTaskPage: FC = () => {
                 <Select
                   size="lg"
                   variant="filled"
-                  placeholder="Выберите исполнителя задачи"
+                  placeholder="Выберите тестировщика задачи"
                   components={{ NoOptionsMessage }}
                   options={userOptions}
                   value={activeUserTesterOption}
