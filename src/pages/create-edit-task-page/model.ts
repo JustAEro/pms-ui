@@ -436,6 +436,7 @@ sample({
     $taskDescriptionFieldValue.reinit,
     $taskExecutorIdFieldValue.reinit,
     $taskTesterIdFieldValue.reinit,
+    $deadlineDateFieldValue.reinit,
     $pageMode.reinit,
     $membersOfProject.reinit,
     $activeUserExecutorOption.reinit,
